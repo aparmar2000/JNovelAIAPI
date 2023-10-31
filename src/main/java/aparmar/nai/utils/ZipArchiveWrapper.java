@@ -1,0 +1,53 @@
+package main.java.aparmar.nai.utils;
+
+import java.io.ByteArrayInputStream;
+import java.io.EOFException;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
+import org.apache.commons.compress.utils.IOUtils;
+
+import lombok.EqualsAndHashCode;
+
+@EqualsAndHashCode
+public class ZipArchiveWrapper {
+	private final byte[] compressedBytes;
+	private final ZipArchiveEntry[] entries;
+	
+	public ZipArchiveWrapper(byte[] compressedBytes) {
+		this.compressedBytes = compressedBytes;
+		
+		ArrayList<ZipArchiveEntry> entryList = new ArrayList<>();
+	    try (ZipArchiveInputStream zi = new ZipArchiveInputStream(new ByteArrayInputStream(compressedBytes))) {
+	    	ZipArchiveEntry nextEntry = null;
+	    	while((nextEntry = zi.getNextZipEntry()) != null) {
+	    		entryList.add(nextEntry);
+	    	}
+	    } catch (IOException e) {
+			e.printStackTrace();
+		}
+	    entries = entryList.toArray(new ZipArchiveEntry[0]);
+	}
+	
+	public int getEntryCount() { return entries.length; }
+	public ZipArchiveEntry getEntry(int idx) { return entries[idx]; }
+	
+	public byte[] getEntryBytes(int idx) throws IOException {
+		ZipArchiveEntry entry = entries[idx];
+		byte[] decompressedEntryData = new byte[(int) entry.getSize()];
+		
+	    try (ZipArchiveInputStream zi = new ZipArchiveInputStream(new ByteArrayInputStream(compressedBytes))) {
+	    	zi.skip(entry.getDataOffset());
+	    	zi.getNextZipEntry();
+	    	
+    		int readBytes = IOUtils.readFully(zi, decompressedEntryData);
+    		if (readBytes < decompressedEntryData.length) {
+    			throw new EOFException("Insufficient bytes available for entry!?");
+    		}
+	    }
+	    
+	    return decompressedEntryData;
+	}
+}
