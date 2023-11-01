@@ -1,6 +1,7 @@
 package aparmar.nai.data.response;
 
 import com.google.gson.JsonElement;
+import com.google.gson.annotations.SerializedName;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -15,9 +16,13 @@ import lombok.ToString;
 @ToString
 public class UserSubscription {
 	public enum SubscriptionTier {
+		@SerializedName("0")
 		NONE,
+		@SerializedName("1")
 		TABLET,
+		@SerializedName("2")
 		SCROLL,
+		@SerializedName("3")
 		OPUS;
 	}
 	
@@ -27,6 +32,7 @@ public class UserSubscription {
 	private SubscriptionPerks perks;
 	@EqualsAndHashCode.Exclude private JsonElement paymentProcessorData;
 	private SubscriptionTrainingSteps trainingStepsLeft;
+	private int accountType;
 
 	@NoArgsConstructor
 	@AllArgsConstructor
@@ -35,9 +41,24 @@ public class UserSubscription {
 	@ToString
 	public static class SubscriptionPerks {
 		private int maxPriorityActions, startPriority;
-		private int contextTokens;
-		private boolean unlimitedMaxPriority;
 		private int moduleTrainingSteps;
+		private boolean unlimitedMaxPriority;
+		private boolean voiceGeneration;
+		private boolean imageGeneration;
+		private boolean unlimitedImageGeneration;
+		private ImageGenerationLimit[] unlimitedImageGenerationLimits;
+		private int contextTokens;
+	}
+	
+	@NoArgsConstructor
+	@AllArgsConstructor
+	@EqualsAndHashCode
+	@Getter
+	@ToString
+	public static class ImageGenerationLimit {
+		@SerializedName("maxPrompts")
+		private int maxImages;
+		private long resolution;
 	}
 	
 	@NoArgsConstructor
