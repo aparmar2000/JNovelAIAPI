@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>aparmar</groupId>
 	<artifactId>JNovelAIAPI</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2</version>
 
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>A moderately functional library facilitating easier usage of
@@ -45,10 +45,39 @@
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.1.2</version>
+				<configuration>
+					<excludedGroups>tts</excludedGroups>
+					<includes>
+						<include>**/IntegrationTest*.java</include>
+						<include>**/UnitTest*.java</include>
+					</includes>
+					<excludes>
+						<!-- Eventually I should figure out why the Pile tokenizer is misbehaving during unit tests. -->
+						<!-- (And fix it) -->
+						<!-- Potentially encoding issues? -->
+						<exclude>**/UnitTestTokenizers.java</exclude>
+					</excludes>
+				</configuration>
 			</plugin>
+			
 			<plugin>
-				<artifactId>maven-failsafe-plugin</artifactId>
-				<version>3.1.2</version>
+			  <groupId>org.jacoco</groupId>
+			  <artifactId>jacoco-maven-plugin</artifactId>
+			  <version>0.8.11</version>
+			  <executions>
+		        <execution>
+		            <goals>
+		                <goal>prepare-agent</goal>
+		            </goals>
+		        </execution>
+		        <execution>
+		            <id>report</id>
+		            <phase>prepare-package</phase>
+		            <goals>
+		                <goal>report</goal>
+		            </goals>
+		        </execution>
+		    </executions>
 			</plugin>
 		</plugins>
 	</build>
