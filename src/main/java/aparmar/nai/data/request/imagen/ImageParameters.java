@@ -76,4 +76,8 @@ public class ImageParameters {
 	protected int imgCount = 1;
 	
 	protected final boolean legacy = false;
+	
+	public static int getNearestMultipleOf64(int val) {
+		return (int) (64*(Math.round(val/64.0)));
+	}
 }
