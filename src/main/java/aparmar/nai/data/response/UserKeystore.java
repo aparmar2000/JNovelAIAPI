@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode
 @Getter
 public class UserKeystore {
+	/** Not returned from the endpoint when using a persistent key, for privacy reasons. */
 	private String keystore;
 }

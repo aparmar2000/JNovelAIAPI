@@ -15,6 +15,7 @@ public class UserData {
 	private UserPriority priority;
 	private UserSubscription subscription;
 	private UserKeystore keystore;
+	/** Not returned from the endpoint when using a persistent key, for privacy reasons. */
 	private String settings;
 	private UserInfo information;
 }

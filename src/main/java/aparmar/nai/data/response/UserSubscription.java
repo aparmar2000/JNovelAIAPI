@@ -30,6 +30,7 @@ public class UserSubscription {
 	private boolean active;
 	private long expiresAt;
 	private SubscriptionPerks perks;
+	/** Not returned from the endpoint when using a persistent key, for privacy reasons. */
 	@EqualsAndHashCode.Exclude private JsonElement paymentProcessorData;
 	private SubscriptionTrainingSteps trainingStepsLeft;
 	private int accountType;
