@@ -39,8 +39,9 @@ public class ZipArchiveWrapper {
 		byte[] decompressedEntryData = new byte[(int) entry.getSize()];
 		
 	    try (ZipArchiveInputStream zi = new ZipArchiveInputStream(new ByteArrayInputStream(compressedBytes))) {
-	    	zi.skip(entry.getDataOffset());
-	    	zi.getNextZipEntry();
+	    	for (int i=0;i<=idx;i++) {
+	    		zi.getNextZipEntry();
+	    	}
 	    	
     		int readBytes = IOUtils.readFully(zi, decompressedEntryData);
     		if (readBytes < decompressedEntryData.length) {
