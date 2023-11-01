@@ -16,6 +16,7 @@ import aparmar.nai.data.request.VoiceGenerationRequest.VoiceVersion;
 import aparmar.nai.data.response.AudioWrapper;
 
 @Tag("slow")
+@Tag("tts")
 public class IntegrationTestAudioGeneration extends AbstractFeatureIntegrationTest {
 
 	@ParameterizedTest
