@@ -1,4 +1,4 @@
-package main.java.aparmar.nai.data.request;
+package aparmar.nai.data.request;
 
 import java.lang.reflect.Type;
 import java.util.Collections;
@@ -18,7 +18,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import main.java.aparmar.nai.data.request.imagen.ImageControlNetParameters.ControlnetModel;
+import aparmar.nai.data.request.imagen.ImageControlNetParameters.ControlnetModel;
 
 @Getter
 @EqualsAndHashCode

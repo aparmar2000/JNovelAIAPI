@@ -1,4 +1,4 @@
-package main.java.aparmar.nai.data.request;
+package aparmar.nai.data.request;
 
 import java.util.LinkedList;
 import java.util.List;

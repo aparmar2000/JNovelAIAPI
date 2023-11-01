@@ -1,4 +1,4 @@
-package main.java.aparmar.nai.data.request;
+package aparmar.nai.data.request;
 
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;

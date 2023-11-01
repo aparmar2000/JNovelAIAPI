@@ -1,9 +1,9 @@
-package test.java.aparmar.nai.utils.tokenization;
+package aparmar.nai.utils.tokenization;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -18,9 +18,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import com.google.common.collect.ImmutableMap;
-
-import main.java.aparmar.nai.utils.tokenization.INaiTokenizer;
-import main.java.aparmar.nai.utils.tokenization.Tokenizers;
 
 class UnitTestTokenizers {
 	private static final String TEST_STRING_1 = "The answer is 0b101010";
@@ -120,6 +117,7 @@ class UnitTestTokenizers {
 		String encoded = INaiTokenizer.tokensToBase64(new int[] {testValue});
 		assertNotNull(encoded);
 		assertTrue(encoded.length()>0);
+		
 		int[] decoded = INaiTokenizer.base64ToTokens(encoded);
 		assertArrayEquals(new int[] {testValue}, decoded);
 	}

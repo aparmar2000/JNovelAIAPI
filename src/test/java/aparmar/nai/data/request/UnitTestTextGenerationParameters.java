@@ -1,4 +1,4 @@
-package test.java.aparmar.nai.data.request;
+package aparmar.nai.data.request;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -13,11 +13,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import main.java.aparmar.nai.data.request.PresetModulePrefixes;
-import main.java.aparmar.nai.data.request.TextGenerationParameters;
-import main.java.aparmar.nai.data.request.TextGenerationParameters.LogitBias;
-import main.java.aparmar.nai.data.request.TextGenerationParameters.PhraseRepPenSetting;
-import test.java.aparmar.nai.TestHelpers;
+import aparmar.nai.data.request.TextGenerationParameters.LogitBias;
+import aparmar.nai.data.request.TextGenerationParameters.PhraseRepPenSetting;
+import aparmar.nai.TestHelpers;
 
 class UnitTestTextGenerationParameters {
 

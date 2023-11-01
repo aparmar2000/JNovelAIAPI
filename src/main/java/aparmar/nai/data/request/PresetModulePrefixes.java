@@ -1,4 +1,4 @@
-package main.java.aparmar.nai.data.request;
+package aparmar.nai.data.request;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

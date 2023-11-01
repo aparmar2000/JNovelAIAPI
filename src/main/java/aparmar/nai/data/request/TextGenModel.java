@@ -1,4 +1,4 @@
-package main.java.aparmar.nai.data.request;
+package aparmar.nai.data.request;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -7,7 +7,7 @@ import java.util.List;
 import com.google.gson.annotations.SerializedName;
 
 import lombok.Getter;
-import main.java.aparmar.nai.utils.tokenization.Tokenizers;
+import aparmar.nai.utils.tokenization.Tokenizers;
 
 @Getter
 public enum TextGenModel {

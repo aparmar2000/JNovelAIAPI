@@ -93,3 +93,4 @@ replay_pid*
 /target/classes/META-INF/
 /*_test.png
 /test-images/*
+/target/*

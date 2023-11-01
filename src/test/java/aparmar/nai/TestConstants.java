@@ -1,4 +1,4 @@
-package test.java.aparmar.nai;
+package aparmar.nai;
 
 public class TestConstants {
 	public static String TEST_IMAGE_FOLDER = "test-images/";

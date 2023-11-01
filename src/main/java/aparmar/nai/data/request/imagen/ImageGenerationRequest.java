@@ -1,4 +1,4 @@
-package main.java.aparmar.nai.data.request.imagen;
+package aparmar.nai.data.request.imagen;
 
 import com.google.gson.annotations.SerializedName;
 

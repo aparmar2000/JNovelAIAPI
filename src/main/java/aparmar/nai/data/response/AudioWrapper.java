@@ -1,4 +1,4 @@
-package main.java.aparmar.nai.data.response;
+package aparmar.nai.data.response;
 
 import java.io.File;
 import java.io.FileNotFoundException;

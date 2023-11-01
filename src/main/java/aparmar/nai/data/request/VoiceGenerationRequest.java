@@ -1,4 +1,4 @@
-package main.java.aparmar.nai.data.request;
+package aparmar.nai.data.request;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import main.java.aparmar.nai.data.response.AudioWrapper.AudioWrapperFormat;
+import aparmar.nai.data.response.AudioWrapper.AudioWrapperFormat;
 
 @Getter
 @EqualsAndHashCode

@@ -1,14 +1,12 @@
-package test.java.aparmar.nai.data.request;
+package aparmar.nai.data.request;
 
 import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
 
 import org.junit.jupiter.api.Test;
 
-import main.java.aparmar.nai.data.request.Base64Image;
-import main.java.aparmar.nai.data.request.ImageUpscaleRequest;
-import main.java.aparmar.nai.data.request.ImageUpscaleRequest.UpscaleFactor;
-import test.java.aparmar.nai.TestHelpers;
+import aparmar.nai.data.request.ImageUpscaleRequest.UpscaleFactor;
+import aparmar.nai.TestHelpers;
 
 class UnitTestImageUpscaleRequest {
 

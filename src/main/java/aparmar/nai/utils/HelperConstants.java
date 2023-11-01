@@ -1,4 +1,4 @@
-package main.java.aparmar.nai.utils;
+package aparmar.nai.utils;
 
 import okhttp3.MediaType;
 

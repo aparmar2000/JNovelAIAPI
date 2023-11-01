@@ -1,12 +1,10 @@
-package test.java.aparmar.nai.utils.tokenization;
+package aparmar.nai.utils.tokenization;
 
 import java.lang.reflect.InvocationTargetException;
 
 import org.junit.jupiter.api.Test;
 
-import main.java.aparmar.nai.utils.tokenization.TokenizedChunk;
-import main.java.aparmar.nai.utils.tokenization.Tokenizers;
-import test.java.aparmar.nai.TestHelpers;
+import aparmar.nai.TestHelpers;
 
 public class UnitTestTokenizedChunk {
 

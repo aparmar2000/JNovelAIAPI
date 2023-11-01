@@ -1,4 +1,4 @@
-package main.java.aparmar.nai.data.request.imagen;
+package aparmar.nai.data.request.imagen;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import main.java.aparmar.nai.data.request.Base64Image;
+import aparmar.nai.data.request.Base64Image;
 
 @Data
 @NoArgsConstructor

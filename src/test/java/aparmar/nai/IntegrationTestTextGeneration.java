@@ -1,27 +1,26 @@
-package test.java.aparmar.nai;
+package aparmar.nai;
 
-import static org.junit.Assume.assumeNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import main.java.aparmar.nai.NAIAPI;
-import main.java.aparmar.nai.data.request.TextGenModel;
-import main.java.aparmar.nai.data.request.TextGenerationParameters;
-import main.java.aparmar.nai.data.request.TextGenerationRequest;
-import main.java.aparmar.nai.data.response.TextGenerationResponse;
-import main.java.aparmar.nai.utils.TextParameterPresets;
+import aparmar.nai.data.request.TextGenModel;
+import aparmar.nai.data.request.TextGenerationParameters;
+import aparmar.nai.data.request.TextGenerationRequest;
+import aparmar.nai.data.response.TextGenerationResponse;
+import aparmar.nai.utils.TextParameterPresets;
 
 class IntegrationTestTextGeneration {
 	private NAIAPI apiInstance;
 
 	@BeforeEach
 	public void setUp() throws Exception {
-		assumeNotNull(TestConstants.getTestAPIKey());
+		Assumptions.assumeTrue(TestConstants.getTestAPIKey() != null);
 		apiInstance = new NAIAPI(TestConstants.getTestAPIKey());
 	}
 

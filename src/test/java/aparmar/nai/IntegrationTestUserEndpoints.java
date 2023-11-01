@@ -1,21 +1,19 @@
-package test.java.aparmar.nai;
+package aparmar.nai;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assume.assumeNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import main.java.aparmar.nai.NAIAPI;
 
 public class IntegrationTestUserEndpoints {
 	private NAIAPI apiInstance;
 
 	@BeforeEach
 	public void setUp() throws Exception {
-		assumeNotNull(TestConstants.getTestAPIKey());
+		Assumptions.assumeTrue(TestConstants.getTestAPIKey() != null);
 		apiInstance = new NAIAPI(TestConstants.getTestAPIKey());
 	}
 

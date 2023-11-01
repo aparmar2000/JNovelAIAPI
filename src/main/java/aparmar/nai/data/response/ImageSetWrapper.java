@@ -1,4 +1,4 @@
-package main.java.aparmar.nai.data.response;
+package aparmar.nai.data.response;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -15,7 +15,7 @@ import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
 import javax.imageio.stream.MemoryCacheImageInputStream;
 
-import main.java.aparmar.nai.utils.ZipArchiveWrapper;
+import aparmar.nai.utils.ZipArchiveWrapper;
 
 public class ImageSetWrapper {
 	

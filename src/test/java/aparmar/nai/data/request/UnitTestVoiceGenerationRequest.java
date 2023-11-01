@@ -1,4 +1,4 @@
-package test.java.aparmar.nai.data.request;
+package aparmar.nai.data.request;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -11,11 +11,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import com.google.common.base.Strings;
 
-import main.java.aparmar.nai.data.request.VoiceGenerationRequest;
-import main.java.aparmar.nai.data.request.VoiceGenerationRequest.PresetV1Voice;
-import main.java.aparmar.nai.data.request.VoiceGenerationRequest.PresetV2Voice;
-import main.java.aparmar.nai.data.request.VoiceGenerationRequest.VoiceVersion;
-import test.java.aparmar.nai.TestHelpers;
+import aparmar.nai.data.request.VoiceGenerationRequest.PresetV1Voice;
+import aparmar.nai.data.request.VoiceGenerationRequest.PresetV2Voice;
+import aparmar.nai.data.request.VoiceGenerationRequest.VoiceVersion;
+import aparmar.nai.TestHelpers;
 
 class UnitTestVoiceGenerationRequest {
 

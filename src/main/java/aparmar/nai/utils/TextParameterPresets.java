@@ -1,6 +1,6 @@
-package main.java.aparmar.nai.utils;
+package aparmar.nai.utils;
 
-import static main.java.aparmar.nai.utils.HelperConstants.PRESET_FILENAME;
+import static aparmar.nai.utils.HelperConstants.PRESET_FILENAME;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -12,8 +12,8 @@ import java.util.regex.Pattern;
 import com.google.common.collect.ObjectArrays;
 import com.google.gson.Gson;
 
-import main.java.aparmar.nai.data.request.TextGenModel;
-import main.java.aparmar.nai.data.request.TextGenerationParameters;
+import aparmar.nai.data.request.TextGenModel;
+import aparmar.nai.data.request.TextGenerationParameters;
 
 public class TextParameterPresets {
 	private static final Gson gson = new Gson();

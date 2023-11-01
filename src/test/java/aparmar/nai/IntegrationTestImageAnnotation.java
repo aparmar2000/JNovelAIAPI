@@ -1,6 +1,5 @@
-package test.java.aparmar.nai;
+package aparmar.nai;
 
-import static org.junit.Assume.assumeNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -12,23 +11,23 @@ import java.io.IOException;
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
-import main.java.aparmar.nai.NAIAPI;
-import main.java.aparmar.nai.data.request.Base64Image;
-import main.java.aparmar.nai.data.request.ImageAnnotateRequest;
-import main.java.aparmar.nai.data.request.ImageAnnotateRequest.AnnotationModel;
-import main.java.aparmar.nai.data.response.ImageSetWrapper;
-import main.java.aparmar.nai.utils.InternalResourceLoader;
+import aparmar.nai.data.request.Base64Image;
+import aparmar.nai.data.request.ImageAnnotateRequest;
+import aparmar.nai.data.request.ImageAnnotateRequest.AnnotationModel;
+import aparmar.nai.data.response.ImageSetWrapper;
+import aparmar.nai.utils.InternalResourceLoader;
 
 class IntegrationTestImageAnnotation {
 	private NAIAPI apiInstance;
 
 	@BeforeEach
 	void setUp() throws Exception {
-		assumeNotNull(TestConstants.getTestAPIKey());
+		Assumptions.assumeTrue(TestConstants.getTestAPIKey() != null);
 		apiInstance = new NAIAPI(TestConstants.getTestAPIKey());
 	}
 

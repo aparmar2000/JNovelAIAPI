@@ -1,6 +1,6 @@
-package test.java.aparmar.nai;
+package aparmar.nai;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -126,7 +126,7 @@ public class TestHelpers {
 		
 		if (expected instanceof Object[]) {
 			if (equal) {
-				assertArrayEquals(message, (Object[])expected, (Object[])actual);
+				assertArrayEquals((Object[])expected, (Object[])actual, message);
 			} else {
 				assertFalse(Arrays.equals((Object[])expected, (Object[])actual), message);
 			}
@@ -135,7 +135,7 @@ public class TestHelpers {
 		
 		if (expected instanceof boolean[]) {
 			if (equal) {
-				assertArrayEquals(message, (boolean[])expected, (boolean[])actual);
+				assertArrayEquals((boolean[])expected, (boolean[])actual, message);
 			} else {
 				assertFalse(Arrays.equals((boolean[])expected, (boolean[])actual), message);
 			}
@@ -144,7 +144,7 @@ public class TestHelpers {
 		
 		if (expected instanceof byte[]) {
 			if (equal) {
-				assertArrayEquals(message, (byte[])expected, (byte[])actual);
+				assertArrayEquals((byte[])expected, (byte[])actual, message);
 			} else {
 				assertFalse(Arrays.equals((byte[])expected, (byte[])actual), message);
 			}
@@ -153,7 +153,7 @@ public class TestHelpers {
 		
 		if (expected instanceof short[]) {
 			if (equal) {
-				assertArrayEquals(message, (short[])expected, (short[])actual);
+				assertArrayEquals((short[])expected, (short[])actual, message);
 			} else {
 				assertFalse(Arrays.equals((short[])expected, (short[])actual), message);
 			}
@@ -162,7 +162,7 @@ public class TestHelpers {
 		
 		if (expected instanceof char[]) {
 			if (equal) {
-				assertArrayEquals(message, (char[])expected, (char[])actual);
+				assertArrayEquals((char[])expected, (char[])actual, message);
 			} else {
 				assertFalse(Arrays.equals((char[])expected, (char[])actual), message);
 			}
@@ -171,7 +171,7 @@ public class TestHelpers {
 		
 		if (expected instanceof int[]) {
 			if (equal) {
-				assertArrayEquals(message, (int[])expected, (int[])actual);
+				assertArrayEquals((int[])expected, (int[])actual, message);
 			} else {
 				assertFalse(Arrays.equals((int[])expected, (int[])actual), message);
 			}
@@ -180,7 +180,7 @@ public class TestHelpers {
 		
 		if (expected instanceof long[]) {
 			if (equal) {
-				assertArrayEquals(message, (long[])expected, (long[])actual);
+				assertArrayEquals((long[])expected, (long[])actual, message);
 			} else {
 				assertFalse(Arrays.equals((long[])expected, (long[])actual), message);
 			}
@@ -189,7 +189,7 @@ public class TestHelpers {
 		
 		if (expected instanceof float[]) {
 			if (equal) {
-				assertArrayEquals(message, (float[])expected, (float[])actual, 0.000001f);
+				assertArrayEquals((float[])expected, (float[])actual, 0.000001f, message);
 			} else {
 				assertFalse(Arrays.equals((float[])expected, (float[])actual), message);
 			}
@@ -198,7 +198,7 @@ public class TestHelpers {
 		
 		if (expected instanceof double[]) {
 			if (equal) {
-				assertArrayEquals(message, (double[])expected, (double[])actual, 0.000001);
+				assertArrayEquals((double[])expected, (double[])actual, 0.000001, message);
 			} else {
 				assertFalse(Arrays.equals((double[])expected, (double[])actual), message);
 			}

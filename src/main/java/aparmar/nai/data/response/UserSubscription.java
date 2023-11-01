@@ -1,4 +1,4 @@
-package main.java.aparmar.nai.data.response;
+package aparmar.nai.data.response;
 
 import com.google.gson.JsonElement;
 

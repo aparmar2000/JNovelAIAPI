@@ -1,4 +1,4 @@
-package main.java.aparmar.nai.utils.tokenization;
+package aparmar.nai.utils.tokenization;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

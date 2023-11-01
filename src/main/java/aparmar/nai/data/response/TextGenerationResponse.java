@@ -1,4 +1,4 @@
-package main.java.aparmar.nai.data.response;
+package aparmar.nai.data.response;
 
 import java.lang.reflect.Type;
 
@@ -11,7 +11,7 @@ import com.google.gson.JsonParseException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import main.java.aparmar.nai.utils.tokenization.TokenizedChunk;
+import aparmar.nai.utils.tokenization.TokenizedChunk;
 
 @Data
 public class TextGenerationResponse {

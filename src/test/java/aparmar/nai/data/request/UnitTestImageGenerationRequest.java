@@ -1,20 +1,19 @@
-package test.java.aparmar.nai.data.request;
+package aparmar.nai.data.request;
 
 import java.lang.reflect.InvocationTargetException;
 
 import org.junit.jupiter.api.Test;
 
-import main.java.aparmar.nai.data.request.Base64Image;
-import main.java.aparmar.nai.data.request.imagen.Image2ImageParameters;
-import main.java.aparmar.nai.data.request.imagen.ImageControlNetParameters;
-import main.java.aparmar.nai.data.request.imagen.ImageGenerationRequest;
-import main.java.aparmar.nai.data.request.imagen.ImageInpaintParameters;
-import main.java.aparmar.nai.data.request.imagen.ImageParameters;
-import main.java.aparmar.nai.data.request.imagen.ImageControlNetParameters.ControlnetModel;
-import main.java.aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenAction;
-import main.java.aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
-import main.java.aparmar.nai.data.request.imagen.ImageParameters.ImageGenSampler;
-import test.java.aparmar.nai.TestHelpers;
+import aparmar.nai.data.request.imagen.Image2ImageParameters;
+import aparmar.nai.data.request.imagen.ImageControlNetParameters;
+import aparmar.nai.data.request.imagen.ImageGenerationRequest;
+import aparmar.nai.data.request.imagen.ImageInpaintParameters;
+import aparmar.nai.data.request.imagen.ImageParameters;
+import aparmar.nai.data.request.imagen.ImageControlNetParameters.ControlnetModel;
+import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenAction;
+import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
+import aparmar.nai.data.request.imagen.ImageParameters.ImageGenSampler;
+import aparmar.nai.TestHelpers;
 
 class UnitTestImageGenerationRequest {
 
