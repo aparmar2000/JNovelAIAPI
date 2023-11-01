@@ -2,10 +2,11 @@ package aparmar.nai.utils.tokenization;
 
 import java.util.Arrays;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.IntStream;
 
+import lombok.AccessLevel;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
  * A chunk of text that is always correctly tokenized. (Should be) thread-safe.
@@ -14,14 +15,22 @@ import lombok.Getter;
 public class TokenizedChunk implements Cloneable {
 	@EqualsAndHashCode.Exclude
 	private final ReentrantLock lock = new ReentrantLock();
-	   
-	@Getter
+	
 	private Tokenizers tokenizer;
 	@EqualsAndHashCode.Exclude
-	@Getter
 	private String textChunk;
-	@Getter
 	private int[] tokens;
+	
+	/**
+	 * Holds a snapshot of the values of a <code>TokenizedChunk</code> at a particular moment in time.
+	 */
+	@Data
+	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+	public static class TokenizedChunkSnapshot {
+		private final Tokenizers tokenizer;
+		private final String text;
+		private final int[] tokens;
+	}
 	
 	public TokenizedChunk(Tokenizers tokenizer, String textChunk) {
 		this.tokenizer = tokenizer;
@@ -48,6 +57,32 @@ public class TokenizedChunk implements Cloneable {
 		this.tokens = other.getTokens();
 		this.textChunk = other.getTextChunk();
 	}
+
+	public Tokenizers getTokenizer() {
+		lock.lock();
+		try { return tokenizer; } finally { lock.unlock(); }
+	}
+	public String getTextChunk() {
+		lock.lock();
+		try { return textChunk; } finally { lock.unlock(); }
+	}
+	public int[] getTokens() {
+		lock.lock();
+		try { return tokens; } finally { lock.unlock(); }
+	}
+	/**
+	 * Gets a snapshot of the current values of the <code>TokenizedChunk</code>.
+	 * </br>
+	 * Use this instead of the single-field <code>get</code> methods when retrieving multiple fields and need thread-safety.
+	 */
+	public TokenizedChunkSnapshot getSnapshot() {
+		lock.lock();
+		try {
+			return new TokenizedChunkSnapshot(tokenizer, textChunk, tokens);
+		} finally {
+			lock.unlock();
+		}
+	}
 	
 	/**
 	 * Updates the tokenizer used for this chunk. Re-encodes tokens from the text.
@@ -73,6 +108,7 @@ public class TokenizedChunk implements Cloneable {
 		try {
 			if (textChunk.equals(newTextChunk)) { return; }
 			textChunk = newTextChunk;
+			
 			if (newTextChunk.isEmpty()) {
 				tokens = new int[0];
 			} else {
@@ -123,9 +159,8 @@ public class TokenizedChunk implements Cloneable {
 		lock.lock();
 		try {
 			if (newTokens.length==0) { return; }
-			tokens = IntStream.concat(Arrays.stream(tokens), Arrays.stream(newTokens)).toArray();
 			
-			textChunk = tokenizer.decode(tokens);
+			appendString(tokenizer.decode(newTokens));
 		} finally {
 			lock.unlock();
 		}
@@ -135,11 +170,7 @@ public class TokenizedChunk implements Cloneable {
 	 * Appends another chunk to the end of this chunk. Updates the text & tokens appropriately.
 	 */
 	public void appendTokenizedChunk(TokenizedChunk other) {
-		if (getTokenizer()==other.getTokenizer()) {
-			appendTokens(other.getTokens());
-		} else {
-			appendString(other.getTextChunk());
-		}
+		appendString(other.getTextChunk());
 	}
 	
 	@Override
