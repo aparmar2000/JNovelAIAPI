@@ -67,7 +67,7 @@
 			  <configuration>
 				  <excludes>
 					  <!-- This wrapper doesn't actually ever get used currently.' -->
-					  <exclude>HuggingFaceTokenizerWrapper.java</exclude>
+					  <exclude>**/HuggingFaceTokenizerWrapper.java</exclude>
 				  </excludes>
 			  </configuration>
 			  <executions>

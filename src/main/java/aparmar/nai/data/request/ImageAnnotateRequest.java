@@ -12,13 +12,13 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
 
+import aparmar.nai.data.request.imagen.ImageControlNetParameters.ControlnetModel;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import aparmar.nai.data.request.imagen.ImageControlNetParameters.ControlnetModel;
 
 @Getter
 @EqualsAndHashCode
