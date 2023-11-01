@@ -83,11 +83,11 @@ public class JTokkitTokenizerWrapper implements INaiTokenizer {
 	
 	private static byte[] remapUnicodeToBytes(String in) {
 	
-	return in.codePoints()
-			.map(c->codePointRemapping.inverse().getOrDefault(c,c))
-			.collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-			.toString()
-			.getBytes(StandardCharsets.UTF_8);
+		return in.codePoints()
+				.map(c->codePointRemapping.inverse().getOrDefault(c,c))
+				.collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+				.toString()
+				.getBytes(StandardCharsets.UTF_8);
 	}
 //	
 //	private static byte[] remapUnicodeToBytes(String in) {
