@@ -61,7 +61,7 @@ class IntegrationTestImageGeneration {
 		assertEquals(512, resultImage.getRenderedImage().getHeight());
 		assertEquals(512, resultImage.getRenderedImage().getWidth());
 		
-		result.writeImageToFile(0, new File("basic_generation_test.png"));
+		result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"basic_generation_test.png"));
 	}
 
 	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
@@ -97,7 +97,7 @@ class IntegrationTestImageGeneration {
 		assertEquals(512, resultImage.getRenderedImage().getHeight());
 		assertEquals(512, resultImage.getRenderedImage().getWidth());
 		
-		result.writeImageToFile(0, new File("img2img_test.png"));
+		result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"img2img_test.png"));
 	}
 
 	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
@@ -132,7 +132,7 @@ class IntegrationTestImageGeneration {
 		assertEquals(512, resultImage.getRenderedImage().getHeight());
 		assertEquals(512, resultImage.getRenderedImage().getWidth());
 		
-		result.writeImageToFile(0, new File("inpaint_test.png"));
+		result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"inpaint_test.png"));
 	}
 
 	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
@@ -166,7 +166,7 @@ class IntegrationTestImageGeneration {
 		assertEquals(512, resultImage.getRenderedImage().getHeight());
 		assertEquals(512, resultImage.getRenderedImage().getWidth());
 		
-		result.writeImageToFile(0, new File("controlnet_conditioned_test.png"));
+		result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"controlnet_conditioned_test.png"));
 	}
 
 }

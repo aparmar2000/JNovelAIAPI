@@ -14,6 +14,9 @@ import com.google.gson.JsonSyntaxException;
 
 import main.java.aparmar.nai.data.request.Base64Image;
 import main.java.aparmar.nai.data.request.IQueryStringPayload;
+import main.java.aparmar.nai.data.request.ImageAnnotateRequest;
+import main.java.aparmar.nai.data.request.ImageUpscaleRequest;
+import main.java.aparmar.nai.data.request.ImageUpscaleRequest.UpscaleFactor;
 import main.java.aparmar.nai.data.request.TextGenerationRequest;
 import main.java.aparmar.nai.data.request.VoiceGenerationRequest;
 import main.java.aparmar.nai.data.request.imagen.ImageGenerationRequest;
@@ -61,6 +64,9 @@ public class NAIAPI {
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.registerTypeAdapter(LogProb.class, new LogProb());
 		gsonBuilder.registerTypeAdapter(Base64Image.class, new Base64Image());
+		gsonBuilder.registerTypeAdapter(UpscaleFactor.class, UpscaleFactor.TWO);
+		gsonBuilder.registerTypeAdapter(ImageUpscaleRequest.class, new ImageUpscaleRequest());
+		gsonBuilder.registerTypeAdapter(ImageAnnotateRequest.class, ImageAnnotateRequest.SERIALIZER_INSTANCE);
 		gson = gsonBuilder.create();
 	}
 	
@@ -101,6 +107,18 @@ public class NAIAPI {
 	
 	public ImageSetWrapper generateImage(ImageGenerationRequest payload) throws IOException {
 		ZipArchiveWrapper resultBody = postToNovelAI("ai/generate-image", payload, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
+		
+		return new ImageSetWrapper(resultBody);
+	}
+	
+	public ImageSetWrapper annotateImage(ImageAnnotateRequest payload) throws IOException {
+		ZipArchiveWrapper resultBody = postToNovelAI("ai/annotate-image", payload, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
+		
+		return new ImageSetWrapper(resultBody);
+	}
+	
+	public ImageSetWrapper upscaleImage(ImageUpscaleRequest payload) throws IOException {
+		ZipArchiveWrapper resultBody = postToNovelAI("ai/upscale", payload, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
 		
 		return new ImageSetWrapper(resultBody);
 	}

@@ -1,6 +1,8 @@
 package test.java.aparmar.nai;
 
 public class TestConstants {
+	public static String TEST_IMAGE_FOLDER = "test-images/";
+	
 	private static String TestAPIKey = null;
 	private static synchronized void loadTestAPIKey() {
 		try {

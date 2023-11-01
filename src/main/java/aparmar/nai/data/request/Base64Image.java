@@ -30,6 +30,13 @@ public class Base64Image implements JsonSerializer<Base64Image>, JsonDeserialize
 	protected BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
 	protected int targetWidth = 1, targetHeight = 1;
 	protected boolean isMask = false;
+	
+	public Base64Image(BufferedImage image) {
+		this.image = image;
+		targetWidth = image.getWidth();
+		targetHeight = image.getHeight();
+		isMask = false;
+	}
 
 	@Override
 	public JsonElement serialize(Base64Image src, Type typeOfSrc, JsonSerializationContext context) {
