@@ -2,13 +2,15 @@ package aparmar.nai.utils.tokenization;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.LinkedList;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import aparmar.nai.TestHelpers;
+import lombok.Data;
 
 public class UnitTestTokenizedChunk {
 
@@ -69,5 +71,53 @@ public class UnitTestTokenizedChunk {
 		
 		testChunk1.appendTokenizedChunk(testChunk2);
 		assertArrayEquals(TEST_TOKENS_2, testChunk1.getTokens());
+	}
+	
+	@Data
+	private static class SamplePair {
+		private final String text;
+		private final int[] tokens;
+	}
+	
+	@Test
+	void testChunkSnapshotThreadSafety() {
+		TokenizedChunk sharedTestChunk = new TokenizedChunk(Tokenizers.NERDSTASH_V2, TEST_STRING_1);
+		
+		Thread writer = new Thread(()->{
+			long startTime = System.currentTimeMillis();
+			int option = 2;
+			while (System.currentTimeMillis()-startTime<1000) {
+				switch(option) {
+				case 1:
+					sharedTestChunk.setTextChunk(TEST_STRING_1);
+					option = 2;
+					continue;
+				case 2:
+					sharedTestChunk.setTextChunk(TEST_STRING_2);
+					option = 1;
+					continue;
+				}
+			}
+		});
+		
+		LinkedList<TokenizedChunk.TokenizedChunkSnapshot> samplePairs = new LinkedList<>();
+		writer.start();
+		while (writer.isAlive()) {
+			samplePairs.add(sharedTestChunk.getSnapshot());
+		}
+		
+		for (TokenizedChunk.TokenizedChunkSnapshot samplePair : samplePairs) {
+			switch (samplePair.getText()) {
+			case TEST_STRING_1:
+				assertArrayEquals(TEST_TOKENS_1, samplePair.getTokens(), "String and tokens of TokenizedChunk do not match!");
+				break;
+			case TEST_STRING_2:
+				assertArrayEquals(TEST_TOKENS_2, samplePair.getTokens(), "String and tokens of TokenizedChunk do not match!");
+				break;
+			default:
+				fail("String value of TokenizedChunk was invalid!");
+				break;
+			}
+		}
 	}
 }
