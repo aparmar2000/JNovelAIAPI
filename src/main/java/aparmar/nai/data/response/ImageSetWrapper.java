@@ -17,6 +17,10 @@ import javax.imageio.stream.MemoryCacheImageInputStream;
 
 import aparmar.nai.utils.ZipArchiveWrapper;
 
+/**
+ * A wrapper around a zip file of images, as is generally returned from image endpoints.
+ * Reads out full <code>IIOImage</code>s, complete with metadata.
+ */
 public class ImageSetWrapper {
 	
 	protected final ZipArchiveWrapper zipArchive;

@@ -1,5 +1,7 @@
 package aparmar.nai.data.request.imagen;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import com.google.gson.annotations.SerializedName;
 
 import lombok.AllArgsConstructor;
@@ -38,12 +40,16 @@ public class ImageParameters {
 //		PLMS;
 	}
 	
-	protected long seed;
+	@Builder.Default
+	protected long seed = ThreadLocalRandom.current().nextLong();
 	protected int height, width;
-	protected int steps;
-	protected double scale;
-	
-	protected ImageParameters.ImageGenSampler sampler;
+	@Builder.Default
+	protected int steps = 28;
+	@Builder.Default
+	protected double scale = 10.0;
+
+	@Builder.Default
+	protected ImageParameters.ImageGenSampler sampler = ImageGenSampler.K_EULER_ANCESTRAL;
 	@SerializedName("sm")
 	@Builder.Default
 	protected boolean smeaEnabled = false;

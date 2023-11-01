@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class ImageGenerationRequest {
+	public static final String ANIME_V2_QUALITY_TAGS = "very aesthetic, best quality, absurdres";
+	
 	public static final String ANIME_V2_HEAVY_UC = "nsfw, lowres, bad, text, error, missing, extra, fewer, cropped, jpeg artifacts, worst quality, bad quality, watermark, displeasing, unfinished, chromatic aberration, scan, scan artifacts";
 	public static final String ANIME_V2_LIGHT_UC = "nsfw, lowres, jpeg artifacts, worst quality, watermark, blurry, very displeasing";
 	public static final String FURRY_LOW_QUALITY_UC = "nsfw, {worst quality}, {bad quality}, text, signature, watermark";

@@ -23,6 +23,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * A thin wrapper around a <code>BufferedImage</code> that handles resizing and serializing to base64 for the request body.
+ * </br></br>
+ * Uses Bicubic interpolation for resizing normally, but switches to Nearest Neighbor if the image is flagged as a mask.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
