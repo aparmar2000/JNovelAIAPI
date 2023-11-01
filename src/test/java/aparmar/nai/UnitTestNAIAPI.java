@@ -43,6 +43,7 @@ import aparmar.nai.data.response.UserInfo;
 import aparmar.nai.data.response.UserKeystore;
 import aparmar.nai.data.response.UserPriority;
 import aparmar.nai.data.response.UserSubscription;
+import aparmar.nai.data.response.UserSubscription.SubscriptionTier;
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
@@ -186,11 +187,11 @@ class UnitTestNAIAPI {
 	@Test
 	void testFetchUserSubscription() throws IOException {
 		UserSubscription.SubscriptionPerks expectedSubPerks = 
-				new UserSubscription.SubscriptionPerks(69, 999, 8192, true, 888);
+				new UserSubscription.SubscriptionPerks(69, 999, 8192, true, true, true, true, null, 888);
 		UserSubscription.SubscriptionTrainingSteps expectedSubSteps = 
 				new UserSubscription.SubscriptionTrainingSteps(888, 999);
 		UserSubscription expectedUserSub = 
-				new UserSubscription(8, true, 9999, expectedSubPerks, JsonNull.INSTANCE, expectedSubSteps);
+				new UserSubscription(SubscriptionTier.SCROLL, true, 9999, expectedSubPerks, JsonNull.INSTANCE, expectedSubSteps, 0);
 		mockResponseJson(expectedUserSub, UserSubscription.class);
 
 		UserSubscription actualUserSub = apiInstance.fetchUserSubscription();
@@ -213,11 +214,11 @@ class UnitTestNAIAPI {
 		UserPriority expectedUserPriority = new UserPriority(69, 888, 12);
 
 		UserSubscription.SubscriptionPerks expectedSubPerks = 
-				new UserSubscription.SubscriptionPerks(69, 999, 8192, true, 888);
+				new UserSubscription.SubscriptionPerks(69, 999, 8192, true, true, true, true, null, 888);
 		UserSubscription.SubscriptionTrainingSteps expectedSubSteps = 
 				new UserSubscription.SubscriptionTrainingSteps(888, 999);
 		UserSubscription expectedUserSub = 
-				new UserSubscription(8, true, 9999, expectedSubPerks, JsonNull.INSTANCE, expectedSubSteps);
+				new UserSubscription(SubscriptionTier.SCROLL, true, 9999, expectedSubPerks, JsonNull.INSTANCE, expectedSubSteps, 1);
 
 		UserKeystore expectedUserKeystore = new UserKeystore("keysss");
 

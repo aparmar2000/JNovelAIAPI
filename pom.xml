@@ -64,6 +64,12 @@
 			  <groupId>org.jacoco</groupId>
 			  <artifactId>jacoco-maven-plugin</artifactId>
 			  <version>0.8.11</version>
+			  <configuration>
+				  <excludes>
+					  <!-- This wrapper doesn't actually ever get used currently.' -->
+					  <exclude>HuggingFaceTokenizerWrapper.java</exclude>
+				  </excludes>
+			  </configuration>
 			  <executions>
 		        <execution>
 		            <goals>

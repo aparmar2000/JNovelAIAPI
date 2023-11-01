@@ -2,6 +2,8 @@ package aparmar.nai.utils.tokenization;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -11,7 +13,7 @@ import java.util.LinkedList;
 import org.junit.jupiter.api.Test;
 
 import aparmar.nai.TestHelpers;
-import lombok.Data;
+import aparmar.nai.utils.tokenization.TokenizedChunk.TokenizedChunkSnapshot;
 
 public class UnitTestTokenizedChunk {
 
@@ -19,6 +21,9 @@ public class UnitTestTokenizedChunk {
 	void testTokenizedChunkUtilityMethods() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		TokenizedChunk testInstance1 = new TokenizedChunk(Tokenizers.GPT2, "Test");
 		TokenizedChunk testInstance2 = new TokenizedChunk(Tokenizers.NERDSTASH_V1, "This is a test.");
+
+		assertEquals(testInstance1, testInstance1.clone());
+		assertFalse(testInstance1 == testInstance1.clone());
 		
 		TestHelpers.autoTestDataAndToBuilderAnnotation(TokenizedChunk.class, testInstance1, testInstance2);
 		assertTrue(testInstance1.hasContent());
@@ -50,21 +55,37 @@ public class UnitTestTokenizedChunk {
 	
 	@Test
 	void testTokenization() {
-		TokenizedChunk testChunk = new TokenizedChunk(Tokenizers.NERDSTASH_V2, TEST_STRING_1A);
+		TokenizedChunk testChunk = new TokenizedChunk(Tokenizers.NERDSTASH_V2, "");
+		assertArrayEquals(new int[0], testChunk.getTokens());
+		assertFalse(testChunk.hasContent());
+		
+		testChunk.setTextChunk(TEST_STRING_1A);
 		assertArrayEquals(TEST_TOKENS_1A, testChunk.getTokens());
 		
 		testChunk.appendString(TEST_STRING_1B);
 		assertEquals(TEST_TOKENS_1.length, testChunk.tokenLength());
 		assertArrayEquals(TEST_TOKENS_1, testChunk.getTokens());
+		
+		testChunk.setTextChunk("");
+		assertArrayEquals(new int[0], testChunk.getTokens());
+		assertFalse(testChunk.hasContent());
 	}
 	
 	@Test
 	void testTokenParsing() {
-		TokenizedChunk testChunk = new TokenizedChunk(Tokenizers.NERDSTASH_V2, TEST_TOKENS_1A);
+		TokenizedChunk testChunk = new TokenizedChunk(Tokenizers.NERDSTASH_V2, new int[0]);
+		assertEquals("", testChunk.getTextChunk());
+		assertFalse(testChunk.hasContent());
+		
+		testChunk.setTokens(TEST_TOKENS_1A);
 		assertEquals(TEST_STRING_1A, testChunk.getTextChunk());
 		
 		testChunk.appendTokens(TEST_TOKENS_1B);
 		assertEquals(TEST_STRING_1, testChunk.getTextChunk());
+
+		testChunk.setTokens(new int[0]);
+		assertEquals("", testChunk.getTextChunk());
+		assertFalse(testChunk.hasContent());
 	}
 	
 	@Test
@@ -75,6 +96,11 @@ public class UnitTestTokenizedChunk {
 		TokenizedChunk testMergedChunk = TokenizedChunk.mergeTokenizedChunks(Tokenizers.NERDSTASH_V2, testChunk1, testChunk2);
 		assertEquals(TEST_STRING_2, testMergedChunk.getTextChunk());
 		assertArrayEquals(TEST_TOKENS_2, testMergedChunk.getTokens());
+		
+		TokenizedChunk testMultiAppendChunk = new TokenizedChunk(Tokenizers.NERDSTASH_V2, "");
+		testMultiAppendChunk.appendTokenizedChunks(testChunk1, testChunk2);
+		assertEquals(TEST_STRING_2, testMultiAppendChunk.getTextChunk());
+		assertArrayEquals(TEST_TOKENS_2, testMultiAppendChunk.getTokens());
 		
 		testChunk1.appendTokenizedChunk(testChunk2);
 		assertEquals(TEST_STRING_2, testChunk1.getTextChunk());
@@ -92,15 +118,31 @@ public class UnitTestTokenizedChunk {
 		assertEquals(TEST_STRING_2, testMergedChunk.getTextChunk());
 		assertArrayEquals(TEST_TOKENS_2, testMergedChunk.getTokens());
 		
+		TokenizedChunk testMultiAppendChunk = new TokenizedChunk(Tokenizers.NERDSTASH_V2, "");
+		testMultiAppendChunk.appendTokenizedChunks(testChunk1, testChunk2);
+		assertEquals(TEST_STRING_2, testMultiAppendChunk.getTextChunk());
+		assertArrayEquals(TEST_TOKENS_2, testMultiAppendChunk.getTokens());
+		
 		testChunk1.appendTokenizedChunk(testChunk2);
 		assertEquals(TEST_STRING_2, testChunk1.getTextChunk());
 		assertArrayEquals(TEST_TOKENS_2, testChunk1.getTokens());
 	}
 	
-	@Data
-	private static class SamplePair {
-		private final String text;
-		private final int[] tokens;
+	@Test
+	void testChunkSnapshot() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		TokenizedChunk testChunk = new TokenizedChunk(Tokenizers.NERDSTASH_V2, TEST_STRING_1);
+		TokenizedChunkSnapshot testSnapshot = testChunk.getSnapshot();
+		
+		assertEquals(testChunk.getTokenizer(), testSnapshot.getTokenizer());
+		assertEquals(testChunk.getTextChunk(), testSnapshot.getText());
+		assertArrayEquals(testChunk.getTokens(), testSnapshot.getTokens());
+		assertEquals(testChunk.getSnapshot(), testSnapshot);
+		
+		testChunk.setTextChunk(TEST_STRING_2);
+		assertNotEquals(testChunk.getSnapshot(), testSnapshot);
+		
+		testChunk.setTokenizer(Tokenizers.GPT2);
+		TestHelpers.autoTestDataAndToBuilderAnnotation(TokenizedChunkSnapshot.class, testSnapshot, testChunk.getSnapshot());
 	}
 	
 	@Test
