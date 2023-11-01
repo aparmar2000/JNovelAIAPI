@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 /**
- * A chunk of text that is always correctly tokenized.
+ * A chunk of text that is always correctly tokenized. (Should be) thread-safe.
  */
 @EqualsAndHashCode
 public class TokenizedChunk implements Cloneable {
@@ -84,7 +84,7 @@ public class TokenizedChunk implements Cloneable {
 	}
 
 	/**
-	 * Updates the tokens used for this chunk. Updates the text based on the decoded tokens.
+	 * Updates the tokens used for this chunk. Updates the text based on the new tokens.
 	 */
 	public void setTokens(int[] newTokens) {
 		lock.lock();
