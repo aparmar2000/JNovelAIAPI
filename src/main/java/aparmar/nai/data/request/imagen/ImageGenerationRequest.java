@@ -1,6 +1,7 @@
 package aparmar.nai.data.request.imagen;
 
 import java.lang.reflect.Type;
+import java.util.Arrays;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -8,6 +9,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
 
+import aparmar.nai.data.response.UserSubscription;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -87,5 +89,12 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		wrapper.add("parameters", context.serialize(src.getParameters(), src.getParameters().getClass()));
 		
 		return wrapper;
+	}
+	
+	public boolean isFreeGeneration(UserSubscription subscriptionData) {
+		if (!subscriptionData.getPerks().isUnlimitedImageGeneration()) { return false; }
+		return Arrays.stream(subscriptionData.getPerks().getUnlimitedImageGenerationLimits())
+			.filter(limit->limit.getMaxImages()>=parameters.getImgCount())
+			.anyMatch(limit->limit.getResolution()>=parameters.getWidth()*parameters.getHeight());
 	}
 }
