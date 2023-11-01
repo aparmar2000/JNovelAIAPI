@@ -14,7 +14,14 @@ import lombok.ToString;
 @Getter
 @ToString
 public class UserSubscription {
-	private int tier;
+	public enum SubscriptionTier {
+		NONE,
+		TABLET,
+		SCROLL,
+		OPUS;
+	}
+	
+	private SubscriptionTier tier;
 	private boolean active;
 	private long expiresAt;
 	private SubscriptionPerks perks;
