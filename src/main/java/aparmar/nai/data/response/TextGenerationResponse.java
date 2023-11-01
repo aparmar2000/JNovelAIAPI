@@ -24,7 +24,7 @@ public class TextGenerationResponse {
 	public static class LogProbStep {
 		private LogProb[] chosen, optionsBefore, optionsAfter;
 		
-		public LogProb getChosen() {
+		public LogProb getChosenProb() {
 			return (chosen!=null && chosen.length>0)?chosen[0]:null;
 		}
 		
