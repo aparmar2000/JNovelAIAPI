@@ -2,6 +2,7 @@ package aparmar.nai.utils.tokenization;
 
 import java.util.Arrays;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 import lombok.AccessLevel;
 import lombok.Data;
@@ -172,6 +173,16 @@ public class TokenizedChunk implements Cloneable {
 	public void appendTokenizedChunk(TokenizedChunk other) {
 		appendString(other.getTextChunk());
 	}
+	/**
+	 * Appends multiple other chunks to the end of this chunk. Updates the text & tokens appropriately.
+	 */
+	public void appendTokenizedChunks(TokenizedChunk... other) {
+		appendString(Arrays.stream(other).map(TokenizedChunk::getTextChunk).collect(Collectors.joining()));
+	}
+	
+	public static TokenizedChunk mergeTokenizedChunks(Tokenizers tokenizer, TokenizedChunk... chunks) {
+		return new TokenizedChunk(tokenizer, Arrays.stream(chunks).map(TokenizedChunk::getTextChunk).collect(Collectors.joining()));
+	}
 	
 	@Override
 	public TokenizedChunk clone() {
@@ -188,5 +199,9 @@ public class TokenizedChunk implements Cloneable {
 	
 	public String getBase64EncodedTokens() {
 		return INaiTokenizer.tokensToBase64(tokens);
+	}
+	
+	public static TokenizedChunk fromBase64Tokens(Tokenizers tokenizer, String base64) {
+		return new TokenizedChunk(tokenizer, INaiTokenizer.base64ToTokens(base64));
 	}
 }
