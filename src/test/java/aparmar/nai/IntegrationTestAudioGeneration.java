@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
@@ -14,6 +15,7 @@ import aparmar.nai.data.request.VoiceGenerationRequest.PresetV2Voice;
 import aparmar.nai.data.request.VoiceGenerationRequest.VoiceVersion;
 import aparmar.nai.data.response.AudioWrapper;
 
+@Tag("slow")
 public class IntegrationTestAudioGeneration extends AbstractFeatureIntegrationTest {
 
 	@ParameterizedTest
