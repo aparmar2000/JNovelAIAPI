@@ -10,8 +10,6 @@ import java.io.IOException;
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
@@ -27,14 +25,7 @@ import aparmar.nai.data.request.imagen.ImageParameters;
 import aparmar.nai.data.response.ImageSetWrapper;
 import aparmar.nai.utils.InternalResourceLoader;
 
-class IntegrationTestImageGeneration {
-	private NAIAPI apiInstance;
-
-	@BeforeEach
-	void setUp() throws Exception {
-		Assumptions.assumeTrue(TestConstants.getTestAPIKey() != null);
-		apiInstance = new NAIAPI(TestConstants.getTestAPIKey());
-	}
+class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 
 	@Test
 	void testBasicImageGeneration() throws IOException {

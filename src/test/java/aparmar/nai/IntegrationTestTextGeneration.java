@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import aparmar.nai.data.request.TextGenModel;
@@ -15,14 +13,7 @@ import aparmar.nai.data.request.TextGenerationRequest;
 import aparmar.nai.data.response.TextGenerationResponse;
 import aparmar.nai.utils.TextParameterPresets;
 
-class IntegrationTestTextGeneration {
-	private NAIAPI apiInstance;
-
-	@BeforeEach
-	public void setUp() throws Exception {
-		Assumptions.assumeTrue(TestConstants.getTestAPIKey() != null);
-		apiInstance = new NAIAPI(TestConstants.getTestAPIKey());
-	}
+class IntegrationTestTextGeneration extends AbstractFeatureIntegrationTest {
 
 	@Test
 	void testMinimalTextGeneration() throws IOException {

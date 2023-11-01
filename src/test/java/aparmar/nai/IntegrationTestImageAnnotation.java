@@ -11,8 +11,6 @@ import java.io.IOException;
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
@@ -22,14 +20,7 @@ import aparmar.nai.data.request.ImageAnnotateRequest.AnnotationModel;
 import aparmar.nai.data.response.ImageSetWrapper;
 import aparmar.nai.utils.InternalResourceLoader;
 
-class IntegrationTestImageAnnotation {
-	private NAIAPI apiInstance;
-
-	@BeforeEach
-	void setUp() throws Exception {
-		Assumptions.assumeTrue(TestConstants.getTestAPIKey() != null);
-		apiInstance = new NAIAPI(TestConstants.getTestAPIKey());
-	}
+class IntegrationTestImageAnnotation extends AbstractFeatureIntegrationTest {
 
 	@ParameterizedTest
 	@EnumSource(value = AnnotationModel.class)

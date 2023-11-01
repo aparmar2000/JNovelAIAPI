@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
@@ -16,14 +14,7 @@ import aparmar.nai.data.request.VoiceGenerationRequest.PresetV2Voice;
 import aparmar.nai.data.request.VoiceGenerationRequest.VoiceVersion;
 import aparmar.nai.data.response.AudioWrapper;
 
-public class IntegrationTestAudioGeneration {
-	private NAIAPI apiInstance;
-
-	@BeforeEach
-	public void setUp() throws Exception {
-		Assumptions.assumeTrue(TestConstants.getTestAPIKey() != null);
-		apiInstance = new NAIAPI(TestConstants.getTestAPIKey());
-	}
+public class IntegrationTestAudioGeneration extends AbstractFeatureIntegrationTest {
 
 	@ParameterizedTest
 	@EnumSource(PresetV1Voice.class)
