@@ -67,6 +67,7 @@ public class NAIAPI {
 		gsonBuilder.registerTypeAdapter(UpscaleFactor.class, UpscaleFactor.TWO);
 		gsonBuilder.registerTypeAdapter(ImageUpscaleRequest.class, new ImageUpscaleRequest());
 		gsonBuilder.registerTypeAdapter(ImageAnnotateRequest.class, ImageAnnotateRequest.SERIALIZER_INSTANCE);
+		gsonBuilder.registerTypeAdapter(ImageGenerationRequest.class, new ImageGenerationRequest());
 		gson = gsonBuilder.create();
 	}
 	
