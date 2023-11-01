@@ -1,4 +1,4 @@
-[![](https://jitpack.io/v/aparmar2000/JNovelAIAPI.svg)](https://jitpack.io/#aparmar2000/JNovelAIAPI)
+[![](https://jitpack.io/v/aparmar2000/JNovelAIAPI.svg)](https://jitpack.io/#aparmar2000/JNovelAIAPI) ![Coverage](badges/jacoco.svg)
 # JNovelAIAPI
 
 This is a decently-functional Java library that facilitates usage of the NovelAI official API. It handles _most_ things for you automatically, such as rate-limiting (one request per second), parsing responses, tokenizing, etc.
