@@ -1,8 +1,46 @@
+[![](https://jitpack.io/v/aparmar2000/JNovelAIAPI.svg)](https://jitpack.io/#aparmar2000/JNovelAIAPI)
 # JNovelAIAPI
 
 This is a decently-functional Java library that facilitates usage of the NovelAI official API. It handles _most_ things for you automatically, such as rate-limiting (one request per second), parsing responses, tokenizing, etc.
 
 This was originally created for my own use, but then I realized that other people might also find it useful. Feel free to make an Issue if you run into a bug or functionality limitation.
+
+## Installing
+### Maven
+First add Jitpack as a repository, since JNovelAIAPI uses Jitpack to distribute dependencies:
+```xml
+<repositories>
+      <repository>
+          <id>jitpack.io</id>
+          <url>https://jitpack.io</url>
+      </repository>
+</repositories>
+```
+Then, add JNovelAIAPI as a dependency:
+```xml
+<dependency>
+    <groupId>com.github.aparmar2000</groupId>
+    <artifactId>JNovelAIAPI</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+### Gradle
+Add the Jitpack repository:
+```gradle
+dependencyResolutionManagement {
+		repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+		repositories {
+			mavenCentral()
+			maven { url 'https://jitpack.io' }
+		}
+	}
+```
+Then add the dependency:
+```gradle
+dependencies {
+	        implementation 'com.github.aparmar2000:JNovelAIAPI:1.0.0'
+	}
+```
 
 ## Quickstart
 To get started, simply create a new instance of `NAIAPI`:
