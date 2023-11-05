@@ -16,10 +16,10 @@ class IntegrationTestFetchHiddenState extends AbstractFeatureIntegrationTest {
 
 	@Test
 	void testMinimalFetchHiddenState() throws IOException {
-		String testPresetName = TextParameterPresets.getAssociatedPresets(TextGenModel.CLIO)[0];
+		String testPresetName = TextParameterPresets.getAssociatedPresets(TextGenModel.EUTERPE)[0];
 		TextGenerationParameters testPreset = TextParameterPresets.getPresetByExtendedName(testPresetName);
 		TextGenerationRequest testRequest = TextGenerationRequest.builder()
-				.model(TextGenModel.CLIO)
+				.model(TextGenModel.EUTERPE)
 				.input("This is an API call!\n")
 				.parameters(testPreset.toBuilder()
 						.useString(true)

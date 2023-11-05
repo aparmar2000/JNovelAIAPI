@@ -330,10 +330,10 @@ class UnitTestNAIAPI {
 	void testFetchHiddenStates() throws IOException {
 		Random rand = new Random();
 		
-		String testPresetName = TextParameterPresets.getAssociatedPresets(TextGenModel.CLIO)[0];
+		String testPresetName = TextParameterPresets.getAssociatedPresets(TextGenModel.EUTERPE)[0];
 		TextGenerationParameters testPreset = TextParameterPresets.getPresetByExtendedName(testPresetName);
 		TextGenerationRequest testTextRequest = TextGenerationRequest.builder()
-				.model(TextGenModel.CLIO)
+				.model(TextGenModel.EUTERPE)
 				.input("This is an API call!\n")
 				.parameters(testPreset.toBuilder()
 						.useString(true)
