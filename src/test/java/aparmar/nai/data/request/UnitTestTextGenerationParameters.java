@@ -41,7 +41,6 @@ class UnitTestTextGenerationParameters {
 				.doSample(true)
 				.earlyStopping(true)
 				.nextWord(true)
-				.getHiddenStates(true)
 				.outputNonzeroProbs(true)
 				.generateUntilSentence(true)
 				.beamNumber(2)
@@ -74,6 +73,7 @@ class UnitTestTextGenerationParameters {
 				.mirostatLr(5.1)
 				.modulePrefix(PresetModulePrefixes.AUTHOR_H_P_LOVECRAFT.getPrefix())
 				.build();
+		testInstance2.setGetHiddenStates(true);
 		TestHelpers.autoTestDataAndToBuilderAnnotation(TextGenerationParameters.class, testInstance1, testInstance2);
 	}
 

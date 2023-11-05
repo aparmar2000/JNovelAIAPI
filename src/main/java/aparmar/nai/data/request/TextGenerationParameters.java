@@ -5,10 +5,12 @@ import java.util.List;
 
 import com.google.gson.annotations.SerializedName;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Data
 @NoArgsConstructor
@@ -58,8 +60,9 @@ public class TextGenerationParameters { // TODO: Add more validation
 	private boolean earlyStopping; // TODO: What is this?
 	@SerializedName("next_word")
 	private boolean nextWord; // TODO: What is this?
+	@Setter(value = AccessLevel.PACKAGE)
 	@SerializedName("get_hidden_states")
-	private boolean getHiddenStates;
+	private boolean getHiddenStates = false;
 	@SerializedName("output_nonzero_probs")
 	private boolean outputNonzeroProbs; // TODO: What is this?
 	@SerializedName("generate_until_sentence")
@@ -179,7 +182,7 @@ public class TextGenerationParameters { // TODO: Add more validation
 	@Builder(toBuilder = true)
 	public TextGenerationParameters(List<int[]> stopSequences, List<int[]> badWordIds, List<LogitBias> logitBiases, int[] order,
 			int[] repetitionPenaltyWhitelist, double temperature, int maxLength, int minLength, int numLogprobs, boolean useString,
-			boolean useCache, boolean doSample, boolean earlyStopping, boolean nextWord, boolean getHiddenStates,
+			boolean useCache, boolean doSample, boolean earlyStopping, boolean nextWord,
 			boolean outputNonzeroProbs, boolean generateUntilSentence, int beamNumber, int beamGroupNumber,
 			String cfgPrompt, double cfgScale, double cfgAlpha, double topK, double topA, double topP, double topG,
 			double typicalP, double tailFreeSampling, double repetitionPenalty, int repetitionPenaltyRange,
@@ -201,7 +204,6 @@ public class TextGenerationParameters { // TODO: Add more validation
 		this.doSample = doSample;
 		this.earlyStopping = earlyStopping;
 		this.nextWord = nextWord;
-		this.getHiddenStates = getHiddenStates;
 		this.outputNonzeroProbs = outputNonzeroProbs;
 		this.generateUntilSentence = generateUntilSentence;
 		this.beamNumber = beamNumber;
