@@ -38,7 +38,7 @@ public enum TextGenModel {
 	@SerializedName("sigurd-2.9b-v1")
 	SIGURD_OLD,
 	@SerializedName("6B-v4")
-	SIGURD(true, new PresetModulePrefixes[]
+	SIGURD(true, true, new PresetModulePrefixes[]
 			{PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.PROSE_AUGMENTER,
 			PresetModulePrefixes.CROSSGENRE,
@@ -51,7 +51,7 @@ public enum TextGenModel {
 			PresetModulePrefixes.AUTHOR_JULES_VERNE,
 			PresetModulePrefixes.AUTHOR_WILLIAM_SHAKESPEARE}),
 	@SerializedName("euterpe-v2")
-	EUTERPE(true, new PresetModulePrefixes[]
+	EUTERPE(true, true, new PresetModulePrefixes[]
 			{PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.PROSE_AUGMENTER,
 			PresetModulePrefixes.CROSSGENRE,
@@ -64,7 +64,7 @@ public enum TextGenModel {
 			PresetModulePrefixes.AUTHOR_JULES_VERNE,
 			PresetModulePrefixes.AUTHOR_WILLIAM_SHAKESPEARE}),
 	@SerializedName("krake-v2")
-	KRAKE(false, new PresetModulePrefixes[]
+	KRAKE(false, true, new PresetModulePrefixes[]
 			{PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.CROSSGENRE,
 			PresetModulePrefixes.AUTHOR_ALGERNON_BLACKWOOD,
@@ -76,26 +76,28 @@ public enum TextGenModel {
 			PresetModulePrefixes.AUTHOR_JULES_VERNE,
 			PresetModulePrefixes.AUTHOR_WILLIAM_SHAKESPEARE}),
 	@SerializedName("clio-v1")
-	CLIO(false, new PresetModulePrefixes[]
+	CLIO(false, false, new PresetModulePrefixes[]
 			{PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.INSTRUCT,
 			PresetModulePrefixes.PROSE_AUGMENTER}),
 	@SerializedName("kayra-v1")
-	KAYRA(false, new PresetModulePrefixes[]
+	KAYRA(false, false, new PresetModulePrefixes[]
 			{PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.INSTRUCT,
 			PresetModulePrefixes.PROSE_AUGMENTER});
 
-	private final boolean supportsCustomModules;
+	private final boolean supportsCustomModules, supportsHiddenStates;
 	private final PresetModulePrefixes[] compatiblePresetModules;
 	
 	private TextGenModel() {
 		supportsCustomModules = false;
+		supportsHiddenStates = true;
 		compatiblePresetModules = new PresetModulePrefixes[] {PresetModulePrefixes.NO_MODULE};
 	}
-	private TextGenModel(boolean supportsCustomModules, 
+	private TextGenModel(boolean supportsCustomModules, boolean supportsHiddenStates,
 			PresetModulePrefixes[] presetModules) {
 		this.supportsCustomModules = supportsCustomModules;
+		this.supportsHiddenStates = supportsHiddenStates;
 		
 		List<PresetModulePrefixes> moduleList = new LinkedList<>(Arrays.asList(presetModules));
 		moduleList.add(PresetModulePrefixes.NO_MODULE);
