@@ -127,7 +127,7 @@ public class NAIAPI {
 	}
 	
 	public TextGenerationResponse generateText(TextGenerationRequest payload) throws IOException {
-		payload.setParameters(payload.getParameters().toBuilder().build());
+		payload = payload.toBuilder().build();
 		payload.getParameters().setGetHiddenStates(false);
 		
 		String resultBody = postToNovelAI("ai/generate", payload, String.class, t -> {
@@ -158,7 +158,10 @@ public class NAIAPI {
 	}
 	
 	public double[] fetchHiddenStates(TextGenerationRequest payload) throws IOException {
-		payload.setParameters(payload.getParameters().toBuilder().build());
+		if (!payload.getModel().isSupportsHiddenStates()) {
+			throw new IllegalArgumentException("Model '"+payload.getModel()+"' does not support fetching hidden states!");
+		}
+		payload = payload.toBuilder().build();
 		payload.getParameters().setGetHiddenStates(true);
 		
 		String resultBody = postToNovelAI("ai/generate", payload, String.class, t -> {
