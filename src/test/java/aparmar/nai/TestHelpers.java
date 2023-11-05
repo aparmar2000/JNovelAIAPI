@@ -63,6 +63,7 @@ public class TestHelpers {
 		HashMap<String, Method> setterMap = new HashMap<>();
 		for (Method method : getterSetterMethods) {
 			String fieldName = method.getName().replaceFirst("^(?:is|get|set)", "");
+			method.setAccessible(true);
 			
 			if (method.getReturnType().equals(Void.TYPE)) {
 				setterMap.put(fieldName, method);
