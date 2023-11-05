@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -29,14 +30,19 @@ import org.mockito.ArgumentMatcher;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
 
 import aparmar.nai.data.request.IQueryStringPayload;
+import aparmar.nai.data.request.TextGenModel;
+import aparmar.nai.data.request.TextGenerationParameters;
+import aparmar.nai.data.request.TextGenerationRequest;
 import aparmar.nai.data.request.VoiceGenerationRequest;
 import aparmar.nai.data.request.VoiceGenerationRequest.PresetV2Voice;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest;
-import aparmar.nai.data.request.imagen.ImageParameters;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
+import aparmar.nai.data.request.imagen.ImageParameters;
 import aparmar.nai.data.response.AudioWrapper;
+import aparmar.nai.data.response.TextGenerationResponse;
 import aparmar.nai.data.response.TooManyRequestsException;
 import aparmar.nai.data.response.UserData;
 import aparmar.nai.data.response.UserInfo;
@@ -44,12 +50,15 @@ import aparmar.nai.data.response.UserKeystore;
 import aparmar.nai.data.response.UserPriority;
 import aparmar.nai.data.response.UserSubscription;
 import aparmar.nai.data.response.UserSubscription.SubscriptionTier;
+import aparmar.nai.utils.TextParameterPresets;
+import aparmar.nai.utils.tokenization.TokenizedChunk;
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import okio.Buffer;
 
 class UnitTestNAIAPI {
 	private Gson gson = new Gson();
@@ -132,7 +141,7 @@ class UnitTestNAIAPI {
 		};
 	}
 	
-	private ArgumentMatcher<Request> extendedRequestMatcher(String endpoint, IQueryStringPayload payload) {
+	private ArgumentMatcher<Request> requestQueryMatcher(String endpoint, IQueryStringPayload payload) {
 		return req -> {
 			if (!requestMatcher(endpoint).matches(req)) { return false;}
 			
@@ -149,6 +158,29 @@ class UnitTestNAIAPI {
 				matchedKeys.add(key);
 			}
 			return matchedKeys.size() == expectedQueryData.size();
+		};
+	}
+	
+	private <T> ArgumentMatcher<Request> requestPayloadMatcher(String endpoint, T payload, Class<T> payloadClazz) {
+		return req -> {
+			if (!requestMatcher(endpoint).matches(req)) {
+				throw new AssertionError("endpoint mismatch");
+			}
+			
+			try (Buffer sink = new okio.Buffer()) {
+				req.body().writeTo(sink);
+				
+				String requestPayloadString = sink.readString(Charset.defaultCharset());
+				boolean matches = Objects.equals(payload, gson.fromJson(requestPayloadString, payloadClazz));
+				if (!matches) {
+					throw new AssertionError(payload+"\n\n"+gson.fromJson(requestPayloadString, payloadClazz));
+				}
+				return matches;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			return false;
 		};
 	}
 
@@ -244,7 +276,7 @@ class UnitTestNAIAPI {
 		VoiceGenerationRequest testGenerationRequest = 
 				VoiceGenerationRequest.presetV2VoiceRequest("test", PresetV2Voice.AINI);
 		AudioWrapper actualAudioResponse = apiInstance.generateVoice(testGenerationRequest);
-		verify(mockHttpClient).newCall(argThat(extendedRequestMatcher("ai/generate-voice", testGenerationRequest)));
+		verify(mockHttpClient).newCall(argThat(requestQueryMatcher("ai/generate-voice", testGenerationRequest)));
 		assertArrayEquals(expectedBytes, actualAudioResponse.getBytes());
 	}
 
@@ -267,6 +299,57 @@ class UnitTestNAIAPI {
 				.build();
 		apiInstance.generateImage(testGenerationRequest);
 		verify(mockHttpClient).newCall(argThat(requestMatcher("ai/generate-image")));
+	}
+
+	@Test
+	void testGenerateText() throws IOException {
+		String testPresetName = TextParameterPresets.getAssociatedPresets(TextGenModel.CLIO)[0];
+		TextGenerationParameters testPreset = TextParameterPresets.getPresetByExtendedName(testPresetName);
+		TextGenerationRequest testTextRequest = TextGenerationRequest.builder()
+				.model(TextGenModel.CLIO)
+				.input("This is an API call!\n")
+				.parameters(testPreset.toBuilder()
+						.useString(true)
+						.getHiddenStates(true)
+						.build())
+				.build();
+		
+		TextGenerationResponse mockResponse = new TextGenerationResponse();
+		mockResponse.setOutput(new TokenizedChunk(TextGenModel.CLIO, "test"));
+		JsonObject mockResponseJson = new JsonObject();
+		mockResponseJson.addProperty("output", mockResponse.getOutput().getTextChunk());
+		mockResponseJson(mockResponseJson, JsonObject.class);
+		
+		TextGenerationResponse actualResponse = apiInstance.generateText(testTextRequest);
+		testTextRequest.getParameters().setGetHiddenStates(false);
+		verify(mockHttpClient).newCall(argThat(requestPayloadMatcher("ai/generate", testTextRequest, TextGenerationRequest.class)));
+		assertEquals(mockResponse, actualResponse);
+	}
+
+	@Test
+	void testFetchHiddenStates() throws IOException {
+		Random rand = new Random();
+		
+		String testPresetName = TextParameterPresets.getAssociatedPresets(TextGenModel.CLIO)[0];
+		TextGenerationParameters testPreset = TextParameterPresets.getPresetByExtendedName(testPresetName);
+		TextGenerationRequest testTextRequest = TextGenerationRequest.builder()
+				.model(TextGenModel.CLIO)
+				.input("This is an API call!\n")
+				.parameters(testPreset.toBuilder()
+						.useString(true)
+						.getHiddenStates(false)
+						.build())
+				.build();
+		
+		double[] mockResponse = rand.doubles(15).toArray();
+		JsonObject mockResponseJson = new JsonObject();
+		mockResponseJson.add("output", gson.toJsonTree(mockResponse));
+		mockResponseJson(mockResponseJson, JsonObject.class);
+		
+		double[] actualResponse = apiInstance.fetchHiddenStates(testTextRequest);
+		testTextRequest.getParameters().setGetHiddenStates(true);
+		verify(mockHttpClient).newCall(argThat(requestPayloadMatcher("ai/generate", testTextRequest, TextGenerationRequest.class)));
+		assertArrayEquals(mockResponse, actualResponse);
 	}
 
 }
