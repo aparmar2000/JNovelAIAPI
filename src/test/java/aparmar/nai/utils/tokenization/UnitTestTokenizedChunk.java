@@ -13,6 +13,7 @@ import java.util.LinkedList;
 import org.junit.jupiter.api.Test;
 
 import aparmar.nai.TestHelpers;
+import aparmar.nai.data.request.TextGenModel;
 import aparmar.nai.utils.tokenization.TokenizedChunk.TokenizedChunkSnapshot;
 
 public class UnitTestTokenizedChunk {
@@ -43,6 +44,17 @@ public class UnitTestTokenizedChunk {
 	private static final int[] TEST_TOKENS_2 = new int[]{1374, 401, 333, 9019, 11927, 411, 401, 10078, 357, 36380, 49230};
 	
 
+	@Test
+	void testHelperConstructors() {
+		TokenizedChunk testChunk1 = new TokenizedChunk(TextGenModel.KAYRA, TEST_STRING_1);
+		TokenizedChunk testChunk2 = new TokenizedChunk(TextGenModel.KAYRA.getTokenizerForModel(), TEST_STRING_1);
+		assertEquals(testChunk1, testChunk2);
+		
+		testChunk1 = new TokenizedChunk(TextGenModel.KAYRA, TEST_TOKENS_1);
+		testChunk2 = new TokenizedChunk(TextGenModel.KAYRA.getTokenizerForModel(), TEST_TOKENS_1);
+		assertEquals(testChunk1, testChunk2);
+	}
+	
 	@Test
 	void testBase64Conversion() {
 		TokenizedChunk testChunkOriginal = new TokenizedChunk(Tokenizers.NERDSTASH_V2, TEST_STRING_1);

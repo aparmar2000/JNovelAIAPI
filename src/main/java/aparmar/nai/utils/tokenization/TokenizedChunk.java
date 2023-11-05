@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
+import aparmar.nai.data.request.TextGenModel;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -42,9 +43,27 @@ public class TokenizedChunk implements Cloneable {
 			tokens = tokenizer.encode(textChunk);
 		}
 	}
+	public TokenizedChunk(TextGenModel model, String textChunk) {
+		this.tokenizer = model.getTokenizerForModel();
+		this.textChunk = textChunk;
+		if (textChunk.isEmpty()) {
+			tokens = new int[0];
+		} else {
+			tokens = tokenizer.encode(textChunk);
+		}
+	}
 	
 	public TokenizedChunk(Tokenizers tokenizer, int[] tokens) {
 		this.tokenizer = tokenizer;
+		this.tokens = tokens;
+		if (tokens.length==0) {
+			textChunk = "";
+		} else {
+			textChunk = tokenizer.decode(tokens);
+		}
+	}
+	public TokenizedChunk(TextGenModel model, int[] tokens) {
+		this.tokenizer = model.getTokenizerForModel();
 		this.tokens = tokens;
 		if (tokens.length==0) {
 			textChunk = "";
