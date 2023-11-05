@@ -5,8 +5,6 @@ import static aparmar.nai.utils.HelperConstants.AUTH_HEADER;
 import static aparmar.nai.utils.HelperConstants.MEDIA_TYPE_JSON;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -21,7 +19,6 @@ import aparmar.nai.data.request.IQueryStringPayload;
 import aparmar.nai.data.request.ImageAnnotateRequest;
 import aparmar.nai.data.request.ImageUpscaleRequest;
 import aparmar.nai.data.request.ImageUpscaleRequest.UpscaleFactor;
-import aparmar.nai.data.request.TextGenerationParameters;
 import aparmar.nai.data.request.TextGenerationRequest;
 import aparmar.nai.data.request.VoiceGenerationRequest;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest;
@@ -52,7 +49,6 @@ import okhttp3.Response;
 public class NAIAPI {	
 	private final OkHttpClient client;
 	private final Gson gson;
-	private final Method hiddenStateSetter;
 	
 	private final String accessToken;
 	
@@ -75,15 +71,6 @@ public class NAIAPI {
 		gsonBuilder.registerTypeAdapter(ImageAnnotateRequest.class, ImageAnnotateRequest.SERIALIZER_INSTANCE);
 		gsonBuilder.registerTypeAdapter(ImageGenerationRequest.class, new ImageGenerationRequest());
 		gson = gsonBuilder.create();
-		
-		Method hiddenSetter = null;
-		try {
-			hiddenSetter = TextGenerationParameters.class
-					.getMethod("setGetHiddenStates", new Class[] {Boolean.class});
-		} catch (NoSuchMethodException | SecurityException e) {
-			e.printStackTrace();
-		}
-		hiddenStateSetter = hiddenSetter;
 	}
 	
 	// === User Info Endpoints ===
@@ -140,6 +127,9 @@ public class NAIAPI {
 	}
 	
 	public TextGenerationResponse generateText(TextGenerationRequest payload) throws IOException {
+		payload.setParameters(payload.getParameters().toBuilder().build());
+		payload.getParameters().setGetHiddenStates(false);
+		
 		String resultBody = postToNovelAI("ai/generate", payload, String.class, t -> {
 			try { return t.string(); } catch (IOException e) { return e.getLocalizedMessage(); }
 		});
@@ -168,11 +158,8 @@ public class NAIAPI {
 	}
 	
 	public double[] fetchHiddenStates(TextGenerationRequest payload) throws IOException {
-		try {
-			hiddenStateSetter.invoke(payload.getParameters(), Boolean.TRUE);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			throw new IOException("Failed to assemble request: "+e.getLocalizedMessage());
-		}
+		payload.setParameters(payload.getParameters().toBuilder().build());
+		payload.getParameters().setGetHiddenStates(true);
 		
 		String resultBody = postToNovelAI("ai/generate", payload, String.class, t -> {
 			try { return t.string(); } catch (IOException e) { return e.getLocalizedMessage(); }
