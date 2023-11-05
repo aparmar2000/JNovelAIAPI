@@ -1,7 +1,9 @@
 package aparmar.nai.data.request;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -9,11 +11,13 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode
 public class TextGenerationParameters { // TODO: Add more validation
 	
 	public enum PhraseRepPenSetting {
@@ -29,6 +33,19 @@ public class TextGenerationParameters { // TODO: Add more validation
 		AGGRESSIVE,
 		@SerializedName("very_aggressive")
 		VERY_AGGRESSIVE;
+	}
+	
+	@EqualsAndHashCode.Include(replaces="stopSequences")
+	private List<List<Integer>> stopSequenceGetterForEquals() {
+		return stopSequences.stream()
+				.map(arr->Arrays.stream(arr).boxed().collect(Collectors.toList()))
+				.collect(Collectors.toList());
+	}
+	@EqualsAndHashCode.Include(replaces="badWordIds")
+	private List<List<Integer>> badWordIdsGetterForEquals() {
+		return badWordIds.stream()
+				.map(arr->Arrays.stream(arr).boxed().collect(Collectors.toList()))
+				.collect(Collectors.toList());
 	}
 	
 	@SerializedName("stop_sequences")
@@ -182,7 +199,7 @@ public class TextGenerationParameters { // TODO: Add more validation
 	@Builder(toBuilder = true)
 	public TextGenerationParameters(List<int[]> stopSequences, List<int[]> badWordIds, List<LogitBias> logitBiases, int[] order,
 			int[] repetitionPenaltyWhitelist, double temperature, int maxLength, int minLength, int numLogprobs, boolean useString,
-			boolean useCache, boolean doSample, boolean earlyStopping, boolean nextWord,
+			boolean useCache, boolean doSample, boolean earlyStopping, boolean nextWord, boolean getHiddenStates,
 			boolean outputNonzeroProbs, boolean generateUntilSentence, int beamNumber, int beamGroupNumber,
 			String cfgPrompt, double cfgScale, double cfgAlpha, double topK, double topA, double topP, double topG,
 			double typicalP, double tailFreeSampling, double repetitionPenalty, int repetitionPenaltyRange,
@@ -204,6 +221,7 @@ public class TextGenerationParameters { // TODO: Add more validation
 		this.doSample = doSample;
 		this.earlyStopping = earlyStopping;
 		this.nextWord = nextWord;
+		this.getHiddenStates = getHiddenStates;
 		this.outputNonzeroProbs = outputNonzeroProbs;
 		this.generateUntilSentence = generateUntilSentence;
 		this.beamNumber = beamNumber;
