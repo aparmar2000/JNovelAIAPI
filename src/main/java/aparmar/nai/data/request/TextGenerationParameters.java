@@ -7,13 +7,11 @@ import java.util.stream.Collectors;
 
 import com.google.gson.annotations.SerializedName;
 
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Data
 @NoArgsConstructor
@@ -77,7 +75,6 @@ public class TextGenerationParameters { // TODO: Add more validation
 	private boolean earlyStopping; // TODO: What is this?
 	@SerializedName("next_word")
 	private boolean nextWord; // TODO: What is this?
-	@Setter(value = AccessLevel.PACKAGE)
 	@SerializedName("get_hidden_states")
 	private boolean getHiddenStates = false;
 	@SerializedName("output_nonzero_probs")
