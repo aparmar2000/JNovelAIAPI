@@ -5,9 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -205,5 +208,29 @@ public class TestHelpers {
 			}
 			return;
 		}
+	}
+	
+	public static interface NetworkRunnableTest {
+		public void run() throws IOException, AssertionError;
+	}
+	
+	public static void runTestToleratingTimeouts(int maxAttempts, int delay, NetworkRunnableTest test) throws AssertionError, Exception {
+		for (int attempt=0; attempt<maxAttempts; attempt++) {
+			try {
+				test.run();
+			} catch (SocketTimeoutException e) {
+				if (attempt+1>=maxAttempts) {
+					throw e;
+				}
+				Thread.sleep(delay);
+				continue;
+			} catch (Exception e) {
+				throw e;
+			}
+			
+			return;
+		}
+		
+		fail("Ran out of retries!");
 	}
 }
