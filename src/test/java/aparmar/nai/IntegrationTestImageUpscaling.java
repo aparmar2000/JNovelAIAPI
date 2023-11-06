@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -24,23 +22,25 @@ class IntegrationTestImageUpscaling extends AbstractFeatureIntegrationTest {
 
 	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
 	@Test
-	void testImageUpscaling() throws FileNotFoundException, IOException {
-		BufferedImage baseImage = ImageIO.read(InternalResourceLoader.getInternalFile("sample_lowres.jpg"));
-		
-		ImageUpscaleRequest request = ImageUpscaleRequest.builder()
-				.image(new Base64Image(baseImage))
-				.upscaleFactor(UpscaleFactor.TWO)
-				.build();
-		ImageSetWrapper result = apiInstance.upscaleImage(request);
-		
-		assertNotNull(result);
-		assertEquals(1, result.getImageCount());
-		IIOImage resultImage = result.getImage(0);
-		assertNotNull(resultImage);
-		assertEquals(baseImage.getHeight()*2, resultImage.getRenderedImage().getHeight());
-		assertEquals(baseImage.getWidth()*2, resultImage.getRenderedImage().getWidth());
-		
-		result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"upscale_test.png"));
+	void testImageUpscaling() throws AssertionError, Exception {
+		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
+			BufferedImage baseImage = ImageIO.read(InternalResourceLoader.getInternalFile("sample_lowres.jpg"));
+			
+			ImageUpscaleRequest request = ImageUpscaleRequest.builder()
+					.image(new Base64Image(baseImage))
+					.upscaleFactor(UpscaleFactor.TWO)
+					.build();
+			ImageSetWrapper result = apiInstance.upscaleImage(request);
+			
+			assertNotNull(result);
+			assertEquals(1, result.getImageCount());
+			IIOImage resultImage = result.getImage(0);
+			assertNotNull(resultImage);
+			assertEquals(baseImage.getHeight()*2, resultImage.getRenderedImage().getHeight());
+			assertEquals(baseImage.getWidth()*2, resultImage.getRenderedImage().getWidth());
+			
+			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"upscale_test.png"));
+		});
 	}
 
 }

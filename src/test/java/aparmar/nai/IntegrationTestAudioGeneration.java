@@ -3,8 +3,6 @@ package aparmar.nai;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
-
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -21,58 +19,66 @@ public class IntegrationTestAudioGeneration extends AbstractFeatureIntegrationTe
 
 	@ParameterizedTest
 	@EnumSource(PresetV1Voice.class)
-	public void testGenerateVoiceV1NonOpus(PresetV1Voice testVoice) throws IOException {
-		VoiceGenerationRequest testRequest = VoiceGenerationRequest.builder()
-				.text("test")
-				.voice(testVoice.getVoiceId())
-				.opus(false)
-				.version(VoiceVersion.VERSION_1)
-				.build();
-		AudioWrapper actualResult = apiInstance.generateVoice(testRequest);
-		assertNotNull(actualResult);
-		assertTrue(actualResult.getBytes().length > 100);
+	public void testGenerateVoiceV1NonOpus(PresetV1Voice testVoice) throws AssertionError, Exception {
+		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
+			VoiceGenerationRequest testRequest = VoiceGenerationRequest.builder()
+					.text("test")
+					.voice(testVoice.getVoiceId())
+					.opus(false)
+					.version(VoiceVersion.VERSION_1)
+					.build();
+			AudioWrapper actualResult = apiInstance.generateVoice(testRequest);
+			assertNotNull(actualResult);
+			assertTrue(actualResult.getBytes().length > 100);
+		});
 	}
 
 	@ParameterizedTest
 	@EnumSource(PresetV1Voice.class)
-	public void testGenerateVoiceV1Opus(PresetV1Voice testVoice) throws IOException {
-		VoiceGenerationRequest testRequest = VoiceGenerationRequest.builder()
-				.text("test")
-				.voice(testVoice.getVoiceId())
-				.opus(true)
-				.version(VoiceVersion.VERSION_1)
-				.build();
-		AudioWrapper actualResult = apiInstance.generateVoice(testRequest);
-		assertNotNull(actualResult);
-		assertTrue(actualResult.getBytes().length > 100);
+	public void testGenerateVoiceV1Opus(PresetV1Voice testVoice) throws AssertionError, Exception {
+		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
+			VoiceGenerationRequest testRequest = VoiceGenerationRequest.builder()
+					.text("test")
+					.voice(testVoice.getVoiceId())
+					.opus(true)
+					.version(VoiceVersion.VERSION_1)
+					.build();
+			AudioWrapper actualResult = apiInstance.generateVoice(testRequest);
+			assertNotNull(actualResult);
+			assertTrue(actualResult.getBytes().length > 100);
+		});
 	}
 
 	@ParameterizedTest
 	@EnumSource(PresetV2Voice.class)
-	public void testGenerateVoiceV2NonOpus(PresetV2Voice testVoice) throws IOException {
-		VoiceGenerationRequest testRequest = VoiceGenerationRequest.builder()
-				.text("test")
-				.seed(testVoice.getSeedString())
-				.opus(false)
-				.version(VoiceVersion.VERSION_2)
-				.build();
-		AudioWrapper actualResult = apiInstance.generateVoice(testRequest);
-		assertNotNull(actualResult);
-		assertTrue(actualResult.getBytes().length > 100);
+	public void testGenerateVoiceV2NonOpus(PresetV2Voice testVoice) throws AssertionError, Exception {
+		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
+			VoiceGenerationRequest testRequest = VoiceGenerationRequest.builder()
+					.text("test")
+					.seed(testVoice.getSeedString())
+					.opus(false)
+					.version(VoiceVersion.VERSION_2)
+					.build();
+			AudioWrapper actualResult = apiInstance.generateVoice(testRequest);
+			assertNotNull(actualResult);
+			assertTrue(actualResult.getBytes().length > 100);
+		});
 	}
 
 	@ParameterizedTest
 	@EnumSource(PresetV2Voice.class)
-	public void testGenerateVoiceV2Opus(PresetV2Voice testVoice) throws IOException {
-		VoiceGenerationRequest testRequest = VoiceGenerationRequest.builder()
-				.text("test")
-				.seed(testVoice.getSeedString())
-				.opus(true)
-				.version(VoiceVersion.VERSION_2)
-				.build();
-		AudioWrapper actualResult = apiInstance.generateVoice(testRequest);
-		assertNotNull(actualResult);
-		assertTrue(actualResult.getBytes().length > 100);
+	public void testGenerateVoiceV2Opus(PresetV2Voice testVoice) throws AssertionError, Exception {
+		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
+			VoiceGenerationRequest testRequest = VoiceGenerationRequest.builder()
+					.text("test")
+					.seed(testVoice.getSeedString())
+					.opus(true)
+					.version(VoiceVersion.VERSION_2)
+					.build();
+			AudioWrapper actualResult = apiInstance.generateVoice(testRequest);
+			assertNotNull(actualResult);
+			assertTrue(actualResult.getBytes().length > 100);
+		});
 	}
 
 	// TODO: Maybe write this later? Have to deal with ID3.
