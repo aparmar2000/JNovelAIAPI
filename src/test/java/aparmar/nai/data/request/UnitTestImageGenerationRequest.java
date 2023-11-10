@@ -23,6 +23,7 @@ import aparmar.nai.data.request.imagen.ImageControlNetParameters.ControlnetModel
 import aparmar.nai.data.request.imagen.ImageGenerationRequest;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenAction;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
+import aparmar.nai.data.request.imagen.ImageGenerationRequest.QualityTagsLocation;
 import aparmar.nai.data.request.imagen.ImageInpaintParameters;
 import aparmar.nai.data.request.imagen.ImageParameters;
 import aparmar.nai.data.request.imagen.ImageParameters.ImageGenSampler;
@@ -180,9 +181,28 @@ class UnitTestImageGenerationRequest {
 		assertEquals(testInstance.getParameters().toString(), result.get("parameters").getAsString());
 
 		testInstance.getParameters().setQualityToggle(true);
+		// DEFAULT quality tags insertion location
+		result = serializationInstance.serialize(testInstance, ImageParameters.class, mockJsonSerializationContext)
+				.getAsJsonObject();
+		assertEquals("input, very aesthetic, best quality, absurdres", result.get("input").getAsString());
+		assertEquals("ANIME_V2", result.get("model").getAsString());
+		assertEquals("GENERATE", result.get("action").getAsString());
+		assertEquals(testInstance.getParameters().toString(), result.get("parameters").getAsString());
+
+		// PREPEND quality tags insertion location
+		testInstance.getParameters().setQualityInsertLocation(QualityTagsLocation.PREPEND);
 		result = serializationInstance.serialize(testInstance, ImageParameters.class, mockJsonSerializationContext)
 				.getAsJsonObject();
 		assertEquals("very aesthetic, best quality, absurdres, input", result.get("input").getAsString());
+		assertEquals("ANIME_V2", result.get("model").getAsString());
+		assertEquals("GENERATE", result.get("action").getAsString());
+		assertEquals(testInstance.getParameters().toString(), result.get("parameters").getAsString());
+		
+		// APPEND quality tags insertion location
+		testInstance.getParameters().setQualityInsertLocation(QualityTagsLocation.APPEND);
+		result = serializationInstance.serialize(testInstance, ImageParameters.class, mockJsonSerializationContext)
+				.getAsJsonObject();
+		assertEquals("input, very aesthetic, best quality, absurdres", result.get("input").getAsString());
 		assertEquals("ANIME_V2", result.get("model").getAsString());
 		assertEquals("GENERATE", result.get("action").getAsString());
 		assertEquals(testInstance.getParameters().toString(), result.get("parameters").getAsString());
