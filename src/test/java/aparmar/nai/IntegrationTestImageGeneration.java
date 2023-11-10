@@ -39,7 +39,8 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 							28,1,
 							ImageParameters.ImageGenSampler.DPM_PLUS_PLUS_2S_ANCESTRAL,
 							false, false, false, 
-							false, 1, ImageGenerationRequest.ANIME_V2_LIGHT_UC, 1,
+							false, ImageGenerationRequest.QualityTagsLocation.DEFAULT, 
+							1, ImageGenerationRequest.ANIME_V2_LIGHT_UC, 1,
 							1))
 					.build();
 			ImageSetWrapper result = apiInstance.generateImage(testGenerationRequest);
