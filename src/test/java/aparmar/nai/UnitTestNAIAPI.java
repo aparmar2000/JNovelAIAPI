@@ -294,7 +294,8 @@ class UnitTestNAIAPI {
 						28,1,
 						ImageParameters.ImageGenSampler.K_EULER_ANCESTRAL,
 						true, false, false, 
-						true, 0, ImageGenerationRequest.FURRY_LOW_QUALITY_UC, 0,
+						true, ImageGenerationRequest.QualityTagsLocation.DEFAULT, 
+						0, ImageGenerationRequest.FURRY_LOW_QUALITY_UC, 0,
 						1))
 				.build();
 		apiInstance.generateImage(testGenerationRequest);
