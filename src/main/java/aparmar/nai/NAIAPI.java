@@ -34,6 +34,7 @@ import aparmar.nai.data.response.UserKeystore;
 import aparmar.nai.data.response.UserPriority;
 import aparmar.nai.data.response.UserSubscription;
 import aparmar.nai.utils.BuilderAssemblyFunction;
+import aparmar.nai.utils.GsonExcludeExclusionStrategy;
 import aparmar.nai.utils.RateLimitInterceptor;
 import aparmar.nai.utils.ResultParseFunction;
 import aparmar.nai.utils.ZipArchiveWrapper;
@@ -64,6 +65,7 @@ public class NAIAPI {
 			    .build();
 		
 		GsonBuilder gsonBuilder = new GsonBuilder();
+		gsonBuilder.setExclusionStrategies(new GsonExcludeExclusionStrategy());
 		gsonBuilder.registerTypeAdapter(LogProb.class, new LogProb());
 		gsonBuilder.registerTypeAdapter(Base64Image.class, new Base64Image());
 		gsonBuilder.registerTypeAdapter(UpscaleFactor.class, UpscaleFactor.TWO);
