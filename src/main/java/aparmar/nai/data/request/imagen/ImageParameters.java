@@ -5,6 +5,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import com.google.gson.annotations.SerializedName;
 
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.QualityTagsLocation;
+import aparmar.nai.utils.GsonExclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -65,6 +66,7 @@ public class ImageParameters {
 	@Builder.Default
 	protected boolean qualityToggle = false;
 	@Builder.Default
+	@GsonExclude
 	protected QualityTagsLocation qualityInsertLocation = QualityTagsLocation.DEFAULT;
 	@Builder.Default
 	protected int ucPreset = 0;
