@@ -28,13 +28,20 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 	public static final String ANIME_LOW_QUALITY_AND_BAD_ANATOMY_UC = "nsfw, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, blurry, blurry background, blur, blurred, long limbs, extra limbs, mutated, mutated limbs";
 	public static final String ANIME_LOW_QUALITY_UC = "nsfw, lowres, text, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry";
 	
+	public enum QualityTagsLocation {
+		DEFAULT,
+		PREPEND,
+		APPEND;
+	}
+	
 	@Getter
 	@RequiredArgsConstructor
 	public enum QualityTagsPreset {
-		V1_MODELS("masterpiece, best quality"),
-		ANIME_V2("very aesthetic, best quality, absurdres");
+		V1_MODELS("masterpiece, best quality", QualityTagsLocation.PREPEND),
+		ANIME_V2("very aesthetic, best quality, absurdres", QualityTagsLocation.APPEND);
 		
 		private final String tags;
+		private final QualityTagsLocation defaultLocation;
 	}
 	
 	@Getter
@@ -80,7 +87,21 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		
 		String alteredInput = src.getInput();
 		if (src.getParameters().isQualityToggle()) {
-			alteredInput = src.getModel().getQualityTagsPreset().getTags()+", "+alteredInput;
+			String qualityTagString = src.getModel().getQualityTagsPreset().getTags();
+			QualityTagsLocation qualityInsertLocation = src.getParameters().getQualityInsertLocation();
+			if (qualityInsertLocation == QualityTagsLocation.DEFAULT) {
+				qualityInsertLocation = src.getModel().getQualityTagsPreset().getDefaultLocation();
+			}
+			
+			switch (qualityInsertLocation) {
+			case DEFAULT:
+			case PREPEND:
+				alteredInput = qualityTagString+", "+alteredInput;
+				break;
+			case APPEND:
+				alteredInput = alteredInput+", "+qualityTagString;
+				break;
+			}
 		}
 		
 		wrapper.addProperty("input", alteredInput);
