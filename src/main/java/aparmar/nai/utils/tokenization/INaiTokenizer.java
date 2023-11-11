@@ -10,7 +10,9 @@ import com.google.common.primitives.Shorts;
 public abstract interface INaiTokenizer {
 	public abstract int[] encode(String text);
 	public abstract String decode(int[] tokens);
-	public abstract int countTokens(String text);
+	public default int countTokens(String text) {
+		return this.encode(text).length;
+	};
 	
 	public static int[] base64ToTokens(String base64) {
 		ShortBuffer tokenByteBuffer = 
