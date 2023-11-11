@@ -110,7 +110,7 @@ public class TokenizedChunk implements Cloneable {
 	public void setTokenizer(INaiTokenizer newTokenizer) {
 		lock.lock();
 		try {
-			if (tokenizer == newTokenizer) { return; }
+			if (tokenizer.equals(newTokenizer)) { return; }
 			tokenizer = newTokenizer;
 			if (!textChunk.isEmpty()) {
 				tokens = newTokenizer.encode(textChunk);
