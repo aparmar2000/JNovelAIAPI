@@ -12,6 +12,12 @@ public enum PresetModulePrefixes {
 	TEXT_ADVENTURE("theme_textadventure"),
 	INSTRUCT("special_instruct"),
 	PROSE_AUGMENTER("special_proseaugmenter"),
+	/** Expected format:
+	 * <pre>***\n
+	 *⁂\n
+	 *[ generation_type: generation_prompt ]\n</pre>
+	 */
+	LOREBOOK_GENERATION("utility_lorebookgenerator"),
 	OPENINGS("special_openings"), // Hidden module, maybe only Kayra has this?
 	
 	AUTHOR_ALGERNON_BLACKWOOD("style_algernonblackwood"),

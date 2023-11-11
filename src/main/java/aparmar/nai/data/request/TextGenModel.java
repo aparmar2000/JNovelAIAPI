@@ -42,6 +42,7 @@ public enum TextGenModel {
 			{PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.PROSE_AUGMENTER,
 			PresetModulePrefixes.CROSSGENRE,
+			PresetModulePrefixes.LOREBOOK_GENERATION,
 			PresetModulePrefixes.AUTHOR_ALGERNON_BLACKWOOD,
 			PresetModulePrefixes.AUTHOR_ARTHUR_CONAN_DOYLE,
 			PresetModulePrefixes.AUTHOR_EDGAR_ALLAN_POE,
@@ -55,6 +56,7 @@ public enum TextGenModel {
 			{PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.PROSE_AUGMENTER,
 			PresetModulePrefixes.CROSSGENRE,
+			PresetModulePrefixes.LOREBOOK_GENERATION,
 			PresetModulePrefixes.AUTHOR_ALGERNON_BLACKWOOD,
 			PresetModulePrefixes.AUTHOR_ARTHUR_CONAN_DOYLE,
 			PresetModulePrefixes.AUTHOR_EDGAR_ALLAN_POE,
@@ -79,12 +81,15 @@ public enum TextGenModel {
 	CLIO(false, false, new PresetModulePrefixes[]
 			{PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.INSTRUCT,
-			PresetModulePrefixes.PROSE_AUGMENTER}),
+			PresetModulePrefixes.PROSE_AUGMENTER,
+			PresetModulePrefixes.LOREBOOK_GENERATION}),
 	@SerializedName("kayra-v1")
 	KAYRA(false, false, new PresetModulePrefixes[]
 			{PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.INSTRUCT,
-			PresetModulePrefixes.PROSE_AUGMENTER});
+			PresetModulePrefixes.PROSE_AUGMENTER,
+			PresetModulePrefixes.OPENINGS,
+			PresetModulePrefixes.LOREBOOK_GENERATION});
 
 	private final boolean supportsCustomModules, supportsHiddenStates;
 	private final PresetModulePrefixes[] compatiblePresetModules;
