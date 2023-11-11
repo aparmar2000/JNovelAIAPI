@@ -18,7 +18,7 @@ public class TokenizedChunk implements Cloneable {
 	@EqualsAndHashCode.Exclude
 	private final ReentrantLock lock = new ReentrantLock();
 	
-	private Tokenizers tokenizer;
+	private INaiTokenizer tokenizer;
 	@EqualsAndHashCode.Exclude
 	private String textChunk;
 	private int[] tokens;
@@ -29,12 +29,12 @@ public class TokenizedChunk implements Cloneable {
 	@Data
 	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 	public static class TokenizedChunkSnapshot {
-		private final Tokenizers tokenizer;
+		private final INaiTokenizer tokenizer;
 		private final String text;
 		private final int[] tokens;
 	}
 	
-	public TokenizedChunk(Tokenizers tokenizer, String textChunk) {
+	public TokenizedChunk(INaiTokenizer tokenizer, String textChunk) {
 		this.tokenizer = tokenizer;
 		this.textChunk = textChunk;
 		if (textChunk.isEmpty()) {
@@ -53,7 +53,7 @@ public class TokenizedChunk implements Cloneable {
 		}
 	}
 	
-	public TokenizedChunk(Tokenizers tokenizer, int[] tokens) {
+	public TokenizedChunk(INaiTokenizer tokenizer, int[] tokens) {
 		this.tokenizer = tokenizer;
 		this.tokens = tokens;
 		if (tokens.length==0) {
@@ -74,11 +74,11 @@ public class TokenizedChunk implements Cloneable {
 	
 	private TokenizedChunk(TokenizedChunk other) {
 		this.tokenizer = other.getTokenizer();
-		this.tokens = other.getTokens();
+		this.tokens = other.getTokens().clone();
 		this.textChunk = other.getTextChunk();
 	}
 
-	public Tokenizers getTokenizer() {
+	public INaiTokenizer getTokenizer() {
 		lock.lock();
 		try { return tokenizer; } finally { lock.unlock(); }
 	}
@@ -107,10 +107,10 @@ public class TokenizedChunk implements Cloneable {
 	/**
 	 * Updates the tokenizer used for this chunk. Re-encodes tokens from the text.
 	 */
-	public void setTokenizer(Tokenizers newTokenizer) {
+	public void setTokenizer(INaiTokenizer newTokenizer) {
 		lock.lock();
 		try {
-			if (tokenizer == newTokenizer) { return; }
+			if (tokenizer.equals(newTokenizer)) { return; }
 			tokenizer = newTokenizer;
 			if (!textChunk.isEmpty()) {
 				tokens = newTokenizer.encode(textChunk);
@@ -199,7 +199,7 @@ public class TokenizedChunk implements Cloneable {
 		appendString(Arrays.stream(other).map(TokenizedChunk::getTextChunk).collect(Collectors.joining()));
 	}
 	
-	public static TokenizedChunk mergeTokenizedChunks(Tokenizers tokenizer, TokenizedChunk... chunks) {
+	public static TokenizedChunk mergeTokenizedChunks(INaiTokenizer tokenizer, TokenizedChunk... chunks) {
 		return new TokenizedChunk(tokenizer, Arrays.stream(chunks).map(TokenizedChunk::getTextChunk).collect(Collectors.joining()));
 	}
 	
@@ -220,7 +220,7 @@ public class TokenizedChunk implements Cloneable {
 		return INaiTokenizer.tokensToBase64(tokens);
 	}
 	
-	public static TokenizedChunk fromBase64Tokens(Tokenizers tokenizer, String base64) {
+	public static TokenizedChunk fromBase64Tokens(INaiTokenizer tokenizer, String base64) {
 		return new TokenizedChunk(tokenizer, INaiTokenizer.base64ToTokens(base64));
 	}
 }
