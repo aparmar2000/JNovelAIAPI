@@ -74,7 +74,7 @@ public class TokenizedChunk implements Cloneable {
 	
 	private TokenizedChunk(TokenizedChunk other) {
 		this.tokenizer = other.getTokenizer();
-		this.tokens = other.getTokens();
+		this.tokens = other.getTokens().clone();
 		this.textChunk = other.getTextChunk();
 	}
 
