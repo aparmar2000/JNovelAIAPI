@@ -44,15 +44,11 @@ public class InternalResourceLoader {
 			throw new FileNotFoundException(filename+" was not found!");
 		}
 		
-		try {
-			File foundFile = new File(foundResource.toURI());
-			resourceCache.put(filename, foundFile);
-			return foundFile;
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
+		File foundFile = new File(foundResource.toExternalForm());
+		resourceCache.put(filename, foundFile);
+		return foundFile;
 		
-		throw new AssertionError("The resource URL returned by getResource("+filename+") couldn't be converted to a URI.");
+//		throw new AssertionError("The resource URL returned by getResource("+filename+") couldn't be converted to a URI.");
 	}
 	
 //	public static File getInternalResourceTempFile(String filename) throws IOException {
