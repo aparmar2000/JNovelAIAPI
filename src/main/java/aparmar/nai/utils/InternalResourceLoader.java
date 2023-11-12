@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
@@ -44,11 +45,15 @@ public class InternalResourceLoader {
 			throw new FileNotFoundException(filename+" was not found!");
 		}
 		
-		File foundFile = new File(foundResource.toExternalForm());
-		resourceCache.put(filename, foundFile);
-		return foundFile;
+		try {
+			File foundFile = new File(new URI(foundResource.getProtocol(), foundResource.getPath(), null));
+			resourceCache.put(filename, foundFile);
+			return foundFile;
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
 		
-//		throw new AssertionError("The resource URL returned by getResource("+filename+") couldn't be converted to a URI.");
+		throw new AssertionError("The resource URL returned by getResource("+filename+") couldn't be converted to a URI.");
 	}
 	
 //	public static File getInternalResourceTempFile(String filename) throws IOException {
