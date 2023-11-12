@@ -24,7 +24,7 @@ class IntegrationTestImageUpscaling extends AbstractFeatureIntegrationTest {
 	@Test
 	void testImageUpscaling() throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
-			BufferedImage baseImage = ImageIO.read(InternalResourceLoader.getInternalFile("sample_lowres.jpg"));
+			BufferedImage baseImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_lowres.jpg"));
 			
 			ImageUpscaleRequest request = ImageUpscaleRequest.builder()
 					.image(new Base64Image(baseImage))

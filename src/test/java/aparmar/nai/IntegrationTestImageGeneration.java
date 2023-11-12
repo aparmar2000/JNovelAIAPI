@@ -60,7 +60,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 	@Test
 	void testImage2ImageGeneration() throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
-			BufferedImage baseImage = ImageIO.read(InternalResourceLoader.getInternalFile("sample_base_image.jpg"));
+			BufferedImage baseImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.jpg"));
 			
 			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
 					.input("portrait of a woman")
@@ -98,8 +98,8 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 	@Test
 	void testImageInpainting() throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
-			BufferedImage baseImage = ImageIO.read(InternalResourceLoader.getInternalFile("sample_base_image.jpg"));
-			BufferedImage maskImage = ImageIO.read(InternalResourceLoader.getInternalFile("sample_mask.png"));
+			BufferedImage baseImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.jpg"));
+			BufferedImage maskImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_mask.png"));
 			
 			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
 					.input("portrait of a woman")
@@ -135,7 +135,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 	@Test
 	void testControlledImageGeneration() throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
-			BufferedImage comditionImage = ImageIO.read(InternalResourceLoader.getInternalFile("sample_scribbles.png"));
+			BufferedImage comditionImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_scribbles.png"));
 			
 			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
 					.input("portrait of a woman")

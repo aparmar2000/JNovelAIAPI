@@ -24,7 +24,7 @@ class IntegrationTestImageAnnotation extends AbstractFeatureIntegrationTest {
 	@EnumSource(value = AnnotationModel.class)
 	void testImageAnnotation(AnnotationModel testModel) throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
-			BufferedImage targetImage = ImageIO.read(InternalResourceLoader.getInternalFile("sample_annotate_target_2.jpg"));
+			BufferedImage targetImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_annotate_target_2.jpg"));
 			ImageAnnotateRequest request = ImageAnnotateRequest.defaultRequestForModel(testModel, new Base64Image(targetImage));
 			
 			ImageSetWrapper result = apiInstance.annotateImage(request);

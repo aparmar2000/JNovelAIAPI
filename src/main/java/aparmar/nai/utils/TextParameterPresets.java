@@ -45,7 +45,7 @@ public class TextParameterPresets {
 
 		modelPresetAssociations.clear();
 		try (BufferedReader fIn = new BufferedReader(new InputStreamReader(
-				InternalResourceLoader.getInternalFile(PRESET_FILENAME), StandardCharsets.UTF_8))) {
+				InternalResourceLoader.getInternalResourceAsStream(PRESET_FILENAME), StandardCharsets.UTF_8))) {
 			fIn.lines()
 				.filter(s->!s.trim().isEmpty())
 				.sequential()

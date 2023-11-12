@@ -20,7 +20,7 @@ public enum Tokenizers implements INaiTokenizer {
 	private Tokenizers(String modelName) {
 		INaiTokenizer newTokenizer = null;
 		try {
-			Path modelPath = InternalResourceLoader.getInternalFilePath(modelName);
+			Path modelPath = InternalResourceLoader.getInternalFile(modelName).toPath();
 			
 			if (modelName.endsWith(".model")) {
 				newTokenizer = new SpTokenizerWrapper(modelPath);
