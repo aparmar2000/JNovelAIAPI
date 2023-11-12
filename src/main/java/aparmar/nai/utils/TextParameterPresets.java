@@ -3,8 +3,9 @@ package aparmar.nai.utils;
 import static aparmar.nai.utils.HelperConstants.PRESET_FILENAME;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,8 +44,8 @@ public class TextParameterPresets {
 		}
 
 		modelPresetAssociations.clear();
-		try (BufferedReader fIn = new BufferedReader(new FileReader(
-				InternalResourceLoader.getInternalFile(PRESET_FILENAME)))) {
+		try (BufferedReader fIn = new BufferedReader(new InputStreamReader(
+				InternalResourceLoader.getInternalResourceAsStream(PRESET_FILENAME), StandardCharsets.UTF_8))) {
 			fIn.lines()
 				.filter(s->!s.trim().isEmpty())
 				.sequential()

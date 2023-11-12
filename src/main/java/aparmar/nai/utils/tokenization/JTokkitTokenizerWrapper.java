@@ -1,10 +1,10 @@
 package aparmar.nai.utils.tokenization;
 
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
@@ -30,10 +30,10 @@ public class JTokkitTokenizerWrapper implements INaiTokenizer {
 	
 	private final Encoding jTokkitTokenizer;
 	
-	public JTokkitTokenizerWrapper (Path modelPath) throws IOException {
-		String modelName = modelPath.getFileName().toString().replaceAll("\\.json$", "");
-		
-		JsonObject tokenizerConfig = gson.fromJson(new FileReader(modelPath.toFile()), JsonObject.class);
+	public JTokkitTokenizerWrapper (InputStream modelInputStream, String modelName) throws IOException {
+		JsonObject tokenizerConfig = gson.fromJson(
+				new InputStreamReader(modelInputStream, StandardCharsets.UTF_8),
+				JsonObject.class);
 		String splitRegex = tokenizerConfig.getAsJsonObject("config").get("splitRegex").getAsString();
 		Type vocabMapType = new TypeToken<Map<String, Integer>>() {}.getType();
 		Map<String, Integer> vocabMap = gson.fromJson(tokenizerConfig.get("vocab"), vocabMapType);
