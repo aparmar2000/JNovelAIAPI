@@ -1,9 +1,9 @@
 package aparmar.nai.utils.tokenization;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.file.Path;
 import java.util.Optional;
 
 import ai.djl.sentencepiece.SpTokenizer;
@@ -15,8 +15,8 @@ public class SpTokenizerWrapper implements INaiTokenizer {
 	private final Method encoderMethod;
 	private final Method decoderMethod;
 	
-	public SpTokenizerWrapper(Path modelPath) throws IOException, NoSuchMethodException, SecurityException {
-		spTokenizer = new SpTokenizer(modelPath);
+	public SpTokenizerWrapper(InputStream modelInputStream) throws IOException, NoSuchMethodException, SecurityException {
+		spTokenizer = new SpTokenizer(modelInputStream);
 		spProcessor = spTokenizer.getProcessor();
 		
 		Optional<Method> getEncodeMethodOptional = 

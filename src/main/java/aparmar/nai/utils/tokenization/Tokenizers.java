@@ -1,11 +1,11 @@
 package aparmar.nai.utils.tokenization;
 
 import java.io.IOException;
-import java.nio.file.Path;
+import java.io.InputStream;
 
-import lombok.Getter;
 import aparmar.nai.data.request.TextGenModel;
 import aparmar.nai.utils.InternalResourceLoader;
+import lombok.Getter;
 
 public enum Tokenizers implements INaiTokenizer {
 	GPT2("gpt2_tokenizer.json"),
@@ -17,15 +17,15 @@ public enum Tokenizers implements INaiTokenizer {
 	@Getter
 	private final INaiTokenizer tokenizer;
 	
-	private Tokenizers(String modelName) {
+	private Tokenizers(String modelFilename) {
 		INaiTokenizer newTokenizer = null;
 		try {
-			Path modelPath = InternalResourceLoader.getInternalFile(modelName).toPath();
+			InputStream modelInputStream = InternalResourceLoader.getInternalResourceAsStream(modelFilename);
 			
-			if (modelName.endsWith(".model")) {
-				newTokenizer = new SpTokenizerWrapper(modelPath);
-			} else if (modelName.endsWith("tokenizer.json")) {
-				newTokenizer = new JTokkitTokenizerWrapper(modelPath);
+			if (modelFilename.endsWith(".model")) {
+				newTokenizer = new SpTokenizerWrapper(modelInputStream);
+			} else if (modelFilename.endsWith("tokenizer.json")) {
+				newTokenizer = new JTokkitTokenizerWrapper(modelInputStream, modelFilename.replaceAll("\\.[^.]+$", ""));
 			}
 		} catch (IOException | NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
