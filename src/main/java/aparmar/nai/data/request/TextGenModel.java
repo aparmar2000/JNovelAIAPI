@@ -104,7 +104,14 @@ public enum TextGenModel {
 			PresetModulePrefixes.THEME_VALENTINES,
 			PresetModulePrefixes.THEME_VIKINGS,
 			PresetModulePrefixes.THEME_WEIRD_WEST,
-			PresetModulePrefixes.THEME_WESTERN_ROMANCE}),
+			PresetModulePrefixes.THEME_WESTERN_ROMANCE,
+			
+			PresetModulePrefixes.INSPIRATION_CRAB_SNAIL_AND_MONKEY,
+			PresetModulePrefixes.INSPIRATION_MERCANTILE_WOLFGIRL_ROMANCE,
+			PresetModulePrefixes.INSPIRATION_NERVEGEAR,
+			PresetModulePrefixes.INSPIRATION_ROMANCE_OF_THE_THREE_KINGDOMS,
+			PresetModulePrefixes.INSPIRATION_THRONEWARS,
+			PresetModulePrefixes.INSPIRATION_WITCH_AT_LEVEL_CAP}),
 	@SerializedName("euterpe-v2")
 	EUTERPE(true, true, new PresetModulePrefixes[]
 			{PresetModulePrefixes.TEXT_ADVENTURE,
@@ -172,7 +179,14 @@ public enum TextGenModel {
 			PresetModulePrefixes.THEME_VALENTINES,
 			PresetModulePrefixes.THEME_VIKINGS,
 			PresetModulePrefixes.THEME_WEIRD_WEST,
-			PresetModulePrefixes.THEME_WESTERN_ROMANCE}),
+			PresetModulePrefixes.THEME_WESTERN_ROMANCE,
+			
+			PresetModulePrefixes.INSPIRATION_CRAB_SNAIL_AND_MONKEY,
+			PresetModulePrefixes.INSPIRATION_MERCANTILE_WOLFGIRL_ROMANCE,
+			PresetModulePrefixes.INSPIRATION_NERVEGEAR,
+			PresetModulePrefixes.INSPIRATION_ROMANCE_OF_THE_THREE_KINGDOMS,
+			PresetModulePrefixes.INSPIRATION_THRONEWARS,
+			PresetModulePrefixes.INSPIRATION_WITCH_AT_LEVEL_CAP}),
 	@SerializedName("krake-v2")
 	KRAKE(false, true, new PresetModulePrefixes[]
 			{PresetModulePrefixes.TEXT_ADVENTURE,
@@ -238,7 +252,14 @@ public enum TextGenModel {
 			PresetModulePrefixes.THEME_VALENTINES,
 			PresetModulePrefixes.THEME_VIKINGS,
 			PresetModulePrefixes.THEME_WEIRD_WEST,
-			PresetModulePrefixes.THEME_WESTERN_ROMANCE}),
+			PresetModulePrefixes.THEME_WESTERN_ROMANCE,
+			
+			PresetModulePrefixes.INSPIRATION_CRAB_SNAIL_AND_MONKEY,
+			PresetModulePrefixes.INSPIRATION_MERCANTILE_WOLFGIRL_ROMANCE,
+			PresetModulePrefixes.INSPIRATION_NERVEGEAR,
+			PresetModulePrefixes.INSPIRATION_ROMANCE_OF_THE_THREE_KINGDOMS,
+			PresetModulePrefixes.INSPIRATION_THRONEWARS,
+			PresetModulePrefixes.INSPIRATION_WITCH_AT_LEVEL_CAP}),
 	@SerializedName("clio-v1")
 	CLIO(false, false, new PresetModulePrefixes[]
 			{PresetModulePrefixes.TEXT_ADVENTURE,

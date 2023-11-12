@@ -80,7 +80,14 @@ public enum PresetModulePrefixes {
 	THEME_VALENTINES("theme_valentines"),
 	THEME_VIKINGS("theme_vikings"),
 	THEME_WEIRD_WEST("theme_weirdwest"),
-	THEME_WESTERN_ROMANCE("theme_westernromance"); // TODO: The rest of the default modules
+	THEME_WESTERN_ROMANCE("theme_westernromance"),
+	
+	INSPIRATION_CRAB_SNAIL_AND_MONKEY("inspiration_crabsnailandmonkey"),
+	INSPIRATION_MERCANTILE_WOLFGIRL_ROMANCE("inspiration_mercantilewolfgirlromance"),
+	INSPIRATION_NERVEGEAR("inspiration_nervegear"),
+	INSPIRATION_ROMANCE_OF_THE_THREE_KINGDOMS("theme_romanceofthreekingdoms"),
+	INSPIRATION_THRONEWARS("inspiration_thronewars"),
+	INSPIRATION_WITCH_AT_LEVEL_CAP("inspiration_witchatlevelcap");
 	
 	private final String prefix;
 }
