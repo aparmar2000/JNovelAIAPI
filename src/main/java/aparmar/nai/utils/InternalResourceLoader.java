@@ -1,27 +1,34 @@
 package aparmar.nai.utils;
 
-import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Hashtable;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class InternalResourceLoader {
-	private static final Hashtable<String, File> resourceCache = new Hashtable<String, File>();
-	
-	public static File getInternalFile(String filename) throws FileNotFoundException {
-		if (resourceCache.contains(filename)) {
-			return resourceCache.get(filename);
+	public static InputStream getInternalFile(String filename) throws FileNotFoundException {
+		InputStream foundResourceStream = new InternalResourceLoader()
+				.getClass().getClassLoader()
+				.getResourceAsStream(filename);
+		if (foundResourceStream == null) {
+			throw new FileNotFoundException(filename+" was not found!");
 		}
-		URL foundResource = new InternalResourceLoader().getClass().getClassLoader().getResource(filename);
+		
+		return foundResourceStream;
+	}
+	
+	public static Path getInternalFilePath(String filename) throws FileNotFoundException {
+		URL foundResource = new InternalResourceLoader()
+				.getClass().getClassLoader()
+				.getResource(filename);
 		if (foundResource == null) {
 			throw new FileNotFoundException(filename+" was not found!");
 		}
 		
 		try {
-			File foundFile = new File(foundResource.toURI());
-			resourceCache.put(filename, foundFile);
-			return foundFile;
+			return Paths.get(foundResource.toURI());
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
