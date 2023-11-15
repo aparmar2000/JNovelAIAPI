@@ -24,6 +24,8 @@ import lombok.RequiredArgsConstructor;
 public class ImageGenerationRequest implements JsonSerializer<ImageGenerationRequest> {
 	public static final String ANIME_V2_HEAVY_UC = "nsfw, lowres, bad, text, error, missing, extra, fewer, cropped, jpeg artifacts, worst quality, bad quality, watermark, displeasing, unfinished, chromatic aberration, scan, scan artifacts";
 	public static final String ANIME_V2_LIGHT_UC = "nsfw, lowres, jpeg artifacts, worst quality, watermark, blurry, very displeasing";
+	public static final String ANIME_V3_HEAVY_UC = ANIME_V2_HEAVY_UC;
+	public static final String ANIME_V3_LIGHT_UC = ANIME_V2_LIGHT_UC;
 	public static final String FURRY_LOW_QUALITY_UC = "nsfw, {worst quality}, {bad quality}, text, signature, watermark";
 	public static final String ANIME_LOW_QUALITY_AND_BAD_ANATOMY_UC = "nsfw, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, blurry, blurry background, blur, blurred, long limbs, extra limbs, mutated, mutated limbs";
 	public static final String ANIME_LOW_QUALITY_UC = "nsfw, lowres, text, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry";
@@ -38,7 +40,8 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 	@RequiredArgsConstructor
 	public enum QualityTagsPreset {
 		V1_MODELS("masterpiece, best quality", QualityTagsLocation.PREPEND),
-		ANIME_V2("very aesthetic, best quality, absurdres", QualityTagsLocation.APPEND);
+		ANIME_V2("very aesthetic, best quality, absurdres", QualityTagsLocation.APPEND),
+		ANIME_V3("aesthetic, best quality, absurdres", QualityTagsLocation.APPEND);
 		
 		private final String tags;
 		private final QualityTagsLocation defaultLocation;
@@ -48,23 +51,27 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 	@RequiredArgsConstructor
 	public enum ImageGenModel {
 		@SerializedName("safe-diffusion")
-		ANIME_CURATED(QualityTagsPreset.V1_MODELS, false),
+		ANIME_CURATED(QualityTagsPreset.V1_MODELS, false, true),
 		@SerializedName("nai-diffusion")
-		ANIME_FULL(QualityTagsPreset.V1_MODELS, false),
+		ANIME_FULL(QualityTagsPreset.V1_MODELS, false, true),
 		@SerializedName("nai-diffusion-furry")
-		FURRY(QualityTagsPreset.V1_MODELS, false),
+		FURRY(QualityTagsPreset.V1_MODELS, false, true),
 		@SerializedName("nai-diffusion-2")
-		ANIME_V2(QualityTagsPreset.ANIME_V2, false),
+		ANIME_V2(QualityTagsPreset.ANIME_V2, false, true),
+		@SerializedName("nai-diffusion-3")
+		ANIME_V3(QualityTagsPreset.ANIME_V3, false, false),
 		
 		@SerializedName("safe-diffusion-inpainting")
-		ANIME_CURATED_INPAINT(QualityTagsPreset.V1_MODELS, true),
+		ANIME_CURATED_INPAINT(QualityTagsPreset.V1_MODELS, true, true),
 		@SerializedName("nai-diffusion-inpainting")
-		ANIME_FULL_INPAINT(QualityTagsPreset.V1_MODELS, true),
+		ANIME_FULL_INPAINT(QualityTagsPreset.V1_MODELS, true, true),
 		@SerializedName("furry-diffusion-inpainting")
-		FURRY_INPAINT(QualityTagsPreset.V1_MODELS, true);
+		FURRY_INPAINT(QualityTagsPreset.V1_MODELS, true, true),
+		@SerializedName("nai-diffusion-3-inpainting")
+		ANIME_V3_INPAINT(QualityTagsPreset.ANIME_V3, true, false);
 		
 		private final QualityTagsPreset qualityTagsPreset;
-		private final boolean inpaintingModel;
+		private final boolean inpaintingModel, supportsControlNet;
 	}
 	
 	public enum ImageGenAction {
