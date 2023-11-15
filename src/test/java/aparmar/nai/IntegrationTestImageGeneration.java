@@ -32,13 +32,14 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
 					.input("portrait of a woman")
 					.action(ImageGenAction.GENERATE)
-					.model(ImageGenModel.ANIME_V2)
+					.model(ImageGenModel.ANIME_V3)
 					.parameters(new ImageParameters(
 							1,
 							512,512,
-							28,1,
+							28,1,0,
 							ImageParameters.ImageGenSampler.DPM_PLUS_PLUS_2S_ANCESTRAL,
 							false, false, false, 
+							ImageParameters.SamplingSchedule.NATIVE, 
 							false, ImageGenerationRequest.QualityTagsLocation.DEFAULT, 
 							1, ImageGenerationRequest.ANIME_V2_LIGHT_UC, 1,
 							1))
@@ -65,7 +66,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
 					.input("portrait of a woman")
 					.action(ImageGenAction.IMG2IMG)
-					.model(ImageGenModel.ANIME_V2)
+					.model(ImageGenModel.ANIME_V3)
 					.parameters(Image2ImageParameters.builder()
 							.seed(1)
 							.width(512)
@@ -104,7 +105,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
 					.input("portrait of a woman")
 					.action(ImageGenAction.INFILL)
-					.model(ImageGenModel.ANIME_FULL_INPAINT)
+					.model(ImageGenModel.ANIME_V3_INPAINT)
 					.parameters(ImageInpaintParameters.builder()
 							.seed(1)
 							.width(512)
