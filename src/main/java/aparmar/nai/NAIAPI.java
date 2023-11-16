@@ -5,6 +5,7 @@ import static aparmar.nai.utils.HelperConstants.AUTH_HEADER;
 import static aparmar.nai.utils.HelperConstants.MEDIA_TYPE_JSON;
 
 import java.io.IOException;
+import java.time.Duration;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -54,17 +55,40 @@ public class NAIAPI {
 	private final String accessToken;
 	
 	public NAIAPI(String accessToken) {
-		accessToken = accessToken.trim();
-		if (!accessToken.startsWith("Bearer ")) {
-			accessToken = "Bearer " + accessToken;
+		this.accessToken = formatAccessToken(accessToken);
+		
+		client = buildHttpClient(Duration.ofSeconds(30));
+		
+		gson = buildGsonInstance();
+	}
+	
+	public NAIAPI(String accessToken, Duration readTimeout) {
+		this.accessToken = formatAccessToken(accessToken);
+		
+		client = buildHttpClient(readTimeout);
+		
+		gson = buildGsonInstance();
+	}
+	
+	private String formatAccessToken(String rawToken) {
+		String formattedToken = accessToken.trim();
+		if (!formattedToken.startsWith("Bearer ")) {
+			formattedToken = "Bearer " + formattedToken;
 		}
-		this.accessToken = accessToken;
 		
-		client = new OkHttpClient.Builder()
+		return accessToken;
+	}
+	
+	private OkHttpClient buildHttpClient(Duration readTimeout) {
+		return new OkHttpClient.Builder()
 			    .addNetworkInterceptor(new RateLimitInterceptor(1))
+			    .readTimeout(readTimeout)
 			    .build();
-		
+	}
+
+	private Gson buildGsonInstance() {
 		GsonBuilder gsonBuilder = new GsonBuilder();
+		
 		gsonBuilder.setExclusionStrategies(new GsonExcludeExclusionStrategy());
 		gsonBuilder.registerTypeAdapter(LogProb.class, new LogProb());
 		gsonBuilder.registerTypeAdapter(Base64Image.class, new Base64Image());
@@ -72,7 +96,8 @@ public class NAIAPI {
 		gsonBuilder.registerTypeAdapter(ImageUpscaleRequest.class, new ImageUpscaleRequest());
 		gsonBuilder.registerTypeAdapter(ImageAnnotateRequest.class, ImageAnnotateRequest.SERIALIZER_INSTANCE);
 		gsonBuilder.registerTypeAdapter(ImageGenerationRequest.class, new ImageGenerationRequest());
-		gson = gsonBuilder.create();
+		
+		return gsonBuilder.create();
 	}
 	
 	// === User Info Endpoints ===
