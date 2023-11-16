@@ -171,6 +171,20 @@ public class TokenizedChunk implements Cloneable {
 			lock.unlock();
 		}
 	}
+	/**
+	 * Prepends a string to the end of this chunk. Re-encodes tokens from the text.
+	 */
+	public void prependString(String newString) {
+		lock.lock();
+		try {
+			if (newString.isEmpty()) { return; }
+			textChunk = newString+textChunk;
+			
+			tokens = tokenizer.encode(textChunk);
+		} finally {
+			lock.unlock();
+		}
+	}
 
 	/**
 	 * Appends tokens to the end of this chunk. Updates the text based on the decoded tokens.
@@ -185,6 +199,19 @@ public class TokenizedChunk implements Cloneable {
 			lock.unlock();
 		}
 	}
+	/**
+	 * Appends tokens to the end of this chunk. Updates the text based on the decoded tokens.
+	 */
+	public void prependTokens(int[] newTokens) {
+		lock.lock();
+		try {
+			if (newTokens.length==0) { return; }
+			
+			prependString(tokenizer.decode(newTokens));
+		} finally {
+			lock.unlock();
+		}
+	}
 
 	/**
 	 * Appends another chunk to the end of this chunk. Updates the text & tokens appropriately.
@@ -193,14 +220,33 @@ public class TokenizedChunk implements Cloneable {
 		appendString(other.getTextChunk());
 	}
 	/**
+	 * Prepends another chunk to the end of this chunk. Updates the text & tokens appropriately.
+	 */
+	public void prependTokenizedChunk(TokenizedChunk other) {
+		prependString(other.getTextChunk());
+	}
+	/**
 	 * Appends multiple other chunks to the end of this chunk. Updates the text & tokens appropriately.
 	 */
 	public void appendTokenizedChunks(TokenizedChunk... other) {
 		appendString(Arrays.stream(other).map(TokenizedChunk::getTextChunk).collect(Collectors.joining()));
 	}
-	
+	/**
+	 * Prepends multiple other chunks to the end of this chunk. Updates the text & tokens appropriately.
+	 */
+	public void prependTokenizedChunks(TokenizedChunk... other) {
+		prependString(Arrays.stream(other).map(TokenizedChunk::getTextChunk).collect(Collectors.joining()));
+	}
 	public static TokenizedChunk mergeTokenizedChunks(INaiTokenizer tokenizer, TokenizedChunk... chunks) {
 		return new TokenizedChunk(tokenizer, Arrays.stream(chunks).map(TokenizedChunk::getTextChunk).collect(Collectors.joining()));
+	}
+	public static TokenizedChunk mergeTokenizedChunks(TextGenModel model, TokenizedChunk... chunks) {
+		return TokenizedChunk.mergeTokenizedChunks(model.getTokenizerForModel(), chunks);
+	}
+	public static TokenizedChunk mergeTokenizedChunks(TokenizedChunk baseChunk, TokenizedChunk... chunks) {
+		TokenizedChunk baseCopy = baseChunk.clone();
+		baseCopy.appendTokenizedChunks(chunks);
+		return baseCopy;
 	}
 	
 	@Override
@@ -210,6 +256,10 @@ public class TokenizedChunk implements Cloneable {
 	
 	public int tokenLength() {
 		return tokens.length;
+	}
+	
+	public int textLength() {
+		return textChunk.length();
 	}
 	
 	public boolean hasContent() {
