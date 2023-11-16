@@ -27,6 +27,7 @@ import aparmar.nai.data.request.imagen.ImageGenerationRequest.QualityTagsLocatio
 import aparmar.nai.data.request.imagen.ImageInpaintParameters;
 import aparmar.nai.data.request.imagen.ImageParameters;
 import aparmar.nai.data.request.imagen.ImageParameters.ImageGenSampler;
+import aparmar.nai.data.request.imagen.ImageParameters.SamplingSchedule;
 import aparmar.nai.data.response.UserSubscription;
 import aparmar.nai.data.response.UserSubscription.ImageGenerationLimit;
 import aparmar.nai.data.response.UserSubscription.SubscriptionPerks;
@@ -60,7 +61,9 @@ class UnitTestImageGenerationRequest {
 				.width(64)
 				.steps(25)
 				.scale(1.5)
+				.scaleRescaleFactor(0.26)
 				.sampler(ImageGenSampler.DPM_FAST)
+				.noiseSchedule(SamplingSchedule.KARRAS)
 				.smeaEnabled(true)
 				.dynSmeaEnabled(true)
 				.decrisperEnabled(true)
@@ -85,7 +88,9 @@ class UnitTestImageGenerationRequest {
 				.width(64)
 				.steps(25)
 				.scale(1.5)
+				.scaleRescaleFactor(0.26)
 				.sampler(ImageGenSampler.DPM_FAST)
+				.noiseSchedule(SamplingSchedule.KARRAS)
 				.smeaEnabled(true)
 				.dynSmeaEnabled(true)
 				.decrisperEnabled(true)
@@ -115,7 +120,9 @@ class UnitTestImageGenerationRequest {
 				.width(64)
 				.steps(25)
 				.scale(1.5)
+				.scaleRescaleFactor(0.26)
 				.sampler(ImageGenSampler.DPM_FAST)
+				.noiseSchedule(SamplingSchedule.KARRAS)
 				.smeaEnabled(true)
 				.dynSmeaEnabled(true)
 				.decrisperEnabled(true)
@@ -144,7 +151,9 @@ class UnitTestImageGenerationRequest {
 				.width(64)
 				.steps(25)
 				.scale(1.5)
+				.scaleRescaleFactor(0.26)
 				.sampler(ImageGenSampler.DPM_FAST)
+				.noiseSchedule(SamplingSchedule.KARRAS)
 				.smeaEnabled(true)
 				.dynSmeaEnabled(true)
 				.decrisperEnabled(true)

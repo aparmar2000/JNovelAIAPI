@@ -18,6 +18,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder(toBuilder = true)
 public class ImageParameters {
 	public enum ImageGenSampler {
+		@SerializedName("k_euler")
+		K_EULER,
 		@SerializedName("k_euler_ancestral")
 		K_EULER_ANCESTRAL,
 		@SerializedName("k_dpmpp_2s_ancestral")
@@ -32,14 +34,23 @@ public class ImageParameters {
 		@SerializedName("k_dpmpp_sde")
 		DPM_PLUS_PLUS_SDE,
 		@SerializedName("k_dpm_fast")
-		DPM_FAST,
-		@SerializedName("k_euler")
-		K_EULER;
+		DPM_FAST;
 		
 //		@SerializedName("k_lms")
 //		K_LMS,
 //		@SerializedName("plms")
 //		PLMS;
+	}
+	
+	public enum SamplingSchedule {
+		@SerializedName("native")
+		NATIVE,
+		@SerializedName("karras")
+		KARRAS,
+		@SerializedName("exponential")
+		EXPONENTIAL,
+		@SerializedName("polyexponential")
+		POLYEXPONENTIAL;
 	}
 	
 	@Builder.Default
@@ -48,7 +59,11 @@ public class ImageParameters {
 	@Builder.Default
 	protected int steps = 28;
 	@Builder.Default
-	protected double scale = 10.0;
+	protected double scale = 5.0;
+	/** Only functions with V3 models */
+	@SerializedName("cfg_rescale")
+	@Builder.Default
+	protected double scaleRescaleFactor = 0;
 
 	@Builder.Default
 	protected ImageParameters.ImageGenSampler sampler = ImageGenSampler.K_EULER_ANCESTRAL;
@@ -62,6 +77,10 @@ public class ImageParameters {
 	@SerializedName("dynamic_thresholding")
 	@Builder.Default
 	protected boolean decrisperEnabled = false;
+	/** Only functions with V3 models */
+	@SerializedName("noise_schedule")
+	@Builder.Default
+	protected SamplingSchedule noiseSchedule = SamplingSchedule.NATIVE;
 
 	@Builder.Default
 	protected boolean qualityToggle = false;

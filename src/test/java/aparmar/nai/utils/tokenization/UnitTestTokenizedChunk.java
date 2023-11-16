@@ -72,15 +72,23 @@ public class UnitTestTokenizedChunk {
 		assertFalse(testChunk.hasContent());
 		
 		testChunk.setTextChunk(TEST_STRING_1A);
+		assertEquals(TEST_TOKENS_1A.length, testChunk.tokenLength());
 		assertArrayEquals(TEST_TOKENS_1A, testChunk.getTokens());
 		
 		testChunk.appendString(TEST_STRING_1B);
 		assertEquals(TEST_TOKENS_1.length, testChunk.tokenLength());
 		assertArrayEquals(TEST_TOKENS_1, testChunk.getTokens());
-		
+
+		testChunk.setTokenizer(Tokenizers.NERDSTASH_V2);
 		testChunk.setTextChunk("");
+		testChunk.setTokenizer(Tokenizers.NERDSTASH_V2);
 		assertArrayEquals(new int[0], testChunk.getTokens());
 		assertFalse(testChunk.hasContent());
+		
+		testChunk.setTextChunk(TEST_STRING_1B);
+		testChunk.prependString(TEST_STRING_1A);
+		assertEquals(TEST_TOKENS_1.length, testChunk.tokenLength());
+		assertArrayEquals(TEST_TOKENS_1, testChunk.getTokens());
 	}
 	
 	@Test
@@ -90,6 +98,7 @@ public class UnitTestTokenizedChunk {
 		assertFalse(testChunk.hasContent());
 		
 		testChunk.setTokens(TEST_TOKENS_1A);
+		assertEquals(TEST_STRING_1A.length(), testChunk.textLength());
 		assertEquals(TEST_STRING_1A, testChunk.getTextChunk());
 		
 		testChunk.appendTokens(TEST_TOKENS_1B);
@@ -98,6 +107,10 @@ public class UnitTestTokenizedChunk {
 		testChunk.setTokens(new int[0]);
 		assertEquals("", testChunk.getTextChunk());
 		assertFalse(testChunk.hasContent());
+		
+		testChunk.setTokens(TEST_TOKENS_1B);
+		testChunk.prependTokens(TEST_TOKENS_1A);
+		assertEquals(TEST_STRING_1, testChunk.getTextChunk());
 	}
 	
 	@Test
@@ -109,14 +122,33 @@ public class UnitTestTokenizedChunk {
 		assertEquals(TEST_STRING_2, testMergedChunk.getTextChunk());
 		assertArrayEquals(TEST_TOKENS_2, testMergedChunk.getTokens());
 		
+		TokenizedChunk testMergedChunk2 = TokenizedChunk.mergeTokenizedChunks(TextGenModel.KAYRA, testChunk1, testChunk2);
+		assertEquals(TEST_STRING_2, testMergedChunk2.getTextChunk());
+		assertArrayEquals(TEST_TOKENS_2, testMergedChunk2.getTokens());
+		
+		TokenizedChunk testMergedChunk3 = TokenizedChunk.mergeTokenizedChunks(testChunk1, testChunk2);
+		assertEquals(TEST_STRING_2, testMergedChunk3.getTextChunk());
+		assertArrayEquals(TEST_TOKENS_2, testMergedChunk3.getTokens());
+		
 		TokenizedChunk testMultiAppendChunk = new TokenizedChunk(Tokenizers.NERDSTASH_V2, "");
 		testMultiAppendChunk.appendTokenizedChunks(testChunk1, testChunk2);
 		assertEquals(TEST_STRING_2, testMultiAppendChunk.getTextChunk());
 		assertArrayEquals(TEST_TOKENS_2, testMultiAppendChunk.getTokens());
 		
+		TokenizedChunk testMultiPrependChunk = new TokenizedChunk(Tokenizers.NERDSTASH_V2, "");
+		testMultiPrependChunk.prependTokenizedChunks(testChunk1, testChunk2);
+		assertEquals(TEST_STRING_2, testMultiPrependChunk.getTextChunk());
+		assertArrayEquals(TEST_TOKENS_2, testMultiPrependChunk.getTokens());
+		
 		testChunk1.appendTokenizedChunk(testChunk2);
 		assertEquals(TEST_STRING_2, testChunk1.getTextChunk());
 		assertArrayEquals(TEST_TOKENS_2, testChunk1.getTokens());
+		
+		testChunk1 = new TokenizedChunk(Tokenizers.GPT2, TEST_STRING_2A);
+		testChunk2 = new TokenizedChunk(Tokenizers.NERDSTASH_V2, TEST_STRING_2B);
+		testChunk2.prependTokenizedChunk(testChunk1);
+		assertEquals(TEST_STRING_2, testChunk2.getTextChunk());
+		assertArrayEquals(TEST_TOKENS_2, testChunk2.getTokens());
 	}
 	
 	@Test
