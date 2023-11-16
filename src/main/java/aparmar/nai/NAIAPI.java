@@ -71,12 +71,12 @@ public class NAIAPI {
 	}
 	
 	private String formatAccessToken(String rawToken) {
-		String formattedToken = accessToken.trim();
+		String formattedToken = rawToken.trim();
 		if (!formattedToken.startsWith("Bearer ")) {
 			formattedToken = "Bearer " + formattedToken;
 		}
 		
-		return accessToken;
+		return formattedToken;
 	}
 	
 	private OkHttpClient buildHttpClient(Duration readTimeout) {
