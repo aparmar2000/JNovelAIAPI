@@ -291,9 +291,10 @@ class UnitTestNAIAPI {
 				.parameters(new ImageParameters(
 						1,
 						512,512,
-						28,1,
+						28,1,0,
 						ImageParameters.ImageGenSampler.K_EULER_ANCESTRAL,
 						true, false, false, 
+						ImageParameters.SamplingSchedule.NATIVE, 
 						true, ImageGenerationRequest.QualityTagsLocation.DEFAULT, 
 						0, ImageGenerationRequest.FURRY_LOW_QUALITY_UC, 0,
 						1))
