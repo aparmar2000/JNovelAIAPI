@@ -78,7 +78,20 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		private final boolean inpaintingModel, supportsControlNet;
 		private final Function<ImageParameters, Integer> anlasCostEstimator;
 		
-		public int estimateAnlasCost(ImageParameters parameters) { return anlasCostEstimator.apply(parameters); }
+		public int estimateAnlasCost(ImageParameters parameters) {
+			if (parameters.getImgCount() == 0) { return 0; }
+			
+			return anlasCostEstimator.apply(parameters);
+		}
+		public int estimateAnlasCostIncludingSubscription(ImageParameters parameters, UserSubscription subscription) {
+			if (isFreeGeneration(subscription, parameters.toBuilder().imgCount(1).build())) {
+				parameters = parameters.toBuilder()
+						.imgCount(parameters.getImgCount()-1)
+						.build();
+			}
+			
+			return estimateAnlasCost(parameters);
+		}
 		
 		private static final EnumSet<ImageGenSampler> CHEAP_SAMPLER_SET = EnumSet.of(ImageGenSampler.DDIM,ImageGenSampler.K_EULER,ImageGenSampler.K_EULER_ANCESTRAL);
 		private static final int PIXELS_1024_SQUARE = (1024 * 1024);
@@ -174,11 +187,16 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		
 		return wrapper;
 	}
-	
-	public boolean isFreeGeneration(UserSubscription subscriptionData) {
+
+	public static boolean isFreeGeneration(UserSubscription subscriptionData, ImageParameters parameters) {
 		if (!subscriptionData.getPerks().isUnlimitedImageGeneration()) { return false; }
+		if (parameters.getSteps() > 28) { return false; }
 		return Arrays.stream(subscriptionData.getPerks().getUnlimitedImageGenerationLimits())
 			.filter(limit->limit.getMaxImages()>=parameters.getImgCount())
 			.anyMatch(limit->limit.getResolution()>=parameters.getWidth()*parameters.getHeight());
+	}
+	
+	public boolean isFreeGeneration(UserSubscription subscriptionData) {
+		return isFreeGeneration(subscriptionData, parameters);
 	}
 }

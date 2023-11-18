@@ -2,6 +2,7 @@ package aparmar.nai.data.request;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -243,6 +244,7 @@ class UnitTestImageGenerationRequest {
 						.imgCount(10)
 						.width(100)
 						.height(100)
+						.steps(50)
 						.build())
 				.build();
 		SubscriptionPerks testSubscriptionPerks = new SubscriptionPerks(-1, 10, 9999, true, true, true, false, null, 8192);
@@ -264,6 +266,9 @@ class UnitTestImageGenerationRequest {
 				JsonNull.INSTANCE, 
 				null,
 				1);
+
+		assertFalse(testInstance.isFreeGeneration(testUserSubscription));
+		testInstance.getParameters().setSteps(28);
 		
 		assertFalse(testInstance.isFreeGeneration(testUserSubscription));
 		testInstance.getParameters().setImgCount(1);
@@ -331,6 +336,46 @@ class UnitTestImageGenerationRequest {
 				.sampler(sampler)
 				.build());
 		assertEquals(expectedCost*images, estimatedCost);
+	}
+	
+	@Test
+	void testImageGenerationCostEstimationWithOpus() {
+		ImageParameters testParameters = ImageParameters.builder()
+				.imgCount(10)
+				.width(100)
+				.height(100)
+				.steps(50)
+				.build();
+		SubscriptionPerks testSubscriptionPerks = new SubscriptionPerks(-1, 10, 9999, true, true, true, false, null, 8192);
+		UserSubscription testUserSubscription = new UserSubscription(
+				SubscriptionTier.OPUS, 
+				true, -1, 
+				testSubscriptionPerks, 
+				JsonNull.INSTANCE, 
+				null,
+				1);
+		
+		assertNotEquals(0, ImageGenModel.ANIME_V2.estimateAnlasCostIncludingSubscription(testParameters, testUserSubscription));
+		ImageGenerationLimit testImageGenerationLimit = new ImageGenerationLimit(1, 1000);
+		testSubscriptionPerks = new SubscriptionPerks(-1, 10, 9999, true, true, true, true, new ImageGenerationLimit[] {testImageGenerationLimit}, 8192);
+		testUserSubscription = new UserSubscription(
+				SubscriptionTier.OPUS, 
+				true, -1, 
+				testSubscriptionPerks, 
+				JsonNull.INSTANCE, 
+				null,
+				1);
+
+		assertNotEquals(0, ImageGenModel.ANIME_V2.estimateAnlasCostIncludingSubscription(testParameters, testUserSubscription));
+		testParameters.setSteps(28);
+		
+		assertNotEquals(0, ImageGenModel.ANIME_V2.estimateAnlasCostIncludingSubscription(testParameters, testUserSubscription));
+		testParameters.setImgCount(1);
+
+		assertNotEquals(0, ImageGenModel.ANIME_V2.estimateAnlasCostIncludingSubscription(testParameters, testUserSubscription));
+		testParameters.setWidth(10);
+
+		assertEquals(0, ImageGenModel.ANIME_V2.estimateAnlasCostIncludingSubscription(testParameters, testUserSubscription));
 	}
 
 }
