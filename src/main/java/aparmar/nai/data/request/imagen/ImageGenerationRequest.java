@@ -4,7 +4,6 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.function.Function;
-import java.util.stream.IntStream;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
