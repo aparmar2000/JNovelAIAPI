@@ -3,6 +3,7 @@ package aparmar.nai;
 import static aparmar.nai.utils.HelperConstants.API_ROOT;
 import static aparmar.nai.utils.HelperConstants.AUTH_HEADER;
 import static aparmar.nai.utils.HelperConstants.MEDIA_TYPE_JSON;
+import static aparmar.nai.utils.HelperConstants.PERSISTENT_KEY_PATTERN;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -55,6 +56,9 @@ public class NAIAPI {
 	private final String accessToken;
 	
 	public NAIAPI(String accessToken) {
+		if (!PERSISTENT_KEY_PATTERN.matcher(accessToken).matches()) {
+			throw new IllegalArgumentException("Access token \'"+accessToken+"\' appears to be incorrect!");
+		}
 		this.accessToken = formatAccessToken(accessToken);
 		
 		client = buildHttpClient(Duration.ofSeconds(30));
@@ -63,6 +67,9 @@ public class NAIAPI {
 	}
 	
 	public NAIAPI(String accessToken, Duration readTimeout) {
+		if (!PERSISTENT_KEY_PATTERN.matcher(accessToken).matches()) {
+			throw new IllegalArgumentException("Access token \'"+accessToken+"\' appears to be incorrect!");
+		}
 		this.accessToken = formatAccessToken(accessToken);
 		
 		client = buildHttpClient(readTimeout);
