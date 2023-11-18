@@ -2,15 +2,25 @@ package aparmar.nai.data.request;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -27,11 +37,14 @@ import aparmar.nai.data.request.imagen.ImageGenerationRequest.QualityTagsLocatio
 import aparmar.nai.data.request.imagen.ImageInpaintParameters;
 import aparmar.nai.data.request.imagen.ImageParameters;
 import aparmar.nai.data.request.imagen.ImageParameters.ImageGenSampler;
+import aparmar.nai.data.request.imagen.ImageParameters.ImageParametersBuilder;
 import aparmar.nai.data.request.imagen.ImageParameters.SamplingSchedule;
 import aparmar.nai.data.response.UserSubscription;
 import aparmar.nai.data.response.UserSubscription.ImageGenerationLimit;
 import aparmar.nai.data.response.UserSubscription.SubscriptionPerks;
 import aparmar.nai.data.response.UserSubscription.SubscriptionTier;
+import aparmar.nai.utils.InternalResourceLoader;
+import lombok.Data;
 
 class UnitTestImageGenerationRequest {
 
@@ -231,6 +244,7 @@ class UnitTestImageGenerationRequest {
 						.imgCount(10)
 						.width(100)
 						.height(100)
+						.steps(50)
 						.build())
 				.build();
 		SubscriptionPerks testSubscriptionPerks = new SubscriptionPerks(-1, 10, 9999, true, true, true, false, null, 8192);
@@ -252,6 +266,9 @@ class UnitTestImageGenerationRequest {
 				JsonNull.INSTANCE, 
 				null,
 				1);
+
+		assertFalse(testInstance.isFreeGeneration(testUserSubscription));
+		testInstance.getParameters().setSteps(28);
 		
 		assertFalse(testInstance.isFreeGeneration(testUserSubscription));
 		testInstance.getParameters().setImgCount(1);
@@ -260,6 +277,105 @@ class UnitTestImageGenerationRequest {
 		testInstance.getParameters().setWidth(10);
 
 		assertTrue(testInstance.isFreeGeneration(testUserSubscription));
+	}
+	
+	@Data
+	private static class ImageGenerationTestSample {
+		ImageGenModel model;
+		int width, height, steps;
+		double ucScale, img2ImgStrength;
+		boolean smeaEnabled, dynSmeaEnabled;
+		ImageGenSampler sampler;
+		int expectedCost;
+	}
+	private static Stream<Arguments> imageGenerationCostEstimationParameterSource() throws FileNotFoundException, IOException {
+		Gson gson = new Gson();
+		
+		ImageGenerationTestSample[] sampleArray = new ImageGenerationTestSample[0];
+		try (InputStreamReader in = new InputStreamReader(InternalResourceLoader.getInternalResourceAsStream("image_gen_test_costs.json"))) {
+			sampleArray = gson.fromJson(in, ImageGenerationTestSample[].class);
+		}
+		
+		return Arrays.stream(sampleArray)
+				.map(sample->{
+					return Arguments.of(
+							sample.getModel(), 
+							sample.getWidth(), sample.getHeight(), sample.getSteps(), sample.getUcScale(), 1, 
+							sample.getImg2ImgStrength(),
+							sample.isSmeaEnabled(), sample.isDynSmeaEnabled(),
+							sample.getSampler(),
+							sample.getExpectedCost());
+				});
+	} 
+	
+	@ParameterizedTest
+	@MethodSource("imageGenerationCostEstimationParameterSource")
+	void testImageGenerationCostEstimation(
+			ImageGenModel model,
+			int width, int height, int steps, double ucScale, int images,
+			double img2ImgStrength,
+			boolean smeaEnabled, boolean dynSmeaEnabled, 
+			ImageGenSampler sampler,
+			int expectedCost) {
+		ImageParametersBuilder<?,?> builder;
+		if (img2ImgStrength == 0) {
+			builder = ImageParameters.builder();
+		} else {
+			builder = Image2ImageParameters.builder()
+					.strength(img2ImgStrength);
+		}
+		
+		int estimatedCost = model.estimateAnlasCost(builder
+				.width(width)
+				.height(height)
+				.steps(steps)
+				.ucScale(ucScale)
+				.imgCount(images)
+				.smeaEnabled(smeaEnabled)
+				.dynSmeaEnabled(dynSmeaEnabled)
+				.sampler(sampler)
+				.build());
+		assertEquals(expectedCost*images, estimatedCost);
+	}
+	
+	@Test
+	void testImageGenerationCostEstimationWithOpus() {
+		ImageParameters testParameters = ImageParameters.builder()
+				.imgCount(10)
+				.width(100)
+				.height(100)
+				.steps(50)
+				.build();
+		SubscriptionPerks testSubscriptionPerks = new SubscriptionPerks(-1, 10, 9999, true, true, true, false, null, 8192);
+		UserSubscription testUserSubscription = new UserSubscription(
+				SubscriptionTier.OPUS, 
+				true, -1, 
+				testSubscriptionPerks, 
+				JsonNull.INSTANCE, 
+				null,
+				1);
+		
+		assertNotEquals(0, ImageGenModel.ANIME_V2.estimateAnlasCostIncludingSubscription(testParameters, testUserSubscription));
+		ImageGenerationLimit testImageGenerationLimit = new ImageGenerationLimit(1, 1000);
+		testSubscriptionPerks = new SubscriptionPerks(-1, 10, 9999, true, true, true, true, new ImageGenerationLimit[] {testImageGenerationLimit}, 8192);
+		testUserSubscription = new UserSubscription(
+				SubscriptionTier.OPUS, 
+				true, -1, 
+				testSubscriptionPerks, 
+				JsonNull.INSTANCE, 
+				null,
+				1);
+
+		assertNotEquals(0, ImageGenModel.ANIME_V2.estimateAnlasCostIncludingSubscription(testParameters, testUserSubscription));
+		testParameters.setSteps(28);
+		
+		assertNotEquals(0, ImageGenModel.ANIME_V2.estimateAnlasCostIncludingSubscription(testParameters, testUserSubscription));
+		testParameters.setImgCount(1);
+
+		assertNotEquals(0, ImageGenModel.ANIME_V2.estimateAnlasCostIncludingSubscription(testParameters, testUserSubscription));
+		testParameters.setWidth(10);
+
+		assertEquals(0, ImageGenModel.ANIME_V2.estimateAnlasCostIncludingSubscription(testParameters, testUserSubscription));
 	}
 
 }
