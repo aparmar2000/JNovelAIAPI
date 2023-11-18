@@ -7,10 +7,19 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -27,11 +36,14 @@ import aparmar.nai.data.request.imagen.ImageGenerationRequest.QualityTagsLocatio
 import aparmar.nai.data.request.imagen.ImageInpaintParameters;
 import aparmar.nai.data.request.imagen.ImageParameters;
 import aparmar.nai.data.request.imagen.ImageParameters.ImageGenSampler;
+import aparmar.nai.data.request.imagen.ImageParameters.ImageParametersBuilder;
 import aparmar.nai.data.request.imagen.ImageParameters.SamplingSchedule;
 import aparmar.nai.data.response.UserSubscription;
 import aparmar.nai.data.response.UserSubscription.ImageGenerationLimit;
 import aparmar.nai.data.response.UserSubscription.SubscriptionPerks;
 import aparmar.nai.data.response.UserSubscription.SubscriptionTier;
+import aparmar.nai.utils.InternalResourceLoader;
+import lombok.Data;
 
 class UnitTestImageGenerationRequest {
 
@@ -260,6 +272,65 @@ class UnitTestImageGenerationRequest {
 		testInstance.getParameters().setWidth(10);
 
 		assertTrue(testInstance.isFreeGeneration(testUserSubscription));
+	}
+	
+	@Data
+	private static class ImageGenerationTestSample {
+		ImageGenModel model;
+		int width, height, steps;
+		double ucScale, img2ImgStrength;
+		boolean smeaEnabled, dynSmeaEnabled;
+		ImageGenSampler sampler;
+		int expectedCost;
+	}
+	private static Stream<Arguments> imageGenerationCostEstimationParameterSource() throws FileNotFoundException, IOException {
+		Gson gson = new Gson();
+		
+		ImageGenerationTestSample[] sampleArray = new ImageGenerationTestSample[0];
+		try (InputStreamReader in = new InputStreamReader(InternalResourceLoader.getInternalResourceAsStream("image_gen_test_costs.json"))) {
+			sampleArray = gson.fromJson(in, ImageGenerationTestSample[].class);
+		}
+		
+		return Arrays.stream(sampleArray)
+				.map(sample->{
+					return Arguments.of(
+							sample.getModel(), 
+							sample.getWidth(), sample.getHeight(), sample.getSteps(), sample.getUcScale(), 1, 
+							sample.getImg2ImgStrength(),
+							sample.isSmeaEnabled(), sample.isDynSmeaEnabled(),
+							sample.getSampler(),
+							sample.getExpectedCost());
+				});
+	} 
+	
+	@ParameterizedTest
+	@MethodSource("imageGenerationCostEstimationParameterSource")
+	void testImageGenerationCostEstimation(
+			ImageGenModel model,
+			int width, int height, int steps, double ucScale, int images,
+			double img2ImgStrength,
+			boolean smeaEnabled, boolean dynSmeaEnabled, 
+			ImageGenSampler sampler,
+			int expectedCost) {
+		ImageParametersBuilder<?,?> builder;
+		if (img2ImgStrength == 0) {
+			builder = ImageParameters.builder();
+		} else {
+			builder = Image2ImageParameters.builder()
+					.strength(img2ImgStrength);
+		}
+		
+		int estimatedCost = model.estimateAnlasCost(builder
+				.width(width)
+				.height(height)
+				.steps(steps)
+				.ucScale(ucScale)
+				.imgCount(images)
+				.smeaEnabled(smeaEnabled)
+				.dynSmeaEnabled(dynSmeaEnabled)
+				.sampler(sampler)
+				.build());
+		assertEquals(expectedCost*images, estimatedCost);
 	}
 
 }
