@@ -49,9 +49,11 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class NAIAPI {	
+public class NAIAPI {
+	private static final RateLimitInterceptor sharedRateLimiter = new RateLimitInterceptor(1);
+	private static final Gson gson = buildGsonInstance();
+	
 	private final OkHttpClient client;
-	private final Gson gson;
 	
 	private final String accessToken;
 	
@@ -62,8 +64,6 @@ public class NAIAPI {
 		this.accessToken = formatAccessToken(accessToken);
 		
 		client = buildHttpClient(Duration.ofSeconds(30));
-		
-		gson = buildGsonInstance();
 	}
 	
 	public NAIAPI(String accessToken, Duration readTimeout) {
@@ -73,8 +73,6 @@ public class NAIAPI {
 		this.accessToken = formatAccessToken(accessToken);
 		
 		client = buildHttpClient(readTimeout);
-		
-		gson = buildGsonInstance();
 	}
 	
 	private String formatAccessToken(String rawToken) {
@@ -88,12 +86,12 @@ public class NAIAPI {
 	
 	private OkHttpClient buildHttpClient(Duration readTimeout) {
 		return new OkHttpClient.Builder()
-			    .addNetworkInterceptor(new RateLimitInterceptor(1))
+			    .addNetworkInterceptor(sharedRateLimiter)
 			    .readTimeout(readTimeout)
 			    .build();
 	}
 
-	private Gson buildGsonInstance() {
+	private static Gson buildGsonInstance() {
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		
 		gsonBuilder.setExclusionStrategies(new GsonExcludeExclusionStrategy());
