@@ -5,6 +5,7 @@ import static aparmar.nai.utils.HelperConstants.AUTH_HEADER;
 import static aparmar.nai.utils.HelperConstants.MEDIA_TYPE_AUDIO;
 import static aparmar.nai.utils.HelperConstants.MEDIA_TYPE_JSON;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -67,7 +68,7 @@ class UnitTestNAIAPI {
 
 	private OkHttpClient mockHttpClient;
 	
-	private static final String MOCK_API_KEY = "mockapikey";
+	private static final String MOCK_API_KEY = "pst-mockapikeythatislongenoughtofittherequirementswithsomepaddingok0";
 
 	@BeforeEach
 	public void setUp() throws Exception {
@@ -182,6 +183,14 @@ class UnitTestNAIAPI {
 			
 			return false;
 		};
+	}
+
+	@Test
+	void testIncorrectApiKey() {
+		assertThrows(IllegalArgumentException.class, ()->new NAIAPI(""));
+		assertThrows(IllegalArgumentException.class, ()->new NAIAPI("pst-mockkey"));
+		assertThrows(IllegalArgumentException.class, ()->new NAIAPI("pst-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"));
+		assertDoesNotThrow(()->new NAIAPI("Bearer "+MOCK_API_KEY));
 	}
 
 	@Test

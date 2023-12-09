@@ -3,8 +3,10 @@ package aparmar.nai;
 import static aparmar.nai.utils.HelperConstants.API_ROOT;
 import static aparmar.nai.utils.HelperConstants.AUTH_HEADER;
 import static aparmar.nai.utils.HelperConstants.MEDIA_TYPE_JSON;
+import static aparmar.nai.utils.HelperConstants.PERSISTENT_KEY_PATTERN;
 
 import java.io.IOException;
+import java.time.Duration;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -47,24 +49,51 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class NAIAPI {	
+public class NAIAPI {
+	private static final RateLimitInterceptor sharedRateLimiter = new RateLimitInterceptor(1);
+	private static final Gson gson = buildGsonInstance();
+	
 	private final OkHttpClient client;
-	private final Gson gson;
 	
 	private final String accessToken;
 	
 	public NAIAPI(String accessToken) {
-		accessToken = accessToken.trim();
-		if (!accessToken.startsWith("Bearer ")) {
-			accessToken = "Bearer " + accessToken;
+		if (!PERSISTENT_KEY_PATTERN.matcher(accessToken).matches()) {
+			throw new IllegalArgumentException("Access token \'"+accessToken+"\' appears to be incorrect!");
 		}
-		this.accessToken = accessToken;
+		this.accessToken = formatAccessToken(accessToken);
 		
-		client = new OkHttpClient.Builder()
-			    .addNetworkInterceptor(new RateLimitInterceptor(1))
+		client = buildHttpClient(Duration.ofSeconds(30));
+	}
+	
+	public NAIAPI(String accessToken, Duration readTimeout) {
+		if (!PERSISTENT_KEY_PATTERN.matcher(accessToken).matches()) {
+			throw new IllegalArgumentException("Access token \'"+accessToken+"\' appears to be incorrect!");
+		}
+		this.accessToken = formatAccessToken(accessToken);
+		
+		client = buildHttpClient(readTimeout);
+	}
+	
+	private String formatAccessToken(String rawToken) {
+		String formattedToken = rawToken.trim();
+		if (!formattedToken.startsWith("Bearer ")) {
+			formattedToken = "Bearer " + formattedToken;
+		}
+		
+		return formattedToken;
+	}
+	
+	private OkHttpClient buildHttpClient(Duration readTimeout) {
+		return new OkHttpClient.Builder()
+			    .addNetworkInterceptor(sharedRateLimiter)
+			    .readTimeout(readTimeout)
 			    .build();
-		
+	}
+
+	private static Gson buildGsonInstance() {
 		GsonBuilder gsonBuilder = new GsonBuilder();
+		
 		gsonBuilder.setExclusionStrategies(new GsonExcludeExclusionStrategy());
 		gsonBuilder.registerTypeAdapter(LogProb.class, new LogProb());
 		gsonBuilder.registerTypeAdapter(Base64Image.class, new Base64Image());
@@ -72,7 +101,8 @@ public class NAIAPI {
 		gsonBuilder.registerTypeAdapter(ImageUpscaleRequest.class, new ImageUpscaleRequest());
 		gsonBuilder.registerTypeAdapter(ImageAnnotateRequest.class, ImageAnnotateRequest.SERIALIZER_INSTANCE);
 		gsonBuilder.registerTypeAdapter(ImageGenerationRequest.class, new ImageGenerationRequest());
-		gson = gsonBuilder.create();
+		
+		return gsonBuilder.create();
 	}
 	
 	// === User Info Endpoints ===
