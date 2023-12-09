@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>aparmar</groupId>
 	<artifactId>JNovelAIAPI</artifactId>
-	<version>1.0.5</version>
+	<version>1.0.6</version>
 
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>A moderately functional library facilitating easier usage of
