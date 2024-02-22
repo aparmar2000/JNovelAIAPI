@@ -177,7 +177,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 	@Test
 	void testVibeTransferImageGeneration() throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
-			BufferedImage comditionImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.png"));
+			BufferedImage comditionImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.jpg"));
 			
 			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
 					.input("portrait of a woman")
