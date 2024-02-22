@@ -2,22 +2,22 @@ package aparmar.nai.data.request.imagen;
 
 import com.google.gson.annotations.SerializedName;
 
+import aparmar.nai.data.request.Base64Image;
+import aparmar.nai.data.request.ImageAnnotateRequest.AnnotationModel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.SuperBuilder;
-import aparmar.nai.data.request.Base64Image;
-import aparmar.nai.data.request.ImageAnnotateRequest.AnnotationModel;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder(toBuilder = true)
+@Builder(toBuilder = true)
 @EqualsAndHashCode(callSuper = true)
-public class ImageControlNetParameters extends ImageParameters {
+public class ImageControlNetParameters extends AbstractExtraImageParameters {
 	@RequiredArgsConstructor
 	@Getter
 	public enum ControlnetModel {

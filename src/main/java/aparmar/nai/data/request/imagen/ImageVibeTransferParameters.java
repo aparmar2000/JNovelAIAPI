@@ -1,7 +1,5 @@
 package aparmar.nai.data.request.imagen;
 
-import java.util.concurrent.ThreadLocalRandom;
-
 import com.google.gson.annotations.SerializedName;
 
 import aparmar.nai.data.request.Base64Image;
@@ -16,13 +14,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 @EqualsAndHashCode(callSuper = true)
-public class Image2ImageParameters extends AbstractExtraImageParameters {
+public class ImageVibeTransferParameters extends AbstractExtraImageParameters {	
+	@SerializedName("reference_information_extracted")
 	@Builder.Default
-	@SerializedName("extra_noise_seed")
-	protected long extraNoiseSeed = ThreadLocalRandom.current().nextLong();
+	protected double referenceInformationExtracted = 1.0;
+	@SerializedName("reference_strength")
 	@Builder.Default
-	protected double strength = 0.7;
-	@Builder.Default
-	protected double noise = 0.0;
-	protected Base64Image image;
+	protected double referenceStrength = 0.6;
+	@SerializedName("reference_image")
+	protected Base64Image referenceImage;
 }

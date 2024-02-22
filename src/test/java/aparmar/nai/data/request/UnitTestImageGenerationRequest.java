@@ -3,6 +3,7 @@ package aparmar.nai.data.request;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -15,6 +16,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -23,10 +26,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 import com.google.gson.Gson;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 
 import aparmar.nai.TestHelpers;
+import aparmar.nai.data.request.imagen.AbstractExtraImageParameters;
 import aparmar.nai.data.request.imagen.Image2ImageParameters;
 import aparmar.nai.data.request.imagen.ImageControlNetParameters;
 import aparmar.nai.data.request.imagen.ImageControlNetParameters.ControlnetModel;
@@ -39,6 +42,7 @@ import aparmar.nai.data.request.imagen.ImageParameters;
 import aparmar.nai.data.request.imagen.ImageParameters.ImageGenSampler;
 import aparmar.nai.data.request.imagen.ImageParameters.ImageParametersBuilder;
 import aparmar.nai.data.request.imagen.ImageParameters.SamplingSchedule;
+import aparmar.nai.data.request.imagen.ImageVibeTransferParameters;
 import aparmar.nai.data.response.UserSubscription;
 import aparmar.nai.data.response.UserSubscription.ImageGenerationLimit;
 import aparmar.nai.data.response.UserSubscription.SubscriptionPerks;
@@ -48,191 +52,319 @@ import lombok.Data;
 
 class UnitTestImageGenerationRequest {
 
+    @Nested
+    @DisplayName("@Data annotations work properly")
+    class DataAnnotationTests {
+		@Test
+		void testImageGenerationRequestDataAnnotation() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+			ImageGenerationRequest testInstance1 = ImageGenerationRequest.builder()
+					.model(ImageGenModel.ANIME_CURATED)
+					.action(ImageGenAction.GENERATE)
+					.build();
+			ImageGenerationRequest testInstance2 = ImageGenerationRequest.builder()
+					.input("input")
+					.model(ImageGenModel.FURRY)
+					.action(ImageGenAction.IMG2IMG)
+					.parameters(ImageParameters.builder().build())
+					.extraParameter(Image2ImageParameters.builder().build())
+					.build();
+			TestHelpers.autoTestDataAndToBuilderAnnotation(ImageGenerationRequest.class, testInstance1, testInstance2);
+		}
+	
+		@Test
+		void testImageParametersDataAnnotation() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+			ImageParameters testInstance1 = ImageParameters.builder()
+					.sampler(ImageGenSampler.DDIM)
+					.build();
+			ImageParameters testInstance2 = ImageParameters.builder()
+					.seed(12345)
+					.height(32)
+					.width(64)
+					.steps(25)
+					.scale(1.5)
+					.scaleRescaleFactor(0.26)
+					.sampler(ImageGenSampler.DPM_FAST)
+					.noiseSchedule(SamplingSchedule.KARRAS)
+					.smeaEnabled(true)
+					.dynSmeaEnabled(true)
+					.decrisperEnabled(true)
+					.qualityToggle(true)
+					.qualityInsertLocation(QualityTagsLocation.PREPEND)
+					.ucPreset(15)
+					.undesiredContent("uc")
+					.ucScale(2)
+					.imgCount(15)
+					.build();
+			TestHelpers.autoTestDataAndToBuilderAnnotation(ImageParameters.class, testInstance1, testInstance2);
+		}
+	
+		@Test
+		void testImageInpaintParametersDataAnnotation() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+			ImageInpaintParameters testInstance1 = ImageInpaintParameters.builder()
+					.sampler(ImageGenSampler.DDIM)
+					.build();
+			ImageInpaintParameters testInstance2 = ImageInpaintParameters.builder()
+					.seed(12345)
+					.height(32)
+					.width(64)
+					.steps(25)
+					.scale(1.5)
+					.scaleRescaleFactor(0.26)
+					.sampler(ImageGenSampler.DPM_FAST)
+					.noiseSchedule(SamplingSchedule.KARRAS)
+					.smeaEnabled(true)
+					.dynSmeaEnabled(true)
+					.decrisperEnabled(true)
+					.qualityToggle(true)
+					.qualityInsertLocation(QualityTagsLocation.PREPEND)
+					.ucPreset(15)
+					.undesiredContent("uc")
+					.ucScale(2)
+					.imgCount(15)
+					
+					.overlayOriginalImage(true)
+					.image(new Base64Image())
+					.mask(new Base64Image())
+					.build();
+			TestHelpers.autoTestDataAndToBuilderAnnotation(ImageInpaintParameters.class, testInstance1, testInstance2);
+		}
+	
+		@Test
+		void testImage2ImageParametersDataAnnotation() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+			Image2ImageParameters testInstance1 = Image2ImageParameters.builder()
+					.build();
+			Image2ImageParameters testInstance2 = Image2ImageParameters.builder()
+					.extraNoiseSeed(11111)
+					.strength(0.66)
+					.noise(0.77)
+					.image(new Base64Image())
+					.build();
+			TestHelpers.autoTestDataAndToBuilderAnnotation(Image2ImageParameters.class, testInstance1, testInstance2);
+		}
+	
+		@Test
+		void testImageControlNetParametersDataAnnotation() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+			ImageControlNetParameters testInstance1 = ImageControlNetParameters.builder()
+					.build();
+			ImageControlNetParameters testInstance2 = ImageControlNetParameters.builder()
+					.model(ControlnetModel.FORM_LOCK)
+					.conditionImg(new Base64Image())
+					.build();
+			TestHelpers.autoTestDataAndToBuilderAnnotation(ImageControlNetParameters.class, testInstance1, testInstance2);
+		}
+	
+		@Test
+		void testImageVibeTransferParametersDataAnnotation() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+			ImageVibeTransferParameters testInstance1 = ImageVibeTransferParameters.builder()
+					.build();
+			ImageVibeTransferParameters testInstance2 = ImageVibeTransferParameters.builder()
+					.referenceStrength(11)
+					.referenceInformationExtracted(15)
+					.referenceImage(new Base64Image())
+					.build();
+			TestHelpers.autoTestDataAndToBuilderAnnotation(ImageVibeTransferParameters.class, testInstance1, testInstance2);
+		}
+    }
+
 	@Test
-	void testImageGenerationRequestDataAnnotation() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		ImageGenerationRequest testInstance1 = ImageGenerationRequest.builder()
-				.model(ImageGenModel.ANIME_CURATED)
+	void testNonInpaintModelRejectsImage2ImageParameters() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
+				.model(ImageGenModel.ANIME_V3)
 				.action(ImageGenAction.GENERATE)
-				.build();
-		ImageGenerationRequest testInstance2 = ImageGenerationRequest.builder()
-				.input("input")
-				.model(ImageGenModel.FURRY)
-				.action(ImageGenAction.IMG2IMG)
-				.parameters(ImageParameters.builder().build())
-				.build();
-		TestHelpers.autoTestDataAndToBuilderAnnotation(ImageGenerationRequest.class, testInstance1, testInstance2);
-	}
-
-	@Test
-	void testImageParametersDataAnnotation() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		ImageParameters testInstance1 = ImageParameters.builder()
-				.sampler(ImageGenSampler.DDIM)
-				.build();
-		ImageParameters testInstance2 = ImageParameters.builder()
-				.seed(12345)
-				.height(32)
-				.width(64)
-				.steps(25)
-				.scale(1.5)
-				.scaleRescaleFactor(0.26)
-				.sampler(ImageGenSampler.DPM_FAST)
-				.noiseSchedule(SamplingSchedule.KARRAS)
-				.smeaEnabled(true)
-				.dynSmeaEnabled(true)
-				.decrisperEnabled(true)
-				.qualityToggle(true)
-				.qualityInsertLocation(QualityTagsLocation.PREPEND)
-				.ucPreset(15)
-				.undesiredContent("uc")
-				.ucScale(2)
-				.imgCount(15)
-				.build();
-		TestHelpers.autoTestDataAndToBuilderAnnotation(ImageParameters.class, testInstance1, testInstance2);
-	}
-
-	@Test
-	void testImage2ImageParametersDataAnnotation() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		Image2ImageParameters testInstance1 = Image2ImageParameters.builder()
-				.sampler(ImageGenSampler.DDIM)
-				.build();
-		Image2ImageParameters testInstance2 = Image2ImageParameters.builder()
-				.seed(12345)
-				.height(32)
-				.width(64)
-				.steps(25)
-				.scale(1.5)
-				.scaleRescaleFactor(0.26)
-				.sampler(ImageGenSampler.DPM_FAST)
-				.noiseSchedule(SamplingSchedule.KARRAS)
-				.smeaEnabled(true)
-				.dynSmeaEnabled(true)
-				.decrisperEnabled(true)
-				.qualityToggle(true)
-				.qualityInsertLocation(QualityTagsLocation.PREPEND)
-				.ucPreset(15)
-				.undesiredContent("uc")
-				.ucScale(2)
-				.imgCount(15)
-				
-				.extraNoiseSeed(11111)
-				.strength(0.66)
-				.noise(0.77)
-				.image(new Base64Image())
-				.build();
-		TestHelpers.autoTestDataAndToBuilderAnnotation(Image2ImageParameters.class, testInstance1, testInstance2);
-	}
-
-	@Test
-	void testImageInpaintParametersDataAnnotation() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		ImageInpaintParameters testInstance1 = ImageInpaintParameters.builder()
-				.sampler(ImageGenSampler.DDIM)
-				.build();
-		ImageInpaintParameters testInstance2 = ImageInpaintParameters.builder()
-				.seed(12345)
-				.height(32)
-				.width(64)
-				.steps(25)
-				.scale(1.5)
-				.scaleRescaleFactor(0.26)
-				.sampler(ImageGenSampler.DPM_FAST)
-				.noiseSchedule(SamplingSchedule.KARRAS)
-				.smeaEnabled(true)
-				.dynSmeaEnabled(true)
-				.decrisperEnabled(true)
-				.qualityToggle(true)
-				.qualityInsertLocation(QualityTagsLocation.PREPEND)
-				.ucPreset(15)
-				.undesiredContent("uc")
-				.ucScale(2)
-				.imgCount(15)
-				
-				.overlayOriginalImage(true)
-				.image(new Base64Image())
-				.mask(new Base64Image())
-				.build();
-		TestHelpers.autoTestDataAndToBuilderAnnotation(ImageInpaintParameters.class, testInstance1, testInstance2);
-	}
-
-	@Test
-	void testImageControlNetParametersDataAnnotation() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		ImageControlNetParameters testInstance1 = ImageControlNetParameters.builder()
-				.sampler(ImageGenSampler.DDIM)
-				.build();
-		ImageControlNetParameters testInstance2 = ImageControlNetParameters.builder()
-				.seed(12345)
-				.height(32)
-				.width(64)
-				.steps(25)
-				.scale(1.5)
-				.scaleRescaleFactor(0.26)
-				.sampler(ImageGenSampler.DPM_FAST)
-				.noiseSchedule(SamplingSchedule.KARRAS)
-				.smeaEnabled(true)
-				.dynSmeaEnabled(true)
-				.decrisperEnabled(true)
-				.qualityToggle(true)
-				.qualityInsertLocation(QualityTagsLocation.PREPEND)
-				.ucPreset(15)
-				.undesiredContent("uc")
-				.ucScale(2)
-				.imgCount(15)
-				
-				.model(ControlnetModel.FORM_LOCK)
-				.conditionImg(new Base64Image())
-				.build();
-		TestHelpers.autoTestDataAndToBuilderAnnotation(ImageControlNetParameters.class, testInstance1, testInstance2);
+				.parameters(ImageInpaintParameters.builder().build())
+				.build());
+		assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
+				.action(ImageGenAction.GENERATE)
+				.parameters(ImageInpaintParameters.builder().build())
+				.model(ImageGenModel.ANIME_V3)
+				.build());
 	}
 	
 	@Test
-	void testImageGenerationRequestSerialization() {
-		ImageGenerationRequest serializationInstance = new ImageGenerationRequest();
-		JsonSerializationContext mockJsonSerializationContext = mock(JsonSerializationContext.class);
-		when(mockJsonSerializationContext.serialize(any(), any()))
-			.then(a->new JsonPrimitive(a.getArgument(0).toString()));
-		
-		ImageGenerationRequest testInstance = ImageGenerationRequest.builder()
-				.input("input")
-				.model(ImageGenModel.ANIME_V2)
+	void testInpaintModelRejectsNonImage2ImageParameters() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
+				.model(ImageGenModel.ANIME_V3_INPAINT)
 				.action(ImageGenAction.GENERATE)
-				.parameters(ImageParameters.builder()
-						.qualityToggle(false)
-						.build())
-				.build();
-		
-		JsonObject result = serializationInstance.serialize(testInstance, ImageParameters.class, mockJsonSerializationContext)
-				.getAsJsonObject();
-		assertEquals("input", result.get("input").getAsString());
-		assertEquals("ANIME_V2", result.get("model").getAsString());
-		assertEquals("GENERATE", result.get("action").getAsString());
-		assertEquals(testInstance.getParameters().toString(), result.get("parameters").getAsString());
-
-		testInstance.getParameters().setQualityToggle(true);
-		// DEFAULT quality tags insertion location
-		result = serializationInstance.serialize(testInstance, ImageParameters.class, mockJsonSerializationContext)
-				.getAsJsonObject();
-		assertEquals("input, very aesthetic, best quality, absurdres", result.get("input").getAsString());
-		assertEquals("ANIME_V2", result.get("model").getAsString());
-		assertEquals("GENERATE", result.get("action").getAsString());
-		assertEquals(testInstance.getParameters().toString(), result.get("parameters").getAsString());
-
-		// PREPEND quality tags insertion location
-		testInstance.getParameters().setQualityInsertLocation(QualityTagsLocation.PREPEND);
-		result = serializationInstance.serialize(testInstance, ImageParameters.class, mockJsonSerializationContext)
-				.getAsJsonObject();
-		assertEquals("very aesthetic, best quality, absurdres, input", result.get("input").getAsString());
-		assertEquals("ANIME_V2", result.get("model").getAsString());
-		assertEquals("GENERATE", result.get("action").getAsString());
-		assertEquals(testInstance.getParameters().toString(), result.get("parameters").getAsString());
-		
-		// APPEND quality tags insertion location
-		testInstance.getParameters().setQualityInsertLocation(QualityTagsLocation.APPEND);
-		result = serializationInstance.serialize(testInstance, ImageParameters.class, mockJsonSerializationContext)
-				.getAsJsonObject();
-		assertEquals("input, very aesthetic, best quality, absurdres", result.get("input").getAsString());
-		assertEquals("ANIME_V2", result.get("model").getAsString());
-		assertEquals("GENERATE", result.get("action").getAsString());
-		assertEquals(testInstance.getParameters().toString(), result.get("parameters").getAsString());
+				.parameters(ImageParameters.builder().build())
+				.build());
+		assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
+				.action(ImageGenAction.GENERATE)
+				.parameters(ImageParameters.builder().build())
+				.model(ImageGenModel.ANIME_V3_INPAINT)
+				.build());
 	}
+
+    @Nested
+    @DisplayName("incompatible extra parameters are blocked")
+    class IncompatibleExtraParameters {
+		@Test
+		void testModelIncompatibleExtraImageParameters() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+			assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
+					.model(ImageGenModel.ANIME_CURATED)
+					.action(ImageGenAction.GENERATE)
+					.extraParameter(ImageVibeTransferParameters.builder().build())
+					.build());
+			assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
+					.action(ImageGenAction.GENERATE)
+					.extraParameter(ImageVibeTransferParameters.builder().build())
+					.model(ImageGenModel.ANIME_CURATED)
+					.build());
+		}
+		
+		@Test
+		void testBaseParameterIncompatibleExtraImageParameters() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+			ImageParameters mockImageParameters = mock(ImageParameters.class);
+			when(mockImageParameters.compatibleWith(any())).thenReturn(false);
+			
+			assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
+					.model(ImageGenModel.ANIME_V3)
+					.action(ImageGenAction.GENERATE)
+					.parameters(mockImageParameters)
+					.extraParameter(ImageVibeTransferParameters.builder().build())
+					.build());
+			assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
+					.model(ImageGenModel.ANIME_V3)
+					.action(ImageGenAction.GENERATE)
+					.extraParameter(ImageVibeTransferParameters.builder().build())
+					.parameters(mockImageParameters)
+					.build());
+		}
+		
+		@Test
+		void testExtraParameterIncompatibleExtraImageParameters() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+			AbstractExtraImageParameters mockExtraParameters = mock(AbstractExtraImageParameters.class);
+			when(mockExtraParameters.compatibleWith(any())).thenReturn(false);
+			
+			assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
+					.model(ImageGenModel.ANIME_V3)
+					.action(ImageGenAction.GENERATE)
+					.extraParameter(ImageVibeTransferParameters.builder().build())
+					.extraParameter(mockExtraParameters)
+					.build());
+			assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
+					.model(ImageGenModel.ANIME_V3)
+					.action(ImageGenAction.GENERATE)
+					.extraParameter(mockExtraParameters)
+					.extraParameter(ImageVibeTransferParameters.builder().build())
+					.build());
+		}
+    }
+
+    @Nested
+    @DisplayName("serialization works properly")
+    class SerializationTests {
+		@Test
+		void testImageGenerationRequestBaseSerialization() {
+			ImageGenerationRequest serializationInstance = new ImageGenerationRequest();
+			JsonSerializationContext mockJsonSerializationContext = mock(JsonSerializationContext.class);
+			when(mockJsonSerializationContext.serialize(any(), any()))
+				.then(a->{
+					JsonObject mockObj = new JsonObject();
+					mockObj.addProperty(a.getArgument(0).getClass().getSimpleName(),a.getArgument(0).toString());
+					return mockObj;
+				});
+			
+			ImageGenerationRequest testInstance = ImageGenerationRequest.builder()
+					.input("input")
+					.model(ImageGenModel.ANIME_V2)
+					.action(ImageGenAction.GENERATE)
+					.parameters(ImageParameters.builder()
+							.qualityToggle(false)
+							.build())
+					.build();
+			
+			JsonObject result = serializationInstance.serialize(testInstance, ImageParameters.class, mockJsonSerializationContext)
+					.getAsJsonObject();
+			assertEquals("input", result.get("input").getAsString());
+			assertEquals("ANIME_V2", result.get("model").getAsJsonObject().get("ImageGenModel").getAsString());
+			assertEquals("GENERATE", result.get("action").getAsJsonObject().get("ImageGenAction").getAsString());
+			assertEquals(testInstance.getParameters().toString(), result.get("parameters").getAsJsonObject().get("ImageParameters").getAsString());
+		}
+		
+		@Test
+		void testImageGenerationRequestPromptSerialization() {
+			ImageGenerationRequest serializationInstance = new ImageGenerationRequest();
+			JsonSerializationContext mockJsonSerializationContext = mock(JsonSerializationContext.class);
+			when(mockJsonSerializationContext.serialize(any(), any()))
+				.then(a->{
+					JsonObject mockObj = new JsonObject();
+					mockObj.addProperty(a.getArgument(0).getClass().getSimpleName(),a.getArgument(0).toString());
+					return mockObj;
+				});
+			
+			ImageGenerationRequest testInstance = ImageGenerationRequest.builder()
+					.input("input")
+					.model(ImageGenModel.ANIME_V2)
+					.action(ImageGenAction.GENERATE)
+					.parameters(ImageParameters.builder()
+							.qualityToggle(false)
+							.build())
+					.build();
+			
+			JsonObject result = serializationInstance.serialize(testInstance, ImageParameters.class, mockJsonSerializationContext)
+					.getAsJsonObject();
+			assertEquals("input", result.get("input").getAsString());
+			assertEquals("ANIME_V2", result.get("model").getAsJsonObject().get("ImageGenModel").getAsString());
+			assertEquals("GENERATE", result.get("action").getAsJsonObject().get("ImageGenAction").getAsString());
+			assertEquals(testInstance.getParameters().toString(), result.get("parameters").getAsJsonObject().get("ImageParameters").getAsString());
+	
+			testInstance.getParameters().setQualityToggle(true);
+			// DEFAULT quality tags insertion location
+			result = serializationInstance.serialize(testInstance, ImageParameters.class, mockJsonSerializationContext)
+					.getAsJsonObject();
+			assertEquals("input, very aesthetic, best quality, absurdres", result.get("input").getAsString());
+			assertEquals("ANIME_V2", result.get("model").getAsJsonObject().get("ImageGenModel").getAsString());
+			assertEquals("GENERATE", result.get("action").getAsJsonObject().get("ImageGenAction").getAsString());
+			assertEquals(testInstance.getParameters().toString(), result.get("parameters").getAsJsonObject().get("ImageParameters").getAsString());
+	
+			// PREPEND quality tags insertion location
+			testInstance.getParameters().setQualityInsertLocation(QualityTagsLocation.PREPEND);
+			result = serializationInstance.serialize(testInstance, ImageParameters.class, mockJsonSerializationContext)
+					.getAsJsonObject();
+			assertEquals("very aesthetic, best quality, absurdres, input", result.get("input").getAsString());
+			assertEquals("ANIME_V2", result.get("model").getAsJsonObject().get("ImageGenModel").getAsString());
+			assertEquals("GENERATE", result.get("action").getAsJsonObject().get("ImageGenAction").getAsString());
+			assertEquals(testInstance.getParameters().toString(), result.get("parameters").getAsJsonObject().get("ImageParameters").getAsString());
+			
+			// APPEND quality tags insertion location
+			testInstance.getParameters().setQualityInsertLocation(QualityTagsLocation.APPEND);
+			result = serializationInstance.serialize(testInstance, ImageParameters.class, mockJsonSerializationContext)
+					.getAsJsonObject();
+			assertEquals("input, very aesthetic, best quality, absurdres", result.get("input").getAsString());
+			assertEquals("ANIME_V2", result.get("model").getAsJsonObject().get("ImageGenModel").getAsString());
+			assertEquals("GENERATE", result.get("action").getAsJsonObject().get("ImageGenAction").getAsString());
+			assertEquals(testInstance.getParameters().toString(), result.get("parameters").getAsJsonObject().get("ImageParameters").getAsString());
+		}
+		
+		@Test
+		void testImageGenerationRequestExtraParameterSerialization() {
+			ImageGenerationRequest serializationInstance = new ImageGenerationRequest();
+			JsonSerializationContext mockJsonSerializationContext = mock(JsonSerializationContext.class);
+			when(mockJsonSerializationContext.serialize(any(), any()))
+				.then(a->{
+					JsonObject mockObj = new JsonObject();
+					mockObj.addProperty(a.getArgument(0).getClass().getSimpleName(),a.getArgument(0).toString());
+					return mockObj;
+				});
+			
+			ImageGenerationRequest testInstance = ImageGenerationRequest.builder()
+					.input("input")
+					.model(ImageGenModel.ANIME_V2)
+					.action(ImageGenAction.GENERATE)
+					.parameters(ImageParameters.builder()
+							.qualityToggle(false)
+							.build())
+					.extraParameter(Image2ImageParameters.builder()
+							.extraNoiseSeed(25)
+							.build())
+					.build();
+			
+			JsonObject result = serializationInstance.serialize(testInstance, ImageParameters.class, mockJsonSerializationContext)
+					.getAsJsonObject();
+			assertEquals(testInstance.getParameters().toString(), result.get("parameters").getAsJsonObject().get("ImageParameters").getAsString());
+			assertEquals(testInstance.getExtraParameters().get(Image2ImageParameters.class).toString(), result.get("parameters").getAsJsonObject().get("Image2ImageParameters").getAsString());
+		}
+    }
 	
 	@Test
 	void testImageGenerationRequestOpusValidation() {
@@ -317,15 +449,9 @@ class UnitTestImageGenerationRequest {
 			boolean smeaEnabled, boolean dynSmeaEnabled, 
 			ImageGenSampler sampler,
 			int expectedCost) {
-		ImageParametersBuilder<?,?> builder;
-		if (img2ImgStrength == 0) {
-			builder = ImageParameters.builder();
-		} else {
-			builder = Image2ImageParameters.builder()
-					.strength(img2ImgStrength);
-		}
+		ImageParametersBuilder<?,?> builder = ImageParameters.builder();
 		
-		int estimatedCost = model.estimateAnlasCost(builder
+		ImageParameters baseParameters = builder
 				.width(width)
 				.height(height)
 				.steps(steps)
@@ -334,7 +460,18 @@ class UnitTestImageGenerationRequest {
 				.smeaEnabled(smeaEnabled)
 				.dynSmeaEnabled(dynSmeaEnabled)
 				.sampler(sampler)
-				.build());
+				.build();
+
+		int estimatedCost;
+		if (img2ImgStrength == 0) {
+			estimatedCost = model.estimateAnlasCost(builder.build());
+		} else {
+			estimatedCost = model.estimateAnlasCost(
+					baseParameters, 
+					Image2ImageParameters.builder()
+						.strength(img2ImgStrength)
+						.build());
+		}
 		assertEquals(expectedCost*images, estimatedCost);
 	}
 	

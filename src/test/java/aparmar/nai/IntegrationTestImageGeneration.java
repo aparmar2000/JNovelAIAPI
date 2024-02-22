@@ -21,6 +21,7 @@ import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenAction;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
 import aparmar.nai.data.request.imagen.ImageInpaintParameters;
 import aparmar.nai.data.request.imagen.ImageParameters;
+import aparmar.nai.data.request.imagen.ImageVibeTransferParameters;
 import aparmar.nai.data.response.ImageSetWrapper;
 import aparmar.nai.utils.InternalResourceLoader;
 
@@ -54,44 +55,6 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 			assertEquals(512, resultImage.getRenderedImage().getWidth());
 			
 			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"basic_generation_test.png"));
-		});
-	}
-
-	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
-	@Test
-	void testImage2ImageGeneration() throws AssertionError, Exception {
-		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
-			BufferedImage baseImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.jpg"));
-			
-			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
-					.input("portrait of a woman")
-					.action(ImageGenAction.IMG2IMG)
-					.model(ImageGenModel.ANIME_V3)
-					.parameters(Image2ImageParameters.builder()
-							.seed(1)
-							.width(512)
-							.height(512)
-							.steps(28)
-							.scale(1)
-							.sampler(ImageParameters.ImageGenSampler.DPM_PLUS_PLUS_2S_ANCESTRAL)
-							.ucPreset(1)
-							.undesiredContent(ImageGenerationRequest.ANIME_V2_LIGHT_UC)
-							.extraNoiseSeed(2)
-							.strength(0.7)
-							.noise(0.0)
-							.image(new Base64Image(baseImage, 512, 512, false))
-							.build())
-					.build();
-			ImageSetWrapper result = apiInstance.generateImage(testGenerationRequest);
-			
-			assertNotNull(result);
-			assertEquals(1, result.getImageCount());
-			IIOImage resultImage = result.getImage(0);
-			assertNotNull(resultImage);
-			assertEquals(512, resultImage.getRenderedImage().getHeight());
-			assertEquals(512, resultImage.getRenderedImage().getWidth());
-			
-			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"img2img_test.png"));
 		});
 	}
 
@@ -134,15 +97,15 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 
 	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
 	@Test
-	void testControlledImageGeneration() throws AssertionError, Exception {
+	void testImage2ImageGeneration() throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
-			BufferedImage comditionImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_scribbles.png"));
+			BufferedImage baseImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.jpg"));
 			
 			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
 					.input("portrait of a woman")
-					.action(ImageGenAction.GENERATE)
-					.model(ImageGenModel.ANIME_V2)
-					.parameters(ImageControlNetParameters.builder()
+					.action(ImageGenAction.IMG2IMG)
+					.model(ImageGenModel.ANIME_V3)
+					.parameters(ImageParameters.builder()
 							.seed(1)
 							.width(512)
 							.height(512)
@@ -151,6 +114,48 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 							.sampler(ImageParameters.ImageGenSampler.DPM_PLUS_PLUS_2S_ANCESTRAL)
 							.ucPreset(1)
 							.undesiredContent(ImageGenerationRequest.ANIME_V2_LIGHT_UC)
+							.build())
+					.extraParameter(Image2ImageParameters.builder()
+							.extraNoiseSeed(2)
+							.strength(0.7)
+							.noise(0.0)
+							.image(new Base64Image(baseImage, 512, 512, false))
+							.build())
+					.build();
+			ImageSetWrapper result = apiInstance.generateImage(testGenerationRequest);
+			
+			assertNotNull(result);
+			assertEquals(1, result.getImageCount());
+			IIOImage resultImage = result.getImage(0);
+			assertNotNull(resultImage);
+			assertEquals(512, resultImage.getRenderedImage().getHeight());
+			assertEquals(512, resultImage.getRenderedImage().getWidth());
+			
+			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"img2img_test.png"));
+		});
+	}
+
+	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
+	@Test
+	void testControlledImageGeneration() throws AssertionError, Exception {
+		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
+			BufferedImage comditionImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_scribbles.png"));
+			
+			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
+					.input("portrait of a woman")
+					.action(ImageGenAction.GENERATE)
+					.model(ImageGenModel.ANIME_V2)
+					.parameters(ImageParameters.builder()
+							.seed(1)
+							.width(512)
+							.height(512)
+							.steps(28)
+							.scale(1)
+							.sampler(ImageParameters.ImageGenSampler.DPM_PLUS_PLUS_2S_ANCESTRAL)
+							.ucPreset(1)
+							.undesiredContent(ImageGenerationRequest.ANIME_V2_LIGHT_UC)
+							.build())
+					.extraParameter(ImageControlNetParameters.builder()
 							.model(ControlnetModel.SCRIBBLER)
 							.conditionImg(new Base64Image(comditionImage, 512, 512, true))
 							.build())
@@ -165,6 +170,43 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 			assertEquals(512, resultImage.getRenderedImage().getWidth());
 			
 			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"controlnet_conditioned_test.png"));
+		});
+	}
+
+	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
+	@Test
+	void testVibeTransferImageGeneration() throws AssertionError, Exception {
+		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
+			BufferedImage comditionImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.png"));
+			
+			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
+					.input("portrait of a woman")
+					.action(ImageGenAction.GENERATE)
+					.model(ImageGenModel.ANIME_V3)
+					.parameters(ImageParameters.builder()
+							.seed(1)
+							.width(512)
+							.height(512)
+							.steps(28)
+							.scale(1)
+							.sampler(ImageParameters.ImageGenSampler.DPM_PLUS_PLUS_2S_ANCESTRAL)
+							.ucPreset(1)
+							.undesiredContent(ImageGenerationRequest.ANIME_V2_LIGHT_UC)
+							.build())
+					.extraParameter(ImageVibeTransferParameters.builder()
+							.referenceImage(new Base64Image(comditionImage, 512, 512, true))
+							.build())
+					.build();
+			ImageSetWrapper result = apiInstance.generateImage(testGenerationRequest);
+			
+			assertNotNull(result);
+			assertEquals(1, result.getImageCount());
+			IIOImage resultImage = result.getImage(0);
+			assertNotNull(resultImage);
+			assertEquals(512, resultImage.getRenderedImage().getHeight());
+			assertEquals(512, resultImage.getRenderedImage().getWidth());
+			
+			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"vibe_transfer_test.png"));
 		});
 	}
 
