@@ -99,7 +99,13 @@ public class ImageParameters {
 	@Builder.Default
 	protected int imgCount = 1;
 	
+	@SerializedName("params_version")
+	protected final int paramsVersion = 1;
 	protected final boolean legacy = false;
+	@SerializedName("legacy_v3_extend")
+	protected final boolean legacyV3Extend = false;
+	
+	public boolean compatibleWith(AbstractExtraImageParameters otherParameters) { return true; }
 	
 	public static int getNearestMultipleOf64(int val) {
 		return (int) (64*(Math.round(val/64.0)));
