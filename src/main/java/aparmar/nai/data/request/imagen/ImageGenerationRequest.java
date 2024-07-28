@@ -39,6 +39,8 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 	public static final String FURRY_LOW_QUALITY_UC = "nsfw, {worst quality}, {bad quality}, text, signature, watermark";
 	public static final String ANIME_LOW_QUALITY_AND_BAD_ANATOMY_UC = "nsfw, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, blurry, blurry background, blur, blurred, long limbs, extra limbs, mutated, mutated limbs";
 	public static final String ANIME_LOW_QUALITY_UC = "nsfw, lowres, text, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry";
+	public static final String FURRY_V3_LIGHT_UC = "nsfw, {worst quality}, guide lines, unfinished, bad, url, tall image, widescreen, compression artifacts, unknown text";
+	public static final String FURRY_V3_HEAVY_UC = "nsfw, {{worst quality}}, [displeasing], {unusual pupils}, guide lines, {{unfinished}}, {bad}, url, artist name, {{tall image}}, mosaic, {sketch page}, comic panel, impact (font), [dated], {logo}, ych, {what}, {where is your god now}, {distorted text}, repeated text, {floating head}, {1994}, {widescreen}, absolutely everyone, sequence, {compression artifacts}, hard translated, {cropped}, {commissioner name}, unknown text, high contrast";
 	
 	public enum QualityTagsLocation {
 		DEFAULT,
@@ -51,7 +53,8 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 	public enum QualityTagsPreset {
 		V1_MODELS("masterpiece, best quality", QualityTagsLocation.PREPEND),
 		ANIME_V2("very aesthetic, best quality, absurdres", QualityTagsLocation.APPEND),
-		ANIME_V3("aesthetic, best quality, absurdres", QualityTagsLocation.APPEND);
+		ANIME_V3("aesthetic, best quality, absurdres", QualityTagsLocation.APPEND),
+		FURRY_V3("{best quality}, {amazing quality}", QualityTagsLocation.APPEND);
 		
 		private final String tags;
 		private final QualityTagsLocation defaultLocation;
@@ -70,6 +73,8 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		ANIME_V2(QualityTagsPreset.ANIME_V2, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD),
 		@SerializedName("nai-diffusion-3")
 		ANIME_V3(QualityTagsPreset.ANIME_V3, false, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), ImageGenModel::estimateAnlasCostSDXL),
+		@SerializedName("nai-diffusion-furry-3")
+		FURRY_V3(QualityTagsPreset.FURRY_V3, false, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), ImageGenModel::estimateAnlasCostSDXL),
 		
 		@SerializedName("safe-diffusion-inpainting")
 		ANIME_CURATED_INPAINT(QualityTagsPreset.V1_MODELS, true, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD),
@@ -78,7 +83,9 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		@SerializedName("furry-diffusion-inpainting")
 		FURRY_INPAINT(QualityTagsPreset.V1_MODELS, true, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD),
 		@SerializedName("nai-diffusion-3-inpainting")
-		ANIME_V3_INPAINT(QualityTagsPreset.ANIME_V3, true, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), ImageGenModel::estimateAnlasCostSDXL);
+		ANIME_V3_INPAINT(QualityTagsPreset.ANIME_V3, true, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), ImageGenModel::estimateAnlasCostSDXL),
+		@SerializedName("nai-diffusion-furry-3-inpainting")
+		FURRY_V3_INPAINT(QualityTagsPreset.FURRY_V3, true, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), ImageGenModel::estimateAnlasCostSDXL);
 		
 		private final QualityTagsPreset qualityTagsPreset;
 		private final boolean inpaintingModel;
