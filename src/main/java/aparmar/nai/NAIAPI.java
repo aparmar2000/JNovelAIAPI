@@ -24,6 +24,7 @@ import aparmar.nai.data.request.ImageUpscaleRequest.UpscaleFactor;
 import aparmar.nai.data.request.TextGenerationRequest;
 import aparmar.nai.data.request.VoiceGenerationRequest;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest;
+import aparmar.nai.data.request.imagen.ImageVibeTransferParameters;
 import aparmar.nai.data.response.AudioWrapper;
 import aparmar.nai.data.response.ImageSetWrapper;
 import aparmar.nai.data.response.TextGenerationResponse;
@@ -101,6 +102,7 @@ public class NAIAPI {
 		gsonBuilder.registerTypeAdapter(ImageUpscaleRequest.class, new ImageUpscaleRequest());
 		gsonBuilder.registerTypeAdapter(ImageAnnotateRequest.class, ImageAnnotateRequest.SERIALIZER_INSTANCE);
 		gsonBuilder.registerTypeAdapter(ImageGenerationRequest.class, new ImageGenerationRequest());
+		gsonBuilder.registerTypeAdapter(ImageVibeTransferParameters.class, new ImageVibeTransferParameters());
 		
 		return gsonBuilder.create();
 	}
