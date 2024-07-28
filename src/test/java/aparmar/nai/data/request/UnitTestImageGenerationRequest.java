@@ -158,9 +158,11 @@ class UnitTestImageGenerationRequest {
 			ImageVibeTransferParameters testInstance1 = ImageVibeTransferParameters.builder()
 					.build();
 			ImageVibeTransferParameters testInstance2 = ImageVibeTransferParameters.builder()
-					.referenceStrength(11)
-					.referenceInformationExtracted(15)
-					.referenceImage(new Base64Image())
+					.vibeImage(ImageVibeTransferParameters.VibeTransferImage.builder()
+							.referenceStrength(11)
+							.referenceInformationExtracted(15)
+							.referenceImage(new Base64Image())
+							.build())
 					.build();
 			TestHelpers.autoTestDataAndToBuilderAnnotation(ImageVibeTransferParameters.class, testInstance1, testInstance2);
 		}
