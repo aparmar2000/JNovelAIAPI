@@ -263,7 +263,7 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		}
 		
 		public ImageGenerationRequestBuilder parameters(ImageParameters imageParameters) {
-			if (imageParameters.getSeed() < 0) { throw new IllegalArgumentException("Negative seeds are not supported!"); }
+			if (imageParameters != null && imageParameters.getSeed() < 0) { throw new IllegalArgumentException("Negative seeds are not supported!"); }
 			if (this.model != null 
 					&& (imageParameters instanceof ImageInpaintParameters) != model.isInpaintingModel()) {
 				if (imageParameters instanceof ImageInpaintParameters) {
