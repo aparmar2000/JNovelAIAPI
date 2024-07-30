@@ -1,6 +1,7 @@
 package aparmar.nai;
 
-import static aparmar.nai.utils.HelperConstants.API_ROOT;
+import static aparmar.nai.utils.HelperConstants.GENERAL_API_ROOT;
+import static aparmar.nai.utils.HelperConstants.IMAGE_API_ROOT;
 import static aparmar.nai.utils.HelperConstants.AUTH_HEADER;
 import static aparmar.nai.utils.HelperConstants.MEDIA_TYPE_JSON;
 import static aparmar.nai.utils.HelperConstants.PERSISTENT_KEY_PATTERN;
@@ -112,23 +113,23 @@ public class NAIAPI {
 	// --- GET Endpoints
 	
 	public UserInfo fetchUserInformation() throws IOException {
-		return fetchFromNovelAI("user/information", UserInfo.class);
+		return fetchFromNovelAI("user/information", GENERAL_API_ROOT, UserInfo.class);
 	}
 	
 	public UserPriority fetchUserPriority() throws IOException {
-		return fetchFromNovelAI("user/priority", UserPriority.class);
+		return fetchFromNovelAI("user/priority", GENERAL_API_ROOT, UserPriority.class);
 	}
 	
 	public UserSubscription fetchUserSubscription() throws IOException {
-		return fetchFromNovelAI("user/subscription", UserSubscription.class);
+		return fetchFromNovelAI("user/subscription", GENERAL_API_ROOT, UserSubscription.class);
 	}
 	
 	public UserKeystore fetchUserKeystore() throws IOException {
-		return fetchFromNovelAI("user/keystore", UserKeystore.class);
+		return fetchFromNovelAI("user/keystore", GENERAL_API_ROOT, UserKeystore.class);
 	}
 	
 	public UserData fetchUserData() throws IOException {
-		return fetchFromNovelAI("user/data", UserData.class);
+		return fetchFromNovelAI("user/data", GENERAL_API_ROOT, UserData.class);
 	}
 	
 	// === Generation Endpoints ===
@@ -136,26 +137,26 @@ public class NAIAPI {
 	// --- GET Endpoints
 	
 	public AudioWrapper generateVoice(VoiceGenerationRequest requestInfo) throws IOException {
-		return fetchFromNovelAI("ai/generate-voice", requestInfo, AudioWrapper.class,
+		return fetchFromNovelAI("ai/generate-voice", GENERAL_API_ROOT, requestInfo, AudioWrapper.class,
 				body->new AudioWrapper(body.bytes(), requestInfo.getVersion().getReturnAudioFormat()));
 	}
 
 	// --- POST Endpoints
 	
 	public ImageSetWrapper generateImage(ImageGenerationRequest payload) throws IOException {
-		ZipArchiveWrapper resultBody = postToNovelAI("ai/generate-image", payload, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
+		ZipArchiveWrapper resultBody = postToNovelAI("ai/generate-image", IMAGE_API_ROOT, payload, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
 		
 		return new ImageSetWrapper(resultBody);
 	}
 	
 	public ImageSetWrapper annotateImage(ImageAnnotateRequest payload) throws IOException {
-		ZipArchiveWrapper resultBody = postToNovelAI("ai/annotate-image", payload, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
+		ZipArchiveWrapper resultBody = postToNovelAI("ai/annotate-image", GENERAL_API_ROOT, payload, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
 		
 		return new ImageSetWrapper(resultBody);
 	}
 	
 	public ImageSetWrapper upscaleImage(ImageUpscaleRequest payload) throws IOException {
-		ZipArchiveWrapper resultBody = postToNovelAI("ai/upscale", payload, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
+		ZipArchiveWrapper resultBody = postToNovelAI("ai/upscale", IMAGE_API_ROOT, payload, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
 		
 		return new ImageSetWrapper(resultBody);
 	}
@@ -164,7 +165,7 @@ public class NAIAPI {
 		payload = payload.toBuilder().build();
 		payload.getParameters().setGetHiddenStates(false);
 		
-		String resultBody = postToNovelAI("ai/generate", payload, String.class, t -> {
+		String resultBody = postToNovelAI("ai/generate", GENERAL_API_ROOT, payload, String.class, t -> {
 			try { return t.string(); } catch (IOException e) { return e.getLocalizedMessage(); }
 		});
 		
@@ -198,7 +199,7 @@ public class NAIAPI {
 		payload = payload.toBuilder().build();
 		payload.getParameters().setGetHiddenStates(true);
 		
-		String resultBody = postToNovelAI("ai/generate", payload, String.class, t -> {
+		String resultBody = postToNovelAI("ai/generate", GENERAL_API_ROOT, payload, String.class, t -> {
 			try { return t.string(); } catch (IOException e) { return e.getLocalizedMessage(); }
 		});
 		
@@ -227,24 +228,25 @@ public class NAIAPI {
 		return urlBuilder->urlBuilder.addPathSegments(endpoint);
 	}
 	
-	private <T> T fetchFromNovelAI(String endpoint, Class<T> targetClass) throws IOException, JsonSyntaxException, JsonIOException {
-		return fetchFromNovelAI(appendEndpointToUrl(endpoint), targetClass, deserializerFromJSON(targetClass));
+	private <T> T fetchFromNovelAI(String endpoint, String host, Class<T> targetClass) throws IOException, JsonSyntaxException, JsonIOException {
+		return fetchFromNovelAI(appendEndpointToUrl(endpoint), host, targetClass, deserializerFromJSON(targetClass));
 	}
 
-	private <T> T fetchFromNovelAI(String endpoint, IQueryStringPayload queryStringPayload, Class<T> targetClass, ResultParseFunction<T> deserializer) throws IOException, JsonSyntaxException, JsonIOException {
+	private <T> T fetchFromNovelAI(String endpoint, String host, IQueryStringPayload queryStringPayload, Class<T> targetClass, ResultParseFunction<T> deserializer) throws IOException, JsonSyntaxException, JsonIOException {
 		return fetchFromNovelAI(
 				appendEndpointToUrl(endpoint)
 					.andThen(queryStringPayload::appendQueryParameters), 
+				host,
 				targetClass, 
 				deserializer);
 	}
 
-	private <T> T fetchFromNovelAI(BuilderAssemblyFunction urlModifiers, Class<T> targetClass, ResultParseFunction<T> deserializer) throws IOException, JsonSyntaxException, JsonIOException {
+	private <T> T fetchFromNovelAI(BuilderAssemblyFunction urlModifiers, String host, Class<T> targetClass, ResultParseFunction<T> deserializer) throws IOException, JsonSyntaxException, JsonIOException {
 		Request request = new Request.Builder()
 				.url(urlModifiers.apply(
 						new HttpUrl.Builder()
 							.scheme("https")
-							.host(API_ROOT))
+							.host(host))
 						.build())
 				.addHeader(AUTH_HEADER, accessToken)
 				.get()
@@ -254,15 +256,15 @@ public class NAIAPI {
 	}
 
 
-	private <T> T postToNovelAI(String endpoint, Object payload, Class<T> targetClass, ResultParseFunction<T> deserializer) throws IOException, JsonSyntaxException, JsonIOException {
-		return postToNovelAI(appendEndpointToUrl(endpoint), payload, targetClass, deserializer);
+	private <T> T postToNovelAI(String endpoint, String host, Object payload, Class<T> targetClass, ResultParseFunction<T> deserializer) throws IOException, JsonSyntaxException, JsonIOException {
+		return postToNovelAI(appendEndpointToUrl(endpoint), host, payload, targetClass, deserializer);
 	}
-	private <T> T postToNovelAI(BuilderAssemblyFunction urlModifiers, Object payload, Class<T> targetClass, ResultParseFunction<T> deserializer) throws IOException, JsonSyntaxException, JsonIOException {
+	private <T> T postToNovelAI(BuilderAssemblyFunction urlModifiers, String host, Object payload, Class<T> targetClass, ResultParseFunction<T> deserializer) throws IOException, JsonSyntaxException, JsonIOException {
 		Request request = new Request.Builder()
 				.url(urlModifiers.apply(
 						new HttpUrl.Builder()
 							.scheme("https")
-							.host(API_ROOT))
+							.host(host))
 						.build())
 				.addHeader(AUTH_HEADER, accessToken)
 				.post(RequestBody.create(gson.toJson(payload), MEDIA_TYPE_JSON))
