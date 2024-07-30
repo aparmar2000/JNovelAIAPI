@@ -39,5 +39,8 @@ public class ImageControlNetParameters extends AbstractExtraImageParameters {
 	protected ControlnetModel model;
 	@SerializedName("controlnet_condition")
 	protected Base64Image conditionImg;
+	@SerializedName("controlnet_strength")
+	@Builder.Default
+	protected double conditionStrength = 1.0;
 
 }
