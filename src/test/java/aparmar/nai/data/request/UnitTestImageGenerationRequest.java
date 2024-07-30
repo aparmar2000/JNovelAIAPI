@@ -149,6 +149,7 @@ class UnitTestImageGenerationRequest {
 			ImageControlNetParameters testInstance2 = ImageControlNetParameters.builder()
 					.model(ControlnetModel.FORM_LOCK)
 					.conditionImg(new Base64Image())
+					.conditionStrength(0.2)
 					.build();
 			TestHelpers.autoTestDataAndToBuilderAnnotation(ImageControlNetParameters.class, testInstance1, testInstance2);
 		}
