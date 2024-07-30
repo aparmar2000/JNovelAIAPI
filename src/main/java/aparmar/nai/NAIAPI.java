@@ -156,7 +156,7 @@ public class NAIAPI {
 	}
 	
 	public ImageSetWrapper upscaleImage(ImageUpscaleRequest payload) throws IOException {
-		ZipArchiveWrapper resultBody = postToNovelAI("ai/upscale", IMAGE_API_ROOT, payload, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
+		ZipArchiveWrapper resultBody = postToNovelAI("ai/upscale", GENERAL_API_ROOT, payload, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
 		
 		return new ImageSetWrapper(resultBody);
 	}
