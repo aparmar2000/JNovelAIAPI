@@ -12,7 +12,7 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class ImageAugmentEmotionRequest extends ImageAugmentRequest {
+public class ImageAugmentEmotionRequest extends ImageAugmentRequestSingleResult {
 	private static final String EMOTION_DELIMITER = ";; ";
 	
 	@RequiredArgsConstructor

@@ -10,7 +10,7 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class ImageAugmentLineArtRequest extends ImageAugmentRequest {
+public class ImageAugmentLineArtRequest extends ImageAugmentRequestSingleResult {
 
 	@Builder(toBuilder = true)
 	public ImageAugmentLineArtRequest(@NonNull Base64Image image) {

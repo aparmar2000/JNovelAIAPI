@@ -16,5 +16,8 @@ public class ImageAugmentRemoveBackgroundRequest extends ImageAugmentRequest {
 	public ImageAugmentRemoveBackgroundRequest(@NonNull Base64Image image) {
 		super(null, null, image.getTargetHeight(), image.getTargetWidth(), image, RequestType.REMOVE_BACKGROUND);
 	}
+	
+	@Override
+	public int getReturnImgCount() { return 3; }
 
 }

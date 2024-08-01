@@ -12,6 +12,7 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
 
 import aparmar.nai.data.request.Base64Image;
+import kotlin.NotImplementedError;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -83,8 +84,9 @@ public class ImageAugmentRequest {
 	protected int height, width;
 	@NonNull
 	protected Base64Image image;
-	@SerializedName("req_name")
+	@SerializedName("req_type")
 	@NonNull
 	protected RequestType requestType;
 	
+	public int getReturnImgCount() { throw new NotImplementedError("Return img count not specified"); }
 }

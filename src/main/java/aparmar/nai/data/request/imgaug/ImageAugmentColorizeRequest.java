@@ -10,7 +10,7 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class ImageAugmentColorizeRequest extends ImageAugmentRequest {
+public class ImageAugmentColorizeRequest extends ImageAugmentRequestSingleResult {
 
 	@Builder
 	public ImageAugmentColorizeRequest(DefryFactor defryFactor, String prompt, @NonNull Base64Image image) {
