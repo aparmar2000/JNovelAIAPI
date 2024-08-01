@@ -1,6 +1,7 @@
 package aparmar.nai;
 
-import static aparmar.nai.utils.HelperConstants.API_ROOT;
+import static aparmar.nai.utils.HelperConstants.GENERAL_API_ROOT;
+import static aparmar.nai.utils.HelperConstants.IMAGE_API_ROOT;
 import static aparmar.nai.utils.HelperConstants.AUTH_HEADER;
 import static aparmar.nai.utils.HelperConstants.MEDIA_TYPE_AUDIO;
 import static aparmar.nai.utils.HelperConstants.MEDIA_TYPE_JSON;
@@ -130,21 +131,21 @@ class UnitTestNAIAPI {
 		when(mockCall.execute()).thenReturn(testResponse);
 	}
 	
-	private ArgumentMatcher<Request> requestMatcher(String endpoint) {
+	private ArgumentMatcher<Request> requestMatcher(String endpoint, String host) {
 		return req -> {
 			String authHeader = req.header(AUTH_HEADER);
 			if (!("Bearer "+MOCK_API_KEY).equals(authHeader)) {
 				return false;
 			}
 			if (!req.isHttps()) {return false;}
-			if (!API_ROOT.equals(req.url().host())) {return false;}
+			if (!host.equals(req.url().host())) {return false;}
 			return ("/"+endpoint).equals(req.url().encodedPath());
 		};
 	}
 	
-	private ArgumentMatcher<Request> requestQueryMatcher(String endpoint, IQueryStringPayload payload) {
+	private ArgumentMatcher<Request> requestQueryMatcher(String endpoint, String host, IQueryStringPayload payload) {
 		return req -> {
-			if (!requestMatcher(endpoint).matches(req)) { return false;}
+			if (!requestMatcher(endpoint, host).matches(req)) { return false;}
 			
 			Map<String, ? extends Object> expectedQueryData = payload.getParameterValues();
 			HashSet<String> matchedKeys = new HashSet<>();
@@ -162,9 +163,9 @@ class UnitTestNAIAPI {
 		};
 	}
 	
-	private <T> ArgumentMatcher<Request> requestPayloadMatcher(String endpoint, T payload, Class<T> payloadClazz) {
+	private <T> ArgumentMatcher<Request> requestPayloadMatcher(String endpoint, String host, T payload, Class<T> payloadClazz) {
 		return req -> {
-			if (!requestMatcher(endpoint).matches(req)) {
+			if (!requestMatcher(endpoint, host).matches(req)) {
 				throw new AssertionError("endpoint mismatch");
 			}
 			
@@ -211,7 +212,7 @@ class UnitTestNAIAPI {
 		mockResponseJson(expectedUserInfo, UserInfo.class);
 
 		UserInfo actualUserInfo = apiInstance.fetchUserInformation();
-		verify(mockHttpClient).newCall(argThat(requestMatcher("user/information")));
+		verify(mockHttpClient).newCall(argThat(requestMatcher("user/information", GENERAL_API_ROOT)));
 		assertEquals(expectedUserInfo, actualUserInfo);
 	}
 
@@ -221,7 +222,7 @@ class UnitTestNAIAPI {
 		mockResponseJson(expectedUserPriority, UserPriority.class);
 
 		UserPriority actualUserPriority = apiInstance.fetchUserPriority();
-		verify(mockHttpClient).newCall(argThat(requestMatcher("user/priority")));
+		verify(mockHttpClient).newCall(argThat(requestMatcher("user/priority", GENERAL_API_ROOT)));
 		assertEquals(expectedUserPriority, actualUserPriority);
 	}
 
@@ -236,7 +237,7 @@ class UnitTestNAIAPI {
 		mockResponseJson(expectedUserSub, UserSubscription.class);
 
 		UserSubscription actualUserSub = apiInstance.fetchUserSubscription();
-		verify(mockHttpClient).newCall(argThat(requestMatcher("user/subscription")));
+		verify(mockHttpClient).newCall(argThat(requestMatcher("user/subscription", GENERAL_API_ROOT)));
 		assertEquals(expectedUserSub, actualUserSub);
 	}
 
@@ -246,7 +247,7 @@ class UnitTestNAIAPI {
 		mockResponseJson(expectedUserKeystore, UserKeystore.class);
 
 		UserKeystore actualUserKeystore = apiInstance.fetchUserKeystore();
-		verify(mockHttpClient).newCall(argThat(requestMatcher("user/keystore")));
+		verify(mockHttpClient).newCall(argThat(requestMatcher("user/keystore", GENERAL_API_ROOT)));
 		assertEquals(expectedUserKeystore, actualUserKeystore);
 	}
 
@@ -270,7 +271,7 @@ class UnitTestNAIAPI {
 		mockResponseJson(expectedUserData, UserData.class);
 
 		UserData actualUserData = apiInstance.fetchUserData();
-		verify(mockHttpClient).newCall(argThat(requestMatcher("user/data")));
+		verify(mockHttpClient).newCall(argThat(requestMatcher("user/data", GENERAL_API_ROOT)));
 		assertEquals(expectedUserData, actualUserData);
 	}
 
@@ -285,7 +286,7 @@ class UnitTestNAIAPI {
 		VoiceGenerationRequest testGenerationRequest = 
 				VoiceGenerationRequest.presetV2VoiceRequest("test", PresetV2Voice.AINI);
 		AudioWrapper actualAudioResponse = apiInstance.generateVoice(testGenerationRequest);
-		verify(mockHttpClient).newCall(argThat(requestQueryMatcher("ai/generate-voice", testGenerationRequest)));
+		verify(mockHttpClient).newCall(argThat(requestQueryMatcher("ai/generate-voice", GENERAL_API_ROOT, testGenerationRequest)));
 		assertArrayEquals(expectedBytes, actualAudioResponse.getBytes());
 	}
 
@@ -309,7 +310,7 @@ class UnitTestNAIAPI {
 						1))
 				.build();
 		apiInstance.generateImage(testGenerationRequest);
-		verify(mockHttpClient).newCall(argThat(requestMatcher("ai/generate-image")));
+		verify(mockHttpClient).newCall(argThat(requestMatcher("ai/generate-image", IMAGE_API_ROOT)));
 	}
 
 	@Test
@@ -333,7 +334,7 @@ class UnitTestNAIAPI {
 		
 		TextGenerationResponse actualResponse = apiInstance.generateText(testTextRequest);
 		testTextRequest.getParameters().setGetHiddenStates(false);
-		verify(mockHttpClient).newCall(argThat(requestPayloadMatcher("ai/generate", testTextRequest, TextGenerationRequest.class)));
+		verify(mockHttpClient).newCall(argThat(requestPayloadMatcher("ai/generate", GENERAL_API_ROOT, testTextRequest, TextGenerationRequest.class)));
 		assertEquals(mockResponse, actualResponse);
 	}
 
@@ -359,7 +360,7 @@ class UnitTestNAIAPI {
 		
 		double[] actualResponse = apiInstance.fetchHiddenStates(testTextRequest);
 		testTextRequest.getParameters().setGetHiddenStates(true);
-		verify(mockHttpClient).newCall(argThat(requestPayloadMatcher("ai/generate", testTextRequest, TextGenerationRequest.class)));
+		verify(mockHttpClient).newCall(argThat(requestPayloadMatcher("ai/generate", GENERAL_API_ROOT, testTextRequest, TextGenerationRequest.class)));
 		assertArrayEquals(mockResponse, actualResponse);
 	}
 
