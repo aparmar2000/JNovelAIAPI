@@ -26,8 +26,14 @@ import aparmar.nai.data.request.TextGenerationRequest;
 import aparmar.nai.data.request.VoiceGenerationRequest;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest;
 import aparmar.nai.data.request.imagen.ImageVibeTransferParameters;
+import aparmar.nai.data.request.imgaug.ImageAugmentRemoveBackgroundRequest;
+import aparmar.nai.data.request.imgaug.ImageAugmentRequest;
+import aparmar.nai.data.request.imgaug.ImageAugmentRequest.DefryFactor;
+import aparmar.nai.data.request.imgaug.ImageAugmentRequestSingleResult;
 import aparmar.nai.data.response.AudioWrapper;
 import aparmar.nai.data.response.ImageSetWrapper;
+import aparmar.nai.data.response.ImageSetWrapperRemoveBackground;
+import aparmar.nai.data.response.SingleImageWrapper;
 import aparmar.nai.data.response.TextGenerationResponse;
 import aparmar.nai.data.response.TextGenerationResponse.LogProb;
 import aparmar.nai.data.response.TextGenerationResponse.LogProbStep;
@@ -104,6 +110,7 @@ public class NAIAPI {
 		gsonBuilder.registerTypeAdapter(ImageAnnotateRequest.class, ImageAnnotateRequest.SERIALIZER_INSTANCE);
 		gsonBuilder.registerTypeAdapter(ImageGenerationRequest.class, new ImageGenerationRequest());
 		gsonBuilder.registerTypeAdapter(ImageVibeTransferParameters.class, new ImageVibeTransferParameters());
+		gsonBuilder.registerTypeAdapter(DefryFactor.class, DefryFactor.ZERO);
 		
 		return gsonBuilder.create();
 	}
@@ -159,6 +166,24 @@ public class NAIAPI {
 		ZipArchiveWrapper resultBody = postToNovelAI("ai/upscale", GENERAL_API_ROOT, payload, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
 		
 		return new ImageSetWrapper(resultBody);
+	}
+	
+	public ImageSetWrapper augmentImageGeneric(ImageAugmentRequest payload) throws IOException {
+		ZipArchiveWrapper resultBody = postToNovelAI("ai/augment-image", IMAGE_API_ROOT, payload, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
+		
+		return new ImageSetWrapper(resultBody);
+	}
+	
+	public SingleImageWrapper augmentImageSingleResult(ImageAugmentRequestSingleResult payload) throws IOException {
+		ZipArchiveWrapper resultBody = postToNovelAI("ai/augment-image", IMAGE_API_ROOT, payload, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
+		
+		return new SingleImageWrapper(resultBody);
+	}
+	
+	public ImageSetWrapperRemoveBackground augmentImageRemoveBackground(ImageAugmentRemoveBackgroundRequest payload) throws IOException {
+		ZipArchiveWrapper resultBody = postToNovelAI("ai/augment-image", IMAGE_API_ROOT, payload, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
+		
+		return new ImageSetWrapperRemoveBackground(resultBody);
 	}
 	
 	public TextGenerationResponse generateText(TextGenerationRequest payload) throws IOException {
