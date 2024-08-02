@@ -29,7 +29,7 @@ class UnitTestZipArchiveWrapper {
 	@Test
 	void testZipParsing() throws FileNotFoundException, IOException {
 		ZipArchiveWrapper testZip = new ZipArchiveWrapper(
-				IOUtils.toByteArray(InternalResourceLoader.getInternalResourceAsStream("test_zip_3_img.zip"))
+				IOUtils.toByteArray(InternalResourceLoader.getInternalResourceAsStream("test_zip_3_imgs.zip"))
 				);
 		
 		assertEquals(3, testZip.getEntryCount());
