@@ -10,8 +10,10 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.compress.utils.IOUtils;
 
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @EqualsAndHashCode
+@ToString
 public class ZipArchiveWrapper {
 	private final byte[] compressedBytes;
 	private final ZipArchiveEntry[] entries;
