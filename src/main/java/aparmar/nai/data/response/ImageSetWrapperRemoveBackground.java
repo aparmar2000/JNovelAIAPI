@@ -2,6 +2,8 @@ package aparmar.nai.data.response;
 
 import java.io.IOException;
 
+import javax.imageio.IIOImage;
+
 import aparmar.nai.utils.ZipArchiveWrapper;
 
 public class ImageSetWrapperRemoveBackground extends ImageSetWrapper {
@@ -37,5 +39,9 @@ public class ImageSetWrapperRemoveBackground extends ImageSetWrapper {
 		generatedIndex = loadedGeneratedIndex;
 		blendIndex = loadedBlendIndex;
 	}
+	
+	public IIOImage getMaskedImage() throws IOException { return this.getImage(maskedIndex); }
+	public IIOImage getGeneratedImage() throws IOException { return this.getImage(generatedIndex); }
+	public IIOImage getBlendImage() throws IOException { return this.getImage(blendIndex); }
 
 }
