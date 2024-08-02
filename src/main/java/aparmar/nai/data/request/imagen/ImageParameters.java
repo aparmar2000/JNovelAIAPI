@@ -54,7 +54,7 @@ public class ImageParameters {
 	}
 	
 	@Builder.Default
-	protected long seed = ThreadLocalRandom.current().nextLong();
+	protected long seed = ThreadLocalRandom.current().nextLong(Long.MAX_VALUE);
 	protected int height, width;
 	@Builder.Default
 	protected int steps = 28;

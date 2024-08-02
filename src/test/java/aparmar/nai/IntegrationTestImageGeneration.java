@@ -177,7 +177,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 	@Test
 	void testVibeTransferImageGeneration() throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
-			BufferedImage comditionImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.jpg"));
+			BufferedImage conditionImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.jpg"));
 			
 			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
 					.input("portrait of a woman")
@@ -194,7 +194,9 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 							.undesiredContent(ImageGenerationRequest.ANIME_V2_LIGHT_UC)
 							.build())
 					.extraParameter(ImageVibeTransferParameters.builder()
-							.referenceImage(new Base64Image(comditionImage, 512, 512, true))
+							.vibeImage(ImageVibeTransferParameters.VibeTransferImage.builder()
+									.referenceImage(new Base64Image(conditionImage, 512, 512, true))
+									.build())
 							.build())
 					.build();
 			ImageSetWrapper result = apiInstance.generateImage(testGenerationRequest);
@@ -207,6 +209,49 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 			assertEquals(512, resultImage.getRenderedImage().getWidth());
 			
 			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"vibe_transfer_test.png"));
+		});
+	}
+
+	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
+	@Test
+	void testVibeTransferInpaintingImageGeneration() throws AssertionError, Exception {
+		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
+			BufferedImage baseImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.jpg"));
+			BufferedImage maskImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_mask.png"));
+			BufferedImage conditionImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.jpg"));
+			
+			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
+					.input("portrait of a woman")
+					.action(ImageGenAction.INFILL)
+					.model(ImageGenModel.ANIME_V3_INPAINT)
+					.parameters(ImageInpaintParameters.builder()
+							.seed(1)
+							.width(512)
+							.height(512)
+							.steps(28)
+							.scale(1)
+							.sampler(ImageParameters.ImageGenSampler.DPM_PLUS_PLUS_2S_ANCESTRAL)
+							.ucPreset(1)
+							.undesiredContent(ImageGenerationRequest.ANIME_V2_LIGHT_UC)
+							.image(new Base64Image(baseImage, 512, 512, false))
+							.mask(new Base64Image(maskImage, 512, 512, true))
+							.build())
+					.extraParameter(ImageVibeTransferParameters.builder()
+							.vibeImage(ImageVibeTransferParameters.VibeTransferImage.builder()
+									.referenceImage(new Base64Image(conditionImage, 512, 512, true))
+									.build())
+							.build())
+					.build();
+			ImageSetWrapper result = apiInstance.generateImage(testGenerationRequest);
+			
+			assertNotNull(result);
+			assertEquals(1, result.getImageCount());
+			IIOImage resultImage = result.getImage(0);
+			assertNotNull(resultImage);
+			assertEquals(512, resultImage.getRenderedImage().getHeight());
+			assertEquals(512, resultImage.getRenderedImage().getWidth());
+			
+			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"vibe_transfer_inpaint_test.png"));
 		});
 	}
 

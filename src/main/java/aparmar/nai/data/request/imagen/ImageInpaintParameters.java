@@ -15,12 +15,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder(toBuilder = true)
 @EqualsAndHashCode(callSuper = true)
-public class ImageInpaintParameters extends ImageParameters {
-	public boolean compatibleWith(AbstractExtraImageParameters otherParameters) {
-		if (otherParameters instanceof ImageVibeTransferParameters) { return false; }
-		return super.compatibleWith(otherParameters);
-	}
-	
+public class ImageInpaintParameters extends ImageParameters {	
 	@SerializedName("add_original_image")
 	@Builder.Default
 	protected boolean overlayOriginalImage = false;
