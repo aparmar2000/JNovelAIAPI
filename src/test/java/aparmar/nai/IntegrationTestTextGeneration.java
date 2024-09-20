@@ -3,21 +3,29 @@ package aparmar.nai;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import aparmar.nai.data.request.TextGenModel;
-import aparmar.nai.data.request.TextGenerationParameters;
 import aparmar.nai.data.request.TextGenerationRequest;
+import aparmar.nai.data.request.textgen.TextGenerationParameters;
 import aparmar.nai.data.response.TextGenerationResponse;
 import aparmar.nai.utils.TextParameterPresets;
 
 class IntegrationTestTextGeneration extends AbstractFeatureIntegrationTest {
 
-	@Test
-	void testMinimalTextGeneration() throws AssertionError, Exception {
+	@ParameterizedTest
+	@EnumSource(value = TextGenModel.class, names = {"SIGURD","EUTERPE","KRAKE","CLIO","KAYRA"})
+	void testMinimalTextGeneration(TextGenModel textGenModel) throws AssertionError, Exception {
+		String[] associatedPresets = TextParameterPresets.getAssociatedPresets(textGenModel);
+		TextGenerationParameters testPreset = associatedPresets.length>0 ? 
+				TextParameterPresets.getPresetByExtendedName(associatedPresets[0]) : 
+				TextGenerationParameters.builder()
+					.temperature(1)
+					.minLength(10)
+					.maxLength(30)
+					.build();
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
-			String testPresetName = TextParameterPresets.getAssociatedPresets(TextGenModel.CLIO)[0];
-			TextGenerationParameters testPreset = TextParameterPresets.getPresetByExtendedName(testPresetName);
 			TextGenerationRequest testRequest = TextGenerationRequest.builder()
 					.model(TextGenModel.CLIO)
 					.input("This is an API call!\n")

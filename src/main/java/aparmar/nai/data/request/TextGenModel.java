@@ -7,6 +7,7 @@ import java.util.List;
 import com.google.gson.annotations.SerializedName;
 
 import lombok.Getter;
+import aparmar.nai.utils.HelperConstants;
 import aparmar.nai.utils.tokenization.Tokenizers;
 
 @Getter
@@ -38,7 +39,7 @@ public enum TextGenModel {
 	@SerializedName("sigurd-2.9b-v1")
 	SIGURD_OLD,
 	@SerializedName("6B-v4")
-	SIGURD(true, true, new PresetModulePrefixes[]
+	SIGURD(true, true, HelperConstants.GENERAL_API_ROOT, new PresetModulePrefixes[]
 			{PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.PROSE_AUGMENTER,
 			PresetModulePrefixes.CROSSGENRE,
@@ -113,7 +114,7 @@ public enum TextGenModel {
 			PresetModulePrefixes.INSPIRATION_THRONEWARS,
 			PresetModulePrefixes.INSPIRATION_WITCH_AT_LEVEL_CAP}),
 	@SerializedName("euterpe-v2")
-	EUTERPE(true, true, new PresetModulePrefixes[]
+	EUTERPE(true, true, HelperConstants.GENERAL_API_ROOT, new PresetModulePrefixes[]
 			{PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.PROSE_AUGMENTER,
 			PresetModulePrefixes.CROSSGENRE,
@@ -188,7 +189,7 @@ public enum TextGenModel {
 			PresetModulePrefixes.INSPIRATION_THRONEWARS,
 			PresetModulePrefixes.INSPIRATION_WITCH_AT_LEVEL_CAP}),
 	@SerializedName("krake-v2")
-	KRAKE(false, true, new PresetModulePrefixes[]
+	KRAKE(false, true, HelperConstants.GENERAL_API_ROOT, new PresetModulePrefixes[]
 			{PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.CROSSGENRE,
 			
@@ -261,13 +262,13 @@ public enum TextGenModel {
 			PresetModulePrefixes.INSPIRATION_THRONEWARS,
 			PresetModulePrefixes.INSPIRATION_WITCH_AT_LEVEL_CAP}),
 	@SerializedName("clio-v1")
-	CLIO(false, false, new PresetModulePrefixes[]
+	CLIO(false, false, HelperConstants.GENERAL_API_ROOT, new PresetModulePrefixes[]
 			{PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.INSTRUCT,
 			PresetModulePrefixes.PROSE_AUGMENTER,
 			PresetModulePrefixes.LOREBOOK_GENERATION}),
 	@SerializedName("kayra-v1")
-	KAYRA(false, false, new PresetModulePrefixes[]
+	KAYRA(false, false, HelperConstants.TEXT_API_ROOT, new PresetModulePrefixes[]
 			{PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.INSTRUCT,
 			PresetModulePrefixes.PROSE_AUGMENTER,
@@ -275,17 +276,21 @@ public enum TextGenModel {
 			PresetModulePrefixes.LOREBOOK_GENERATION});
 
 	private final boolean supportsCustomModules, supportsHiddenStates;
+	private final String endpoint;
 	private final PresetModulePrefixes[] compatiblePresetModules;
 	
 	private TextGenModel() {
 		supportsCustomModules = false;
 		supportsHiddenStates = true;
+		endpoint = HelperConstants.GENERAL_API_ROOT;
 		compatiblePresetModules = new PresetModulePrefixes[] {PresetModulePrefixes.NO_MODULE};
 	}
 	private TextGenModel(boolean supportsCustomModules, boolean supportsHiddenStates,
+			String apiRoot,
 			PresetModulePrefixes[] presetModules) {
 		this.supportsCustomModules = supportsCustomModules;
 		this.supportsHiddenStates = supportsHiddenStates;
+		this.endpoint = apiRoot;
 		
 		List<PresetModulePrefixes> moduleList = new LinkedList<>(Arrays.asList(presetModules));
 		moduleList.add(PresetModulePrefixes.NO_MODULE);
