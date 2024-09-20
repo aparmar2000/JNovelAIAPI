@@ -1,5 +1,6 @@
 package aparmar.nai.data.request;
 
+import aparmar.nai.data.request.textgen.TextGenerationParameters;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

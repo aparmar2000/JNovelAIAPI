@@ -1,4 +1,4 @@
-package aparmar.nai.data.request;
+package aparmar.nai.data.request.textgen;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import com.google.gson.annotations.SerializedName;
 
+import aparmar.nai.data.request.PresetModulePrefixes;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -86,10 +87,6 @@ public class TextGenerationParameters { // TODO: Add more validation
 	private int beamNumber; // TODO: What is this?
 	@SerializedName("num_beam_groups")
 	private int beamGroupNumber; // TODO: What is this?
-	@SerializedName("cfg_uc")
-	private String cfgPrompt;
-	@SerializedName("cfg_scale")
-	private double cfgScale;
 	@SerializedName("cfg_alpha")
 	private double cfgAlpha;
 	
@@ -103,8 +100,17 @@ public class TextGenerationParameters { // TODO: Add more validation
 	private double topG;
 	@SerializedName("typical_p")
 	private double typicalP;
+	@SerializedName("min_p")
+	private double minP;
 	@SerializedName("tail_free_sampling")
 	private double tailFreeSampling;
+
+	@SerializedName("math1_temp")
+	private double unifiedLinear;
+	@SerializedName("math1_quad")
+	private double unifiedQuad;
+	@SerializedName("math1_quad_entropy_scale")
+	private double unifiedConf;
 	
 	@SerializedName("repetition_penalty")
 	private double repetitionPenalty;
@@ -198,9 +204,10 @@ public class TextGenerationParameters { // TODO: Add more validation
 			int[] repetitionPenaltyWhitelist, double temperature, int maxLength, int minLength, int numLogprobs, boolean useString,
 			boolean useCache, boolean doSample, boolean earlyStopping, boolean nextWord, boolean getHiddenStates,
 			boolean outputNonzeroProbs, boolean generateUntilSentence, int beamNumber, int beamGroupNumber,
-			String cfgPrompt, double cfgScale, double cfgAlpha, double topK, double topA, double topP, double topG,
-			double typicalP, double tailFreeSampling, double repetitionPenalty, int repetitionPenaltyRange,
-			double repetitionPenaltySlope, double repetitionPenaltyFrequency, double repetitionPenaltyPresence,
+			double cfgAlpha, double topK, double topA, double topP, double topG, double typicalP, double minP,
+			double tailFreeSampling, double unifiedLinear, double unifiedQuad, double unifiedConf,
+			double repetitionPenalty, int repetitionPenaltyRange, double repetitionPenaltySlope, 
+			double repetitionPenaltyFrequency, double repetitionPenaltyPresence,
 			TextGenerationParameters.PhraseRepPenSetting phraseRepetitionPenalty, int padTokenId, int bosTokenId, int eosTokenId,
 			double lengthPenalty, double diversityPenalty, int noRepeatNgramSize, int encoderNoRepeatNgramSize,
 			int numReturnSequences, double maxTime, double mirostatTau, double mirostatLr, String modulePrefix) {
@@ -223,15 +230,17 @@ public class TextGenerationParameters { // TODO: Add more validation
 		this.generateUntilSentence = generateUntilSentence;
 		this.beamNumber = beamNumber;
 		this.beamGroupNumber = beamGroupNumber;
-		this.cfgPrompt = cfgPrompt;
-		this.cfgScale = cfgScale;
 		this.cfgAlpha = cfgAlpha;
 		this.topK = topK;
 		this.topA = topA;
 		this.topP = topP;
 		this.topG = topG;
 		this.typicalP = typicalP;
+		this.minP = minP;
 		this.tailFreeSampling = tailFreeSampling;
+		this.unifiedLinear = unifiedLinear;
+		this.unifiedQuad = unifiedQuad;
+		this.unifiedConf = unifiedConf;
 		this.repetitionPenalty = repetitionPenalty;
 		this.repetitionPenaltyRange = repetitionPenaltyRange;
 		this.repetitionPenaltySlope = repetitionPenaltySlope;

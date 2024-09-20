@@ -190,7 +190,7 @@ public class NAIAPI {
 		payload = payload.toBuilder().build();
 		payload.getParameters().setGetHiddenStates(false);
 		
-		String resultBody = postToNovelAI("ai/generate", GENERAL_API_ROOT, payload, String.class, t -> {
+		String resultBody = postToNovelAI("ai/generate", payload.getModel().getEndpoint(), payload, String.class, t -> {
 			try { return t.string(); } catch (IOException e) { return e.getLocalizedMessage(); }
 		});
 		

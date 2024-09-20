@@ -13,9 +13,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import aparmar.nai.data.request.TextGenerationParameters.LogitBias;
-import aparmar.nai.data.request.TextGenerationParameters.PhraseRepPenSetting;
 import aparmar.nai.TestHelpers;
+import aparmar.nai.data.request.textgen.TextGenerationParameters;
+import aparmar.nai.data.request.textgen.TextGenerationParameters.LogitBias;
+import aparmar.nai.data.request.textgen.TextGenerationParameters.PhraseRepPenSetting;
 
 class UnitTestTextGenerationParameters {
 
@@ -46,15 +47,17 @@ class UnitTestTextGenerationParameters {
 				.generateUntilSentence(true)
 				.beamNumber(2)
 				.beamGroupNumber(3)
-				.cfgPrompt("a")
-				.cfgScale(1)
 				.cfgAlpha(2.5)
 				.topK(3.5)
 				.topA(4.5)
 				.topP(5.5)
 				.topG(6.5)
 				.typicalP(7.5)
+				.minP(0.7)
 				.tailFreeSampling(8.5)
+				.unifiedLinear(1.5)
+				.unifiedQuad(0.2)
+				.unifiedConf(0.15)
 				.repetitionPenalty(9.5)
 				.repetitionPenaltyRange(10)
 				.repetitionPenaltySlope(1.25)

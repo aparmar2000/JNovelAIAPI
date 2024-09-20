@@ -14,7 +14,7 @@ import com.google.common.collect.ObjectArrays;
 import com.google.gson.Gson;
 
 import aparmar.nai.data.request.TextGenModel;
-import aparmar.nai.data.request.TextGenerationParameters;
+import aparmar.nai.data.request.textgen.TextGenerationParameters;
 
 public class TextParameterPresets {
 	private static final Gson gson = new Gson();

@@ -36,12 +36,12 @@ import com.google.gson.JsonObject;
 
 import aparmar.nai.data.request.IQueryStringPayload;
 import aparmar.nai.data.request.TextGenModel;
-import aparmar.nai.data.request.TextGenerationParameters;
 import aparmar.nai.data.request.TextGenerationRequest;
 import aparmar.nai.data.request.VoiceGenerationRequest;
 import aparmar.nai.data.request.VoiceGenerationRequest.PresetV2Voice;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
+import aparmar.nai.data.request.textgen.TextGenerationParameters;
 import aparmar.nai.data.request.imagen.ImageParameters;
 import aparmar.nai.data.response.AudioWrapper;
 import aparmar.nai.data.response.TextGenerationResponse;
