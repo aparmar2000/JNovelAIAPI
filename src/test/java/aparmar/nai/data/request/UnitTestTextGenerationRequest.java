@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import org.junit.jupiter.api.Test;
 
 import aparmar.nai.TestHelpers;
+import aparmar.nai.data.request.textgen.TextGenerationParameters;
 
 class UnitTestTextGenerationRequest {
 
