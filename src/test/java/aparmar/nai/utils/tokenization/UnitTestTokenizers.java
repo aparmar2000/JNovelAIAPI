@@ -109,24 +109,37 @@ class UnitTestTokenizers {
 	
 	@Test
 	void testDecodeBase64() {
-		int[] decodedTokens = INaiTokenizer.base64ToTokens("0AEZAbVFPgGRAkEAUCLPUQ==");
+		int[] decodedTokens = INaiTokenizer.base64ToUShortTokens("0AEZAbVFPgGRAkEAUCLPUQ==");
 		assertArrayEquals(new int[] {464,281,17845,318,657,65,8784,20943}, decodedTokens);
+		
+		System.out.println(Arrays.toString(INaiTokenizer.base64ToIntegerTokens("UfQBADoAAABIAQAAGQAAANwAAAATAAAAexQAADoAAACTLwAAGQAAAGnxAAALAAAAICIAAHsUAAA=")));
 	}
 	
 	@Test
 	void testEncodeBase64() {
-		String encoded = INaiTokenizer.tokensToBase64(new int[] {464,281,17845,318,657,65,8784,20943});
+		String encoded = INaiTokenizer.UShortTokensToBase64(new int[] {464,281,17845,318,657,65,8784,20943});
 		assertEquals("0AEZAbVFPgGRAkEAUCLPUQ==", encoded);
 	}
 	
 	@ParameterizedTest
 	@ValueSource(ints = {0, 1234, 65535})
-	void testEncodeDecodeBase64(int testValue) {
-		String encoded = INaiTokenizer.tokensToBase64(new int[] {testValue});
+	void testEncodeDecodeUShortBase64(int testValue) {
+		String encoded = INaiTokenizer.UShortTokensToBase64(new int[] {testValue});
 		assertNotNull(encoded);
 		assertTrue(encoded.length()>0);
 		
-		int[] decoded = INaiTokenizer.base64ToTokens(encoded);
+		int[] decoded = INaiTokenizer.base64ToUShortTokens(encoded);
+		assertArrayEquals(new int[] {testValue}, decoded);
+	}
+	
+	@ParameterizedTest
+	@ValueSource(ints = {0, 65535, 128000})
+	void testEncodeDecodeIntegerBase64(int testValue) {
+		String encoded = INaiTokenizer.UShortTokensToBase64(new int[] {testValue});
+		assertNotNull(encoded);
+		assertTrue(encoded.length()>0);
+		
+		int[] decoded = INaiTokenizer.base64ToUShortTokens(encoded);
 		assertArrayEquals(new int[] {testValue}, decoded);
 	}
 	
@@ -137,10 +150,11 @@ class UnitTestTokenizers {
 		assertNotNull(tokenizer);
 
 		String encodedString = targetTokenizer.stringToBase64(testString);
-		int[] decodedTokens = INaiTokenizer.base64ToTokens(encodedString);
+		int[] decodedTokens = targetTokenizer.base64ToTokens(encodedString);
 		int[] expectedEncoding = expectedTokenizationsByTokenizer.get(targetTokenizer).get(testString);
 		assertArrayEquals(expectedEncoding, decodedTokens, 
-				Arrays.toString(expectedEncoding)+" vs "+Arrays.toString(decodedTokens));
+				Arrays.toString(expectedEncoding)+" vs "+Arrays.toString(decodedTokens)
+				+" ("+targetTokenizer.decode(decodedTokens)+")");
 		
 		String decodedString = targetTokenizer.base64ToString(encodedString);
 		assertEquals(testString, decodedString);

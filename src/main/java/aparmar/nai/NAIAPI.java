@@ -209,7 +209,7 @@ public class NAIAPI {
 			if (payload.getParameters().isUseString()) {
 				outputChunk.setTextChunk(output);
 			} else {
-				outputChunk.setTokens(INaiTokenizer.base64ToTokens(output));
+				outputChunk.setTokensFromBase64(output);
 			}
 		}
 		response.setOutput(outputChunk);
