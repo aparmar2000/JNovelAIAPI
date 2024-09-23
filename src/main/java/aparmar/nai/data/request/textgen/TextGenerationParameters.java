@@ -91,7 +91,7 @@ public class TextGenerationParameters { // TODO: Add more validation
 	private double cfgAlpha;
 	
 	@SerializedName("top_k")
-	private double topK;
+	private int topK;
 	@SerializedName("top_a")
 	private double topA;
 	@SerializedName("top_p")
@@ -204,7 +204,7 @@ public class TextGenerationParameters { // TODO: Add more validation
 			int[] repetitionPenaltyWhitelist, double temperature, int maxLength, int minLength, int numLogprobs, boolean useString,
 			boolean useCache, boolean doSample, boolean earlyStopping, boolean nextWord, boolean getHiddenStates,
 			boolean outputNonzeroProbs, boolean generateUntilSentence, int beamNumber, int beamGroupNumber,
-			double cfgAlpha, double topK, double topA, double topP, double topG, double typicalP, double minP,
+			double cfgAlpha, int topK, double topA, double topP, double topG, double typicalP, double minP,
 			double tailFreeSampling, double unifiedLinear, double unifiedQuad, double unifiedConf,
 			double repetitionPenalty, int repetitionPenaltyRange, double repetitionPenaltySlope, 
 			double repetitionPenaltyFrequency, double repetitionPenaltyPresence,
