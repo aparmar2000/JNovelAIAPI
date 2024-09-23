@@ -67,7 +67,7 @@ public abstract interface INaiTokenizer {
 		int[] tokenArray = new int[tokenByteBuffer.limit()];
 		tokenByteBuffer.get(tokenArray);
 		return IntStream.of(tokenArray)
-				.map(i->i-Integer.MIN_VALUE)
+				.map(i->i)
 				.toArray();
 	}
 	
@@ -75,7 +75,7 @@ public abstract interface INaiTokenizer {
 		ByteBuffer tokenByteBuffer = ByteBuffer.allocate(tokens.length*4);
 		tokenByteBuffer.order(ByteOrder.LITTLE_ENDIAN);
 		for (int token : tokens) {
-			tokenByteBuffer.putInt(token+Integer.MIN_VALUE);
+			tokenByteBuffer.putInt(token);
 		}
 		
 		return Base64.getEncoder().encodeToString(tokenByteBuffer.array());
