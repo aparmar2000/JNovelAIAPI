@@ -11,6 +11,7 @@ import aparmar.nai.data.request.TextGenerationRequest;
 import aparmar.nai.data.request.textgen.TextGenerationParameters;
 import aparmar.nai.data.response.TextGenerationResponse;
 import aparmar.nai.utils.TextParameterPresets;
+import aparmar.nai.utils.tokenization.TokenizedChunk;
 
 class IntegrationTestTextGeneration extends AbstractFeatureIntegrationTest {
 
@@ -25,12 +26,13 @@ class IntegrationTestTextGeneration extends AbstractFeatureIntegrationTest {
 					.minLength(10)
 					.maxLength(30)
 					.build();
+		TokenizedChunk tokenizedInput = new TokenizedChunk(textGenModel, "This is an API call!\n");
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
 			TextGenerationRequest testRequest = TextGenerationRequest.builder()
 					.model(textGenModel)
-					.input("This is an API call!\n")
+					.input(tokenizedInput.getBase64EncodedTokens())
 					.parameters(testPreset.toBuilder()
-							.useString(true)
+							.useString(false)
 							.build())
 					.build();
 			TextGenerationResponse actualResponse = apiInstance.generateText(testRequest);
