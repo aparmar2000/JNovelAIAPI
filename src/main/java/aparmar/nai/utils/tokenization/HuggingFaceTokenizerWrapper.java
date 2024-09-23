@@ -31,7 +31,7 @@ public class HuggingFaceTokenizerWrapper extends AbstractSingleBitDepthNaiTokeni
 
 	@Override
 	public int[] encode(String text) {
-		return LongStream.of(huggingFaceTokenizer.encode(text, false, false).getIds()).skip(1).mapToInt(i->(int)i).toArray();
+		return LongStream.of(huggingFaceTokenizer.encode(text, false, false).getIds()).mapToInt(i->(int)i).toArray();
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class HuggingFaceTokenizerWrapper extends AbstractSingleBitDepthNaiTokeni
 
 	@Override
 	public int countTokens(String text) {
-		return huggingFaceTokenizer.encode(text).getIds().length-1;
+		return huggingFaceTokenizer.encode(text).getIds().length;
 	}
 
 }

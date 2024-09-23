@@ -135,11 +135,11 @@ class UnitTestTokenizers {
 	@ParameterizedTest
 	@ValueSource(ints = {0, 65535, 128000})
 	void testEncodeDecodeIntegerBase64(int testValue) {
-		String encoded = INaiTokenizer.UShortTokensToBase64(new int[] {testValue});
+		String encoded = INaiTokenizer.IntegerTokensToBase64(new int[] {testValue});
 		assertNotNull(encoded);
 		assertTrue(encoded.length()>0);
 		
-		int[] decoded = INaiTokenizer.base64ToUShortTokens(encoded);
+		int[] decoded = INaiTokenizer.base64ToIntegerTokens(encoded);
 		assertArrayEquals(new int[] {testValue}, decoded);
 	}
 	

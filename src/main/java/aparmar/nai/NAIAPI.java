@@ -1,8 +1,8 @@
 package aparmar.nai;
 
+import static aparmar.nai.utils.HelperConstants.AUTH_HEADER;
 import static aparmar.nai.utils.HelperConstants.GENERAL_API_ROOT;
 import static aparmar.nai.utils.HelperConstants.IMAGE_API_ROOT;
-import static aparmar.nai.utils.HelperConstants.AUTH_HEADER;
 import static aparmar.nai.utils.HelperConstants.MEDIA_TYPE_JSON;
 import static aparmar.nai.utils.HelperConstants.PERSISTENT_KEY_PATTERN;
 
@@ -49,7 +49,6 @@ import aparmar.nai.utils.RateLimitInterceptor;
 import aparmar.nai.utils.ResultParseFunction;
 import aparmar.nai.utils.ZipArchiveWrapper;
 import aparmar.nai.utils.ZipParseFunction;
-import aparmar.nai.utils.tokenization.INaiTokenizer;
 import aparmar.nai.utils.tokenization.TokenizedChunk;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
