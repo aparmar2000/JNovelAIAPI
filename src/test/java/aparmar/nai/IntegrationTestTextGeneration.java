@@ -27,7 +27,7 @@ class IntegrationTestTextGeneration extends AbstractFeatureIntegrationTest {
 					.build();
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
 			TextGenerationRequest testRequest = TextGenerationRequest.builder()
-					.model(TextGenModel.CLIO)
+					.model(textGenModel)
 					.input("This is an API call!\n")
 					.parameters(testPreset.toBuilder()
 							.useString(true)
