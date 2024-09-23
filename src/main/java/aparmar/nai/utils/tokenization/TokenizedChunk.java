@@ -266,11 +266,15 @@ public class TokenizedChunk implements Cloneable {
 		return !textChunk.isEmpty();
 	}
 	
+	public void setTokensFromBase64(String base64) {
+		setTokens(tokenizer.base64ToTokens(base64));
+	}
+	
 	public String getBase64EncodedTokens() {
-		return INaiTokenizer.tokensToBase64(tokens);
+		return tokenizer.tokensToBase64(tokens);
 	}
 	
 	public static TokenizedChunk fromBase64Tokens(INaiTokenizer tokenizer, String base64) {
-		return new TokenizedChunk(tokenizer, INaiTokenizer.base64ToTokens(base64));
+		return new TokenizedChunk(tokenizer, tokenizer.base64ToTokens(base64));
 	}
 }

@@ -61,12 +61,20 @@ class UnitTestTokenizers {
 			TEST_STRING_4, new int[] {49247, 45267, 49231, 1181, 401, 85, 19087, 357, 30885, 49230},
 			TEST_STRING_5, new int[] {49290, 9842, 49209, 1834, 467, 365, 431, 349, 1828, 800, 393, 49231, 456, 10815, 393, 405, 624, 585, 2631, 353, 1411, 344, 49231, 13355, 537, 376, 3656, 6750, 15904, 1113, 389, 389, 2928, 3915, 5930, 460, 2233, 365, 431, 460, 1851, 1761, 503, 1670, 49212, 49230}
 			);
+	private static final Map<String, int[]> expectedTokenizationsLlama3 = ImmutableMap.of(
+			TEST_STRING_1, new int[] {791, 4320, 374, 220, 15, 65, 4645, 7755},
+			TEST_STRING_2, new int[] {791, 15606, 331, 84589, 61014, 389, 279, 11113, 628, 4129, 13},
+			TEST_STRING_3, new int[] {791, 13444, 315, 279, 1684, 48026, 279, 3995, 8334, 13},
+			TEST_STRING_4, new int[] {1305, 3988, 11, 2324, 374, 198, 34431, 311, 57215, 13},
+			TEST_STRING_5, new int[] {33883, 27439, 24578, 2503, 28311, 11, 36240, 59024, 31160, 11, 11163, 656, 80222, 19502, 87504, 8791, 73304, 1880, 58396, 60017, 87027, 13}
+			);
 	private static final Map<Tokenizers, Map<String, int[]>> expectedTokenizationsByTokenizer = ImmutableMap.of(
 			Tokenizers.GPT2, expectedTokenizationsGPT2,
 			Tokenizers.GPT2_GENJI, expectedTokenizationsGPT2Genji,
 			Tokenizers.PILE, expectedTokenizationsPile,
 			Tokenizers.NERDSTASH_V1, expectedTokenizationsNerdstashV1,
-			Tokenizers.NERDSTASH_V2, expectedTokenizationsNerdstashV2
+			Tokenizers.NERDSTASH_V2, expectedTokenizationsNerdstashV2,
+			Tokenizers.LLAMA_3, expectedTokenizationsLlama3
 			);
 	
 	private static Stream<Arguments> generateTokenizerTestParameters() {
@@ -101,24 +109,37 @@ class UnitTestTokenizers {
 	
 	@Test
 	void testDecodeBase64() {
-		int[] decodedTokens = INaiTokenizer.base64ToTokens("0AEZAbVFPgGRAkEAUCLPUQ==");
+		int[] decodedTokens = INaiTokenizer.base64ToUShortTokens("0AEZAbVFPgGRAkEAUCLPUQ==");
 		assertArrayEquals(new int[] {464,281,17845,318,657,65,8784,20943}, decodedTokens);
+		
+		System.out.println(Arrays.toString(INaiTokenizer.base64ToIntegerTokens("UfQBADoAAABIAQAAGQAAANwAAAATAAAAexQAADoAAACTLwAAGQAAAGnxAAALAAAAICIAAHsUAAA=")));
 	}
 	
 	@Test
 	void testEncodeBase64() {
-		String encoded = INaiTokenizer.tokensToBase64(new int[] {464,281,17845,318,657,65,8784,20943});
+		String encoded = INaiTokenizer.UShortTokensToBase64(new int[] {464,281,17845,318,657,65,8784,20943});
 		assertEquals("0AEZAbVFPgGRAkEAUCLPUQ==", encoded);
 	}
 	
 	@ParameterizedTest
 	@ValueSource(ints = {0, 1234, 65535})
-	void testEncodeDecodeBase64(int testValue) {
-		String encoded = INaiTokenizer.tokensToBase64(new int[] {testValue});
+	void testEncodeDecodeUShortBase64(int testValue) {
+		String encoded = INaiTokenizer.UShortTokensToBase64(new int[] {testValue});
 		assertNotNull(encoded);
 		assertTrue(encoded.length()>0);
 		
-		int[] decoded = INaiTokenizer.base64ToTokens(encoded);
+		int[] decoded = INaiTokenizer.base64ToUShortTokens(encoded);
+		assertArrayEquals(new int[] {testValue}, decoded);
+	}
+	
+	@ParameterizedTest
+	@ValueSource(ints = {0, 65535, 128000})
+	void testEncodeDecodeIntegerBase64(int testValue) {
+		String encoded = INaiTokenizer.IntegerTokensToBase64(new int[] {testValue});
+		assertNotNull(encoded);
+		assertTrue(encoded.length()>0);
+		
+		int[] decoded = INaiTokenizer.base64ToIntegerTokens(encoded);
 		assertArrayEquals(new int[] {testValue}, decoded);
 	}
 	
@@ -129,10 +150,11 @@ class UnitTestTokenizers {
 		assertNotNull(tokenizer);
 
 		String encodedString = targetTokenizer.stringToBase64(testString);
-		int[] decodedTokens = INaiTokenizer.base64ToTokens(encodedString);
+		int[] decodedTokens = targetTokenizer.base64ToTokens(encodedString);
 		int[] expectedEncoding = expectedTokenizationsByTokenizer.get(targetTokenizer).get(testString);
 		assertArrayEquals(expectedEncoding, decodedTokens, 
-				Arrays.toString(expectedEncoding)+" vs "+Arrays.toString(decodedTokens));
+				Arrays.toString(expectedEncoding)+" vs "+Arrays.toString(decodedTokens)
+				+" ("+targetTokenizer.decode(decodedTokens)+")");
 		
 		String decodedString = targetTokenizer.base64ToString(encodedString);
 		assertEquals(testString, decodedString);

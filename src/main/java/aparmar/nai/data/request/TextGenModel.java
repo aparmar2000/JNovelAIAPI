@@ -273,7 +273,9 @@ public enum TextGenModel {
 			PresetModulePrefixes.INSTRUCT,
 			PresetModulePrefixes.PROSE_AUGMENTER,
 			PresetModulePrefixes.OPENINGS,
-			PresetModulePrefixes.LOREBOOK_GENERATION});
+			PresetModulePrefixes.LOREBOOK_GENERATION}),
+	@SerializedName("llama-3-erato-v1")
+	ERATO(false, false, HelperConstants.TEXT_API_ROOT, new PresetModulePrefixes[]{});
 
 	private final boolean supportsCustomModules, supportsHiddenStates;
 	private final String endpoint;

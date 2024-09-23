@@ -48,7 +48,7 @@ class UnitTestTextGenerationParameters {
 				.beamNumber(2)
 				.beamGroupNumber(3)
 				.cfgAlpha(2.5)
-				.topK(3.5)
+				.topK(3)
 				.topA(4.5)
 				.topP(5.5)
 				.topG(6.5)
