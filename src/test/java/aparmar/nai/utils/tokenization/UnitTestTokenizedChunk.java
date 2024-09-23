@@ -63,6 +63,13 @@ public class UnitTestTokenizedChunk {
 		assertEquals(testChunkOriginal, testChunkResult);
 		assertEquals(TEST_STRING_1, testChunkResult.getTextChunk());
 		assertArrayEquals(TEST_TOKENS_1, testChunkResult.getTokens());
+		
+		testChunkResult = new TokenizedChunk(Tokenizers.NERDSTASH_V2, "");
+		testChunkResult.setTokensFromBase64(testChunkOriginal.getBase64EncodedTokens());
+		
+		assertEquals(testChunkOriginal, testChunkResult);
+		assertEquals(TEST_STRING_1, testChunkResult.getTextChunk());
+		assertArrayEquals(TEST_TOKENS_1, testChunkResult.getTokens());
 	}
 	
 	@Test
