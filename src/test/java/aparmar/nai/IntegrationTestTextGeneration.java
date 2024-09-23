@@ -15,7 +15,7 @@ import aparmar.nai.utils.TextParameterPresets;
 class IntegrationTestTextGeneration extends AbstractFeatureIntegrationTest {
 
 	@ParameterizedTest
-	@EnumSource(value = TextGenModel.class, names = {"SIGURD","EUTERPE","KRAKE","CLIO","KAYRA"})
+	@EnumSource(value = TextGenModel.class, names = {"SIGURD","EUTERPE","KRAKE","CLIO","KAYRA","ERATO"})
 	void testMinimalTextGeneration(TextGenModel textGenModel) throws AssertionError, Exception {
 		String[] associatedPresets = TextParameterPresets.getAssociatedPresets(textGenModel);
 		TextGenerationParameters testPreset = associatedPresets.length>0 ? 
