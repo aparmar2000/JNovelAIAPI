@@ -12,7 +12,8 @@ public enum Tokenizers implements INaiTokenizer {
 	GPT2_GENJI("genji_tokenizer.json"), // Genji tokenizer doesn't consistently tokenize the same as NAI for some reason
 	PILE("pile_tokenizer.json"),
 	NERDSTASH_V1("novelai.model"),
-	NERDSTASH_V2("novelai_v2.model");
+	NERDSTASH_V2("novelai_v2.model"),
+	LLAMA_3("llama_3_tokenizer.json");
 	
 	@Getter
 	private final INaiTokenizer tokenizer;
@@ -22,7 +23,9 @@ public enum Tokenizers implements INaiTokenizer {
 		try {
 			InputStream modelInputStream = InternalResourceLoader.getInternalResourceAsStream(modelFilename);
 			
-			if (modelFilename.endsWith(".model")) {
+			if (modelFilename.contains("llama_3")) {
+				newTokenizer = new JTokkitLlama3TokenizerWrapper(modelInputStream, "llama_3");
+			} else if (modelFilename.endsWith(".model")) {
 				newTokenizer = new SpTokenizerWrapper(modelInputStream);
 			} else if (modelFilename.endsWith("tokenizer.json")) {
 				newTokenizer = new JTokkitTokenizerWrapper(modelInputStream, modelFilename.replaceAll("\\.[^.]+$", ""));
@@ -54,6 +57,8 @@ public enum Tokenizers implements INaiTokenizer {
 			return NERDSTASH_V1;
 		case KAYRA:
 			return NERDSTASH_V2;
+		case ERATO:
+			return LLAMA_3;
 		
 		default:
 			return null;
