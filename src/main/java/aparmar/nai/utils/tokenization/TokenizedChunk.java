@@ -5,6 +5,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import aparmar.nai.data.request.TextGenModel;
+import aparmar.nai.data.request.textgen.TextGenPrefix;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -276,5 +277,32 @@ public class TokenizedChunk implements Cloneable {
 	
 	public static TokenizedChunk fromBase64Tokens(INaiTokenizer tokenizer, String base64) {
 		return new TokenizedChunk(tokenizer, tokenizer.base64ToTokens(base64));
+	}
+	
+	public String getTextChunkWithPrefix(TextGenPrefix prefix) {
+		return prefix.getTextPrefix()+textChunk;
+	}
+	public String getTextChunkWithDefaultPrefix(TextGenModel model) {
+		return getTextChunkWithPrefix(model.getDefaultTextPrefix());
+	}
+	
+	public int[] getTokensWithPrefix(TextGenPrefix prefix) {
+		int[] chunkTokens = tokens;
+		int[] prefixTokens = prefix.getTokenPrefix();
+		
+		int[] combinedTokens = new int[prefixTokens.length+chunkTokens.length];
+		System.arraycopy( prefixTokens, 0, combinedTokens, 0, prefixTokens.length);
+		System.arraycopy( chunkTokens, 0, combinedTokens, prefixTokens.length, chunkTokens.length );
+		return combinedTokens;
+	}
+	public int[] getTokensWithDefaultPrefix(TextGenModel model) {
+		return getTokensWithPrefix(model.getDefaultTextPrefix());
+	}
+	
+	public String getBase64EncodedTokensWithPrefix(TextGenPrefix prefix) {
+		return tokenizer.tokensToBase64(getTokensWithPrefix(prefix));
+	}
+	public String getBase64EncodedTokensWithDefaultPrefix(TextGenModel model) {
+		return tokenizer.tokensToBase64(getTokensWithDefaultPrefix(model));
 	}
 }
