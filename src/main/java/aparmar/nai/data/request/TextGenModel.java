@@ -1,14 +1,14 @@
 package aparmar.nai.data.request;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
 
+import com.google.common.collect.Sets;
 import com.google.gson.annotations.SerializedName;
 
-import lombok.Getter;
+import aparmar.nai.data.request.textgen.TextGenPrefix;
 import aparmar.nai.utils.HelperConstants;
 import aparmar.nai.utils.tokenization.Tokenizers;
+import lombok.Getter;
 
 @Getter
 public enum TextGenModel {
@@ -189,8 +189,8 @@ public enum TextGenModel {
 			PresetModulePrefixes.INSPIRATION_THRONEWARS,
 			PresetModulePrefixes.INSPIRATION_WITCH_AT_LEVEL_CAP}),
 	@SerializedName("krake-v2")
-	KRAKE(false, true, HelperConstants.GENERAL_API_ROOT, new PresetModulePrefixes[]
-			{PresetModulePrefixes.TEXT_ADVENTURE,
+	KRAKE(false, true, HelperConstants.GENERAL_API_ROOT, new TextGenPrefix[] {TextGenPrefix.KRAKE_DEFAULT}, new PresetModulePrefixes[]{ 
+			PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.CROSSGENRE,
 			
 			PresetModulePrefixes.AUTHOR_ALGERNON_BLACKWOOD,
@@ -275,16 +275,21 @@ public enum TextGenModel {
 			PresetModulePrefixes.OPENINGS,
 			PresetModulePrefixes.LOREBOOK_GENERATION}),
 	@SerializedName("llama-3-erato-v1")
-	ERATO(false, false, HelperConstants.TEXT_API_ROOT, new PresetModulePrefixes[]{});
+	ERATO(false, false, HelperConstants.TEXT_API_ROOT, new TextGenPrefix[] {
+			TextGenPrefix.ERATO_DEFAULT,
+			TextGenPrefix.ERATO_OPENING,
+			TextGenPrefix.ERATO_TEXT_ADVENTURE}, new PresetModulePrefixes[]{});
 
 	private final boolean supportsCustomModules, supportsHiddenStates;
 	private final String endpoint;
+	private final TextGenPrefix[] compatibleTextPrefixes;
 	private final PresetModulePrefixes[] compatiblePresetModules;
 	
 	private TextGenModel() {
 		supportsCustomModules = false;
 		supportsHiddenStates = true;
 		endpoint = HelperConstants.GENERAL_API_ROOT;
+		compatibleTextPrefixes = new TextGenPrefix[] {TextGenPrefix.NONE};
 		compatiblePresetModules = new PresetModulePrefixes[] {PresetModulePrefixes.NO_MODULE};
 	}
 	private TextGenModel(boolean supportsCustomModules, boolean supportsHiddenStates,
@@ -294,12 +299,34 @@ public enum TextGenModel {
 		this.supportsHiddenStates = supportsHiddenStates;
 		this.endpoint = apiRoot;
 		
-		List<PresetModulePrefixes> moduleList = new LinkedList<>(Arrays.asList(presetModules));
-		moduleList.add(PresetModulePrefixes.NO_MODULE);
-		compatiblePresetModules = moduleList.toArray(new PresetModulePrefixes[0]);
+
+		compatibleTextPrefixes = new TextGenPrefix[] {TextGenPrefix.NONE};
+		HashSet<PresetModulePrefixes> moduleSet = Sets.newHashSet(presetModules);
+		moduleSet.add(PresetModulePrefixes.NO_MODULE);
+		compatiblePresetModules = moduleSet.toArray(new PresetModulePrefixes[0]);
+	}
+	private TextGenModel(boolean supportsCustomModules, boolean supportsHiddenStates,
+			String apiRoot,
+			TextGenPrefix[] textPrefixes,
+			PresetModulePrefixes[] presetModules) {
+		this.supportsCustomModules = supportsCustomModules;
+		this.supportsHiddenStates = supportsHiddenStates;
+		this.endpoint = apiRoot;
+		
+
+		HashSet<TextGenPrefix> prefixSet = Sets.newHashSet(textPrefixes);
+		prefixSet.add(TextGenPrefix.NONE);
+		compatibleTextPrefixes = prefixSet.toArray(new TextGenPrefix[0]);
+		HashSet<PresetModulePrefixes> moduleSet = Sets.newHashSet(presetModules);
+		moduleSet.add(PresetModulePrefixes.NO_MODULE);
+		compatiblePresetModules = moduleSet.toArray(new PresetModulePrefixes[0]);
 	}
 	
 	public Tokenizers getTokenizerForModel() {
 		return Tokenizers.getTokenizerForModel(this);
+	}
+	
+	public TextGenPrefix getDefaultTextPrefix() {
+		return compatibleTextPrefixes.length>0 ? compatibleTextPrefixes[0] : TextGenPrefix.NONE;
 	}
 }
