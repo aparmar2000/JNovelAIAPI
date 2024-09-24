@@ -39,7 +39,6 @@ class UnitTestTextGenerationParameters {
 				.repetitionPenaltyWhitelist(new int[] {5})
 				.useString(true)
 				.useCache(true)
-				.doSample(true)
 				.earlyStopping(true)
 				.nextWord(true)
 				.getHiddenStates(true)
