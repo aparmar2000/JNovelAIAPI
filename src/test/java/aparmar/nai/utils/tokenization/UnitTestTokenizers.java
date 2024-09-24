@@ -111,8 +111,6 @@ class UnitTestTokenizers {
 	void testDecodeBase64() {
 		int[] decodedTokens = INaiTokenizer.base64ToUShortTokens("0AEZAbVFPgGRAkEAUCLPUQ==");
 		assertArrayEquals(new int[] {464,281,17845,318,657,65,8784,20943}, decodedTokens);
-		
-		System.out.println(Arrays.toString(INaiTokenizer.base64ToIntegerTokens("UfQBADoAAABIAQAAGQAAANwAAAATAAAAexQAADoAAACTLwAAGQAAAGnxAAALAAAAICIAAHsUAAA=")));
 	}
 	
 	@Test
