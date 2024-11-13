@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import aparmar.nai.TestHelpers;
 import aparmar.nai.data.request.textgen.TextGenerationParameters;
+import aparmar.nai.data.request.textgen.TextGenerationRequest;
 
 class UnitTestTextGenerationRequest {
 

@@ -7,8 +7,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
 import aparmar.nai.data.request.TextGenModel;
-import aparmar.nai.data.request.TextGenerationRequest;
 import aparmar.nai.data.request.textgen.TextGenerationParameters;
+import aparmar.nai.data.request.textgen.TextGenerationRequest;
 import aparmar.nai.data.response.TextGenerationResponse;
 import aparmar.nai.utils.TextParameterPresets;
 import aparmar.nai.utils.tokenization.TokenizedChunk;
