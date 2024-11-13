@@ -16,21 +16,31 @@ import java.util.stream.IntStream;
 import com.google.common.collect.HashBiMap;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.knuddels.jtokkit.Encodings;
 import com.knuddels.jtokkit.api.Encoding;
 import com.knuddels.jtokkit.api.EncodingRegistry;
 import com.knuddels.jtokkit.api.GptBytePairEncodingParams;
+import com.knuddels.jtokkit.api.IntArrayList;
 
-public class JTokkitTokenizerWrapper implements INaiTokenizer {
-	private static final Gson gson = new Gson();
-	private static final EncodingRegistry encodingRegistry = Encodings.newDefaultEncodingRegistry();
-	private static final HashBiMap<Integer, Integer> codePointRemapping = calculateCodePointRemapping();
+public class JTokkitTokenizerWrapper extends AbstractSingleBitDepthNaiTokenizer {
+	protected static final Gson gson = new Gson();
+	protected static final EncodingRegistry encodingRegistry = Encodings.newDefaultEncodingRegistry();
+	protected static final HashBiMap<Integer, Integer> codePointRemapping = calculateCodePointRemapping();
 	
-	private final Encoding jTokkitTokenizer;
+	protected final Encoding jTokkitTokenizer;
 	
-	public JTokkitTokenizerWrapper (InputStream modelInputStream, String modelName) throws IOException {
+	public JTokkitTokenizerWrapper (InputStream modelInputStream, TokenBitDepth tokenBitDepth, String modelName) throws IOException {
+		super(tokenBitDepth);
+		registerEncoding(modelInputStream, modelName);
+		jTokkitTokenizer = encodingRegistry.getEncoding(modelName).get();
+	}
+
+	protected void registerEncoding(InputStream modelInputStream, String modelName)
+			throws JsonSyntaxException, JsonIOException {
 		JsonObject tokenizerConfig = gson.fromJson(
 				new InputStreamReader(modelInputStream, StandardCharsets.UTF_8),
 				JsonObject.class);
@@ -41,6 +51,7 @@ public class JTokkitTokenizerWrapper implements INaiTokenizer {
 				.asList()
 				.stream()
 				.map(JsonElement::getAsString)
+				.filter(s->s.contains("<|") && s.contains("|>"))
 				.toArray(String[]::new);
 		
 		Map<byte[], Integer> byteVocabMap = vocabMap.entrySet().stream()
@@ -55,10 +66,9 @@ public class JTokkitTokenizerWrapper implements INaiTokenizer {
 		);
 		
 		encodingRegistry.registerGptBytePairEncoding(encodingParams);
-		jTokkitTokenizer = encodingRegistry.getEncoding(modelName).get();
 	}
 	
-	private static HashBiMap<Integer, Integer> calculateCodePointRemapping() {
+	protected static HashBiMap<Integer, Integer> calculateCodePointRemapping() {
 		IntStream segment1 = IntStream.rangeClosed("!".codePointAt(0),"~".codePointAt(0));
 		IntStream segment2 = IntStream.rangeClosed("¡".codePointAt(0),"¬".codePointAt(0));
 		IntStream segment3 = IntStream.rangeClosed("®".codePointAt(0),"ÿ".codePointAt(0));
@@ -81,7 +91,7 @@ public class JTokkitTokenizerWrapper implements INaiTokenizer {
 		return calculatedCodePointRemapping;
 	}
 	
-	private static byte[] remapUnicodeToBytes(String in) {
+	protected static byte[] remapUnicodeToBytes(String in) {
 	
 		return in.codePoints()
 				.map(c->codePointRemapping.inverse().getOrDefault(c,c))
@@ -101,12 +111,14 @@ public class JTokkitTokenizerWrapper implements INaiTokenizer {
 
 	@Override
 	public int[] encode(String text) {
-		return jTokkitTokenizer.encode(text).stream().mapToInt(i->i).toArray();
+		return jTokkitTokenizer.encode(text).toArray();
 	}
 
 	@Override
 	public String decode(int[] tokens) {
-		return jTokkitTokenizer.decode(IntStream.of(tokens).boxed().collect(Collectors.toList()));
+		IntArrayList tokenList = new IntArrayList(tokens.length);
+		for (int token : tokens) { tokenList.add(token); }
+		return jTokkitTokenizer.decode(tokenList);
 	}
 
 	@Override
