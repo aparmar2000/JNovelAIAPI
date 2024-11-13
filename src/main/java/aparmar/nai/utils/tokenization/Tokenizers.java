@@ -8,29 +8,26 @@ import aparmar.nai.utils.InternalResourceLoader;
 import lombok.Getter;
 
 public enum Tokenizers implements INaiTokenizer {
-	GPT2("gpt2_tokenizer.json", TokenBitDepth.USHORT),
-	GPT2_GENJI("genji_tokenizer.json", TokenBitDepth.USHORT), // Genji tokenizer doesn't consistently tokenize the same as NAI for some reason
-	PILE("pile_tokenizer.json", TokenBitDepth.USHORT),
-	NERDSTASH_V1("novelai.model", TokenBitDepth.USHORT),
-	NERDSTASH_V2("novelai_v2.model", TokenBitDepth.USHORT),
-	LLAMA_3("llama_3_tokenizer.json", TokenBitDepth.INTEGER);
+	GPT2("gpt2_tokenizer.json"),
+	GPT2_GENJI("genji_tokenizer.json"), // Genji tokenizer doesn't consistently tokenize the same as NAI for some reason
+	PILE("pile_tokenizer.json"),
+	NERDSTASH_V1("novelai.model"),
+	NERDSTASH_V2("novelai_v2.model");
 	
 	@Getter
 	private final INaiTokenizer tokenizer;
 	
-	private Tokenizers(String modelFilename, TokenBitDepth tokenBitDepth) {
+	private Tokenizers(String modelFilename) {
 		INaiTokenizer newTokenizer = null;
 		try {
 			InputStream modelInputStream = InternalResourceLoader.getInternalResourceAsStream(modelFilename);
 			
-			if (modelFilename.contains("llama_3")) {
-				newTokenizer = new HuggingFaceTokenizerWrapper(modelInputStream, tokenBitDepth);
-			} else if (modelFilename.endsWith(".model")) {
-				newTokenizer = new SpTokenizerWrapper(modelInputStream, tokenBitDepth);
+			if (modelFilename.endsWith(".model")) {
+				newTokenizer = new SpTokenizerWrapper(modelInputStream);
 			} else if (modelFilename.endsWith("tokenizer.json")) {
-				newTokenizer = new JTokkitTokenizerWrapper(modelInputStream, tokenBitDepth, modelFilename.replaceAll("\\.[^.]+$", ""));
+				newTokenizer = new JTokkitTokenizerWrapper(modelInputStream, modelFilename.replaceAll("\\.[^.]+$", ""));
 			}
-		} catch (IOException e) {
+		} catch (IOException | NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
 		
@@ -57,19 +54,12 @@ public enum Tokenizers implements INaiTokenizer {
 			return NERDSTASH_V1;
 		case KAYRA:
 			return NERDSTASH_V2;
-		case ERATO:
-			return LLAMA_3;
 		
 		default:
 			return null;
 		}
 	}
 
-
-	@Override
-	public TokenBitDepth getTokenBitDepth() {
-		return getTokenizer().getTokenBitDepth();
-	}
 
 	@Override
 	public int[] encode(String text) {
@@ -84,15 +74,5 @@ public enum Tokenizers implements INaiTokenizer {
 	@Override
 	public int countTokens(String text) {
 		return getTokenizer().countTokens(text);
-	}
-
-	@Override
-	public int[] base64ToTokens(String base64) {
-		return getTokenizer().base64ToTokens(base64);
-	}
-
-	@Override
-	public String tokensToBase64(int[] tokens) {
-		return getTokenizer().tokensToBase64(tokens);
 	}
 }

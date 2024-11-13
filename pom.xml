@@ -138,12 +138,12 @@
 		<dependency>
 			<groupId>com.knuddels</groupId>
 			<artifactId>jtokkit</artifactId>
-			<version>1.1.0</version>
+			<version>0.6.1</version>
 		</dependency>
 		<dependency>
 			<groupId>ai.djl.sentencepiece</groupId>
 			<artifactId>sentencepiece</artifactId>
-			<version>0.30.0</version>
+			<version>0.23.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -153,7 +153,7 @@
 		<dependency>
 			<groupId>ai.djl.huggingface</groupId>
 			<artifactId>tokenizers</artifactId>
-			<version>0.30.0</version>
+			<version>0.23.0</version>
 		</dependency>
 	</dependencies>
 </project>

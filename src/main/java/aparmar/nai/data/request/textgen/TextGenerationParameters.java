@@ -70,6 +70,8 @@ public class TextGenerationParameters { // TODO: Add more validation
 	private boolean useString;
 	@SerializedName("use_cache")
 	private boolean useCache;
+	@SerializedName("do_sample")
+	private boolean doSample; // TODO: What is this?
 	@SerializedName("early_stopping")
 	private boolean earlyStopping; // TODO: What is this?
 	@SerializedName("next_word")
@@ -89,7 +91,7 @@ public class TextGenerationParameters { // TODO: Add more validation
 	private double cfgAlpha;
 	
 	@SerializedName("top_k")
-	private int topK;
+	private double topK;
 	@SerializedName("top_a")
 	private double topA;
 	@SerializedName("top_p")
@@ -200,9 +202,9 @@ public class TextGenerationParameters { // TODO: Add more validation
 	@Builder(toBuilder = true)
 	public TextGenerationParameters(List<int[]> stopSequences, List<int[]> badWordIds, List<LogitBias> logitBiases, int[] order,
 			int[] repetitionPenaltyWhitelist, double temperature, int maxLength, int minLength, int numLogprobs, boolean useString,
-			boolean useCache, boolean earlyStopping, boolean nextWord, boolean getHiddenStates,
+			boolean useCache, boolean doSample, boolean earlyStopping, boolean nextWord, boolean getHiddenStates,
 			boolean outputNonzeroProbs, boolean generateUntilSentence, int beamNumber, int beamGroupNumber,
-			double cfgAlpha, int topK, double topA, double topP, double topG, double typicalP, double minP,
+			double cfgAlpha, double topK, double topA, double topP, double topG, double typicalP, double minP,
 			double tailFreeSampling, double unifiedLinear, double unifiedQuad, double unifiedConf,
 			double repetitionPenalty, int repetitionPenaltyRange, double repetitionPenaltySlope, 
 			double repetitionPenaltyFrequency, double repetitionPenaltyPresence,
@@ -220,6 +222,7 @@ public class TextGenerationParameters { // TODO: Add more validation
 		this.numLogprobs = numLogprobs;
 		this.useString = useString;
 		this.useCache = useCache;
+		this.doSample = doSample;
 		this.earlyStopping = earlyStopping;
 		this.nextWord = nextWord;
 		this.getHiddenStates = getHiddenStates;
