@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import aparmar.nai.data.request.TextGenModel;
+import aparmar.nai.data.request.TextGenerationRequest;
 import aparmar.nai.data.request.textgen.TextGenerationParameters;
-import aparmar.nai.data.request.textgen.TextGenerationRequest;
 import aparmar.nai.utils.TextParameterPresets;
 
 class IntegrationTestFetchHiddenState extends AbstractFeatureIntegrationTest {

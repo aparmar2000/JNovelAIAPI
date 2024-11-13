@@ -1,8 +1,8 @@
 package aparmar.nai;
 
-import static aparmar.nai.utils.HelperConstants.AUTH_HEADER;
 import static aparmar.nai.utils.HelperConstants.GENERAL_API_ROOT;
 import static aparmar.nai.utils.HelperConstants.IMAGE_API_ROOT;
+import static aparmar.nai.utils.HelperConstants.AUTH_HEADER;
 import static aparmar.nai.utils.HelperConstants.MEDIA_TYPE_JSON;
 import static aparmar.nai.utils.HelperConstants.PERSISTENT_KEY_PATTERN;
 
@@ -22,13 +22,13 @@ import aparmar.nai.data.request.IQueryStringPayload;
 import aparmar.nai.data.request.ImageAnnotateRequest;
 import aparmar.nai.data.request.ImageUpscaleRequest;
 import aparmar.nai.data.request.ImageUpscaleRequest.UpscaleFactor;
+import aparmar.nai.data.request.TextGenerationRequest;
 import aparmar.nai.data.request.VoiceGenerationRequest;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest;
 import aparmar.nai.data.request.imagen.ImageVibeTransferParameters;
 import aparmar.nai.data.request.imgaug.ImageAugmentRemoveBackgroundRequest;
 import aparmar.nai.data.request.imgaug.ImageAugmentRequest;
 import aparmar.nai.data.request.imgaug.ImageAugmentRequest.DefryFactor;
-import aparmar.nai.data.request.textgen.TextGenerationRequest;
 import aparmar.nai.data.request.imgaug.ImageAugmentRequestSingleResult;
 import aparmar.nai.data.response.AudioWrapper;
 import aparmar.nai.data.response.ImageSetWrapper;
@@ -49,6 +49,7 @@ import aparmar.nai.utils.RateLimitInterceptor;
 import aparmar.nai.utils.ResultParseFunction;
 import aparmar.nai.utils.ZipArchiveWrapper;
 import aparmar.nai.utils.ZipParseFunction;
+import aparmar.nai.utils.tokenization.INaiTokenizer;
 import aparmar.nai.utils.tokenization.TokenizedChunk;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -208,7 +209,7 @@ public class NAIAPI {
 			if (payload.getParameters().isUseString()) {
 				outputChunk.setTextChunk(output);
 			} else {
-				outputChunk.setTokensFromBase64(output);
+				outputChunk.setTokens(INaiTokenizer.base64ToTokens(output));
 			}
 		}
 		response.setOutput(outputChunk);
