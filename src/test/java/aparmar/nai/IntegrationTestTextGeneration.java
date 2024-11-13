@@ -28,7 +28,7 @@ class IntegrationTestTextGeneration extends AbstractFeatureIntegrationTest {
 					.build();
 		TokenizedChunk tokenizedInput = new TokenizedChunk(textGenModel, "This is an API call!\n");
 		
-		// FOr some reason Krake breaks if rep pen slope is 0 & the <|ENDOFTEXT|> token isn't present
+		// For some reason Krake breaks if rep pen slope is 0 & the <|ENDOFTEXT|> token isn't present
 		if (textGenModel == TextGenModel.KRAKE) {
 			testPreset = testPreset.toBuilder()
 					.repetitionPenaltySlope(1)
