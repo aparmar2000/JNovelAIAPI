@@ -4,17 +4,22 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.util.Arrays;
+
 import org.junit.jupiter.api.Test;
 
 import aparmar.nai.data.request.TextGenModel;
 
-class IntegrationTestTextParameterPresets {
+class UnitTestTextParameterPresets {
 
 	@Test
 	void testGetPresetNames() {
+		String[] sortedPresetNames = TextParameterPresets.getPresetNames();
+		Arrays.sort(sortedPresetNames);
+		
 		assertArrayEquals(
-				new String[] {"EUTERPE - Ouroboros","KAYRA - Asper","EUTERPE - Fandango","KRAKE - Krait","KAYRA - Writer's Daemon","CLIO - Flat-Out","KRAKE - Calibrated","KAYRA - Green Active Writer","EUTERPE - Genesis","EUTERPE - Low Rider","CLIO - Blended Coffee","KAYRA - Fresh Coffee","KRAKE - Blue Lighter","CLIO - Talker C","KRAKE - Reverie","KAYRA - Tesseract","CLIO - Vingt-Un","CLIO - Long Press","CLIO - Fresh Coffee","KRAKE - 20BC+","EUTERPE - Pro Writer","CLIO - Edgewise","EUTERPE - Moonlit Chronicler","KAYRA - Blended Coffee","KAYRA - Plotfish","KAYRA - Blook","KRAKE - Top Gun Beta","EUTERPE - All-Nighter","KRAKE - Iris","CLIO - Edgewise CFG","KRAKE - Calypso","EUTERPE - Basic Coherence","EUTERPE - Morpho","KAYRA - Stelenes","KRAKE - Redjack","KRAKE - Blue Adder","KAYRA - Carefree","EUTERPE - Ace of Spades"}, 
-				TextParameterPresets.getPresetNames());
+				new String[] {"CLIO - Blended Coffee","CLIO - Edgewise","CLIO - Edgewise CFG","CLIO - Flat-Out","CLIO - Fresh Coffee","CLIO - Long Press","CLIO - Talker C","CLIO - Vingt-Un","EUTERPE - Ace of Spades","EUTERPE - All-Nighter","EUTERPE - Basic Coherence","EUTERPE - Fandango","EUTERPE - Genesis","EUTERPE - Low Rider","EUTERPE - Moonlit Chronicler","EUTERPE - Morpho","EUTERPE - Ouroboros","EUTERPE - Pro Writer","KAYRA - Asper","KAYRA - Blended Coffee","KAYRA - Blook","KAYRA - Carefree","KAYRA - Fresh Coffee","KAYRA - Green Active Writer","KAYRA - Plotfish","KAYRA - Stelenes","KAYRA - Tesseract","KAYRA - Writer's Daemon","KRAKE - 20BC+","KRAKE - Blue Adder","KRAKE - Blue Lighter","KRAKE - Calibrated","KRAKE - Calypso","KRAKE - Iris","KRAKE - Krait","KRAKE - Redjack","KRAKE - Reverie","KRAKE - Top Gun Beta","SIGURD - Best Guess","SIGURD - Coherent Creativity","SIGURD - Emperor Moth","SIGURD - Luna Moth","SIGURD - Pleasing Results","SIGURD - Sphinx Moth","SIGURD - Storywriter"}, 
+				sortedPresetNames);
 	}
 
 	@Test

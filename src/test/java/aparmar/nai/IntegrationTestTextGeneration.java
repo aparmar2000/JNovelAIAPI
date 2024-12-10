@@ -7,15 +7,16 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
 import aparmar.nai.data.request.TextGenModel;
-import aparmar.nai.data.request.TextGenerationRequest;
 import aparmar.nai.data.request.textgen.TextGenerationParameters;
+import aparmar.nai.data.request.textgen.TextGenerationRequest;
 import aparmar.nai.data.response.TextGenerationResponse;
 import aparmar.nai.utils.TextParameterPresets;
+import aparmar.nai.utils.tokenization.TokenizedChunk;
 
 class IntegrationTestTextGeneration extends AbstractFeatureIntegrationTest {
 
 	@ParameterizedTest
-	@EnumSource(value = TextGenModel.class, names = {"SIGURD","EUTERPE","KRAKE","CLIO","KAYRA"})
+	@EnumSource(value = TextGenModel.class, names = {"SIGURD","EUTERPE","KRAKE","CLIO","KAYRA","ERATO"})
 	void testMinimalTextGeneration(TextGenModel textGenModel) throws AssertionError, Exception {
 		String[] associatedPresets = TextParameterPresets.getAssociatedPresets(textGenModel);
 		TextGenerationParameters testPreset = associatedPresets.length>0 ? 
@@ -37,10 +38,10 @@ class IntegrationTestTextGeneration extends AbstractFeatureIntegrationTest {
 		final TextGenerationParameters finalGenerationParameters = testPreset;
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
 			TextGenerationRequest testRequest = TextGenerationRequest.builder()
-					.model(TextGenModel.CLIO)
-					.input("This is an API call!\n")
-					.parameters(testPreset.toBuilder()
-							.useString(true)
+					.model(textGenModel)
+					.input(tokenizedInput.getBase64EncodedTokens())
+					.parameters(finalGenerationParameters.toBuilder()
+							.useString(false)
 							.build())
 					.build();
 			TextGenerationResponse actualResponse = apiInstance.generateText(testRequest);
