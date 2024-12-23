@@ -80,7 +80,7 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		ANIME_V3(QualityTagsPreset.ANIME_V3, false, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), ImageGenModel::estimateAnlasCostSDXL, null),
 		@SerializedName("nai-diffusion-furry-3")
 		FURRY_V3(QualityTagsPreset.FURRY_V3, false, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), ImageGenModel::estimateAnlasCostSDXL, null),
-		@SerializedName("nai-diffusion-4-curated-preview")// TODO: Double-check that v4 accepts image2image? TODO: Check Anlas cost function. 
+		@SerializedName("nai-diffusion-4-curated-preview")
 		ANIME_V4_CURATED(QualityTagsPreset.ANIME_V4, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
 		
 		@SerializedName("safe-diffusion-inpainting")
