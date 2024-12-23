@@ -19,9 +19,11 @@ import aparmar.nai.data.request.imagen.ImageControlNetParameters.ControlnetModel
 import aparmar.nai.data.request.imagen.ImageGenerationRequest;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenAction;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
+import aparmar.nai.data.request.imagen.MultiCharacterParameters.CharacterPrompt;
 import aparmar.nai.data.request.imagen.ImageInpaintParameters;
 import aparmar.nai.data.request.imagen.ImageParameters;
 import aparmar.nai.data.request.imagen.ImageVibeTransferParameters;
+import aparmar.nai.data.request.imagen.V4MultiCharacterParameters;
 import aparmar.nai.data.response.ImageSetWrapper;
 import aparmar.nai.utils.InternalResourceLoader;
 
@@ -42,7 +44,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 							false, false, false, 
 							ImageParameters.SamplingSchedule.NATIVE, 
 							false, ImageGenerationRequest.QualityTagsLocation.DEFAULT, 
-							1, ImageGenerationRequest.ANIME_V2_LIGHT_UC, 1,
+							1, ImageGenerationRequest.ANIME_V3_LIGHT_UC, 1,
 							1))
 					.build();
 			ImageSetWrapper result = apiInstance.generateImage(testGenerationRequest);
@@ -77,7 +79,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 							.scale(1)
 							.sampler(ImageParameters.ImageGenSampler.DPM_PLUS_PLUS_2S_ANCESTRAL)
 							.ucPreset(1)
-							.undesiredContent(ImageGenerationRequest.ANIME_V2_LIGHT_UC)
+							.undesiredContent(ImageGenerationRequest.ANIME_V3_LIGHT_UC)
 							.image(new Base64Image(baseImage, 512, 512, false))
 							.mask(new Base64Image(maskImage, 512, 512, true))
 							.build())
@@ -113,7 +115,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 							.scale(1)
 							.sampler(ImageParameters.ImageGenSampler.DPM_PLUS_PLUS_2S_ANCESTRAL)
 							.ucPreset(1)
-							.undesiredContent(ImageGenerationRequest.ANIME_V2_LIGHT_UC)
+							.undesiredContent(ImageGenerationRequest.ANIME_V3_LIGHT_UC)
 							.build())
 					.extraParameter(Image2ImageParameters.builder()
 							.extraNoiseSeed(2)
@@ -153,7 +155,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 							.scale(1)
 							.sampler(ImageParameters.ImageGenSampler.DPM_PLUS_PLUS_2S_ANCESTRAL)
 							.ucPreset(1)
-							.undesiredContent(ImageGenerationRequest.ANIME_V2_LIGHT_UC)
+							.undesiredContent(ImageGenerationRequest.ANIME_V3_LIGHT_UC)
 							.build())
 					.extraParameter(ImageControlNetParameters.builder()
 							.model(ControlnetModel.SCRIBBLER)
@@ -191,7 +193,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 							.scale(1)
 							.sampler(ImageParameters.ImageGenSampler.DPM_PLUS_PLUS_2S_ANCESTRAL)
 							.ucPreset(1)
-							.undesiredContent(ImageGenerationRequest.ANIME_V2_LIGHT_UC)
+							.undesiredContent(ImageGenerationRequest.ANIME_V3_LIGHT_UC)
 							.build())
 					.extraParameter(ImageVibeTransferParameters.builder()
 							.vibeImage(ImageVibeTransferParameters.VibeTransferImage.builder()
@@ -232,7 +234,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 							.scale(1)
 							.sampler(ImageParameters.ImageGenSampler.DPM_PLUS_PLUS_2S_ANCESTRAL)
 							.ucPreset(1)
-							.undesiredContent(ImageGenerationRequest.ANIME_V2_LIGHT_UC)
+							.undesiredContent(ImageGenerationRequest.ANIME_V3_LIGHT_UC)
 							.image(new Base64Image(baseImage, 512, 512, false))
 							.mask(new Base64Image(maskImage, 512, 512, true))
 							.build())
@@ -252,6 +254,76 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 			assertEquals(512, resultImage.getRenderedImage().getWidth());
 			
 			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"vibe_transfer_inpaint_test.png"));
+		});
+	}
+
+	@Test
+	void testV4SingleCharacterImageGeneration() throws AssertionError, Exception {
+		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
+			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
+					.input("portrait of a woman")
+					.action(ImageGenAction.GENERATE)
+					.model(ImageGenModel.ANIME_V4_CURATED)
+					.parameters(new ImageParameters(
+							1,
+							512,512,
+							28,1,0,
+							ImageParameters.ImageGenSampler.DPM_PLUS_PLUS_2S_ANCESTRAL,
+							false, false, false, 
+							ImageParameters.SamplingSchedule.NATIVE, 
+							true, ImageGenerationRequest.QualityTagsLocation.DEFAULT, 
+							1, ImageGenerationRequest.ANIME_V4_LIGHT_UC, 1,
+							1))
+					.build();
+			ImageSetWrapper result = apiInstance.generateImage(testGenerationRequest);
+			
+			assertNotNull(result);
+			assertEquals(1, result.getImageCount());
+			IIOImage resultImage = result.getImage(0);
+			assertNotNull(resultImage);
+			assertEquals(512, resultImage.getRenderedImage().getHeight());
+			assertEquals(512, resultImage.getRenderedImage().getWidth());
+			
+			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"v4_single_character_test.png"));
+		});
+	}
+
+	@Test
+	void testV4MultiCharacterImageGeneration() throws AssertionError, Exception {
+		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
+			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
+					.input("2girls. Painting of two women.")
+					.action(ImageGenAction.GENERATE)
+					.model(ImageGenModel.ANIME_V4_CURATED)
+					.parameters(new ImageParameters(
+							1,
+							512,512,
+							28,1,0,
+							ImageParameters.ImageGenSampler.DPM_PLUS_PLUS_2S_ANCESTRAL,
+							false, false, false, 
+							ImageParameters.SamplingSchedule.NATIVE, 
+							true, ImageGenerationRequest.QualityTagsLocation.DEFAULT, 
+							1, ImageGenerationRequest.ANIME_V4_LIGHT_UC, 1,
+							1))
+					.extraParameter(V4MultiCharacterParameters.builder()
+							.characterPrompt(CharacterPrompt.builder()
+									.prompt("A tall woman with dark hair.")
+									.build())
+							.characterPrompt(CharacterPrompt.builder()
+									.prompt("A short woman with blonde hair.")
+									.build())
+							.build())
+					.build();
+			ImageSetWrapper result = apiInstance.generateImage(testGenerationRequest);
+			
+			assertNotNull(result);
+			assertEquals(1, result.getImageCount());
+			IIOImage resultImage = result.getImage(0);
+			assertNotNull(resultImage);
+			assertEquals(512, resultImage.getRenderedImage().getHeight());
+			assertEquals(512, resultImage.getRenderedImage().getWidth());
+			
+			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"v4_multi_character_test.png"));
 		});
 	}
 
