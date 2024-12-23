@@ -100,7 +100,7 @@ public class ImageParameters {
 	protected int imgCount = 1;
 	
 	@SerializedName("params_version")
-	protected final int paramsVersion = 1;
+	protected final int paramsVersion = 3;
 	protected final boolean legacy = false;
 	@SerializedName("legacy_v3_extend")
 	protected final boolean legacyV3Extend = false;

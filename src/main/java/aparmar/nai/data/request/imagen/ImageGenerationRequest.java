@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.function.BiFunction;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
@@ -20,6 +21,7 @@ import com.google.gson.annotations.SerializedName;
 
 import aparmar.nai.data.request.imagen.ImageParameters.ImageGenSampler;
 import aparmar.nai.data.response.UserSubscription;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -41,6 +43,8 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 	public static final String ANIME_LOW_QUALITY_UC = "nsfw, lowres, text, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry";
 	public static final String FURRY_V3_LIGHT_UC = "nsfw, {worst quality}, guide lines, unfinished, bad, url, tall image, widescreen, compression artifacts, unknown text";
 	public static final String FURRY_V3_HEAVY_UC = "nsfw, {{worst quality}}, [displeasing], {unusual pupils}, guide lines, {{unfinished}}, {bad}, url, artist name, {{tall image}}, mosaic, {sketch page}, comic panel, impact (font), [dated], {logo}, ych, {what}, {where is your god now}, {distorted text}, repeated text, {floating head}, {1994}, {widescreen}, absolutely everyone, sequence, {compression artifacts}, hard translated, {cropped}, {commissioner name}, unknown text, high contrast";
+	public static final String ANIME_V4_LIGHT_UC = "blurry, lowres, error, worst quality, bad quality, jpeg artifacts, very displeasing, logo, dated, signature";
+	public static final String ANIME_V4_HEAVY_UC = "blurry, lowres, error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, logo, dated, signature, multiple views, gigantic breasts";
 	
 	public enum QualityTagsLocation {
 		DEFAULT,
@@ -54,7 +58,8 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		V1_MODELS("masterpiece, best quality", QualityTagsLocation.PREPEND),
 		ANIME_V2("very aesthetic, best quality, absurdres", QualityTagsLocation.APPEND),
 		ANIME_V3("aesthetic, best quality, absurdres", QualityTagsLocation.APPEND),
-		FURRY_V3("{best quality}, {amazing quality}", QualityTagsLocation.APPEND);
+		FURRY_V3("{best quality}, {amazing quality}", QualityTagsLocation.APPEND),
+		ANIME_V4("amazing quality, very aesthetic, absurdres", QualityTagsLocation.APPEND);
 		
 		private final String tags;
 		private final QualityTagsLocation defaultLocation;
@@ -64,33 +69,37 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 	@RequiredArgsConstructor
 	public enum ImageGenModel {
 		@SerializedName("safe-diffusion")
-		ANIME_CURATED(QualityTagsPreset.V1_MODELS, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD),
+		ANIME_CURATED(QualityTagsPreset.V1_MODELS, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD, null),
 		@SerializedName("nai-diffusion")
-		ANIME_FULL(QualityTagsPreset.V1_MODELS, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD),
+		ANIME_FULL(QualityTagsPreset.V1_MODELS, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD, null),
 		@SerializedName("nai-diffusion-furry")
-		FURRY(QualityTagsPreset.V1_MODELS, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD),
+		FURRY(QualityTagsPreset.V1_MODELS, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD, null),
 		@SerializedName("nai-diffusion-2")
-		ANIME_V2(QualityTagsPreset.ANIME_V2, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD),
+		ANIME_V2(QualityTagsPreset.ANIME_V2, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD, null),
 		@SerializedName("nai-diffusion-3")
-		ANIME_V3(QualityTagsPreset.ANIME_V3, false, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), ImageGenModel::estimateAnlasCostSDXL),
+		ANIME_V3(QualityTagsPreset.ANIME_V3, false, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), ImageGenModel::estimateAnlasCostSDXL, null),
 		@SerializedName("nai-diffusion-furry-3")
-		FURRY_V3(QualityTagsPreset.FURRY_V3, false, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), ImageGenModel::estimateAnlasCostSDXL),
+		FURRY_V3(QualityTagsPreset.FURRY_V3, false, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), ImageGenModel::estimateAnlasCostSDXL, null),
+		@SerializedName("nai-diffusion-4-curated-preview")// TODO: Double-check that v4 accepts image2image? TODO: Check Anlas cost function. 
+		ANIME_V4_CURATED(QualityTagsPreset.ANIME_V4, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
 		
 		@SerializedName("safe-diffusion-inpainting")
-		ANIME_CURATED_INPAINT(QualityTagsPreset.V1_MODELS, true, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD),
+		ANIME_CURATED_INPAINT(QualityTagsPreset.V1_MODELS, true, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD, null),
 		@SerializedName("nai-diffusion-inpainting")
-		ANIME_FULL_INPAINT(QualityTagsPreset.V1_MODELS, true, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD),
+		ANIME_FULL_INPAINT(QualityTagsPreset.V1_MODELS, true, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD, null),
 		@SerializedName("furry-diffusion-inpainting")
-		FURRY_INPAINT(QualityTagsPreset.V1_MODELS, true, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD),
+		FURRY_INPAINT(QualityTagsPreset.V1_MODELS, true, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD, null),
 		@SerializedName("nai-diffusion-3-inpainting")
-		ANIME_V3_INPAINT(QualityTagsPreset.ANIME_V3, true, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), ImageGenModel::estimateAnlasCostSDXL),
+		ANIME_V3_INPAINT(QualityTagsPreset.ANIME_V3, true, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), ImageGenModel::estimateAnlasCostSDXL, null),
 		@SerializedName("nai-diffusion-furry-3-inpainting")
-		FURRY_V3_INPAINT(QualityTagsPreset.FURRY_V3, true, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), ImageGenModel::estimateAnlasCostSDXL);
+		FURRY_V3_INPAINT(QualityTagsPreset.FURRY_V3, true, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), ImageGenModel::estimateAnlasCostSDXL, null);
 		
 		private final QualityTagsPreset qualityTagsPreset;
 		private final boolean inpaintingModel;
 		private final Set<Class<? extends AbstractExtraImageParameters>> supportedExtraParameterTypes;
 		private final BiFunction<ImageParameters, List<AbstractExtraImageParameters>, Integer> anlasCostEstimator;
+		@Getter(AccessLevel.PROTECTED)
+		private final ImageRequestJsonAdapterFunc jsonAdapterFunc;
 
 		public boolean doesModelSupportExtraParameter(AbstractExtraImageParameters extraImageParameter) {
 			return doesModelSupportExtraParameterType(extraImageParameter.getClass());
@@ -120,6 +129,14 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 			return estimateAnlasCost(parameters);
 		}
 		
+		public boolean hasJsonAdapterFunc() {
+			return jsonAdapterFunc != null;
+		}
+		public void adaptJson(ImageGenerationRequest request, JsonElement currentJson, JsonSerializationContext context) {
+			if (jsonAdapterFunc != null) { jsonAdapterFunc.adapt(request, currentJson, context); }
+		}
+		
+		// Anlas cost estimation
 		private static final EnumSet<ImageGenSampler> CHEAP_SAMPLER_SET = EnumSet.of(ImageGenSampler.DDIM,ImageGenSampler.K_EULER,ImageGenSampler.K_EULER_ANCESTRAL);
 		private static final int PIXELS_1024_SQUARE = (1024 * 1024);
 		private static int estimateAnlasCostSD(ImageParameters parameters, List<AbstractExtraImageParameters> extraParameters) {
@@ -171,6 +188,32 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 			if (parameters.getUcScale()!=1) { sampleFactor = Math.ceil(sampleFactor * 1.3); }
 			
 			return (int) (sampleFactor * parameters.getImgCount());
+		}
+	
+		// Adapter Functions
+		private static JsonElement adaptForV4(ImageGenerationRequest request, JsonElement currentJson, JsonSerializationContext context) {
+			JsonObject curJsonObj = currentJson.getAsJsonObject();
+			JsonObject parametersObj = curJsonObj.getAsJsonObject("parameters");
+			
+			if (!parametersObj.has("v4_prompt")) {
+				parametersObj.add("v4_prompt", new JsonObject());
+				parametersObj.getAsJsonObject("v4_prompt").add("caption", new JsonObject());
+				parametersObj.getAsJsonObject("v4_prompt").getAsJsonObject("caption").add("char_captions", new JsonArray());
+				parametersObj.getAsJsonObject("v4_prompt").addProperty("use_coords", false);
+				parametersObj.getAsJsonObject("v4_prompt").addProperty("use_order", true);
+			}
+			JsonObject v4PromptObj = parametersObj.getAsJsonObject("v4_prompt").getAsJsonObject("caption");
+			v4PromptObj.addProperty("base_caption", request.getInput());
+			
+			if (!parametersObj.has("v4_negative_prompt")) {
+				parametersObj.add("v4_negative_prompt", new JsonObject());
+				parametersObj.getAsJsonObject("v4_negative_prompt").add("caption", new JsonObject());
+				parametersObj.getAsJsonObject("v4_negative_prompt").getAsJsonObject("caption").add("char_captions", new JsonArray());
+			}
+			JsonObject v4NegPromptObj = parametersObj.getAsJsonObject("v4_negative_prompt").getAsJsonObject("caption");
+			v4NegPromptObj.addProperty("base_caption", request.getParameters().getUndesiredContent());
+			
+			return curJsonObj;
 		}
 	}
 	
@@ -224,6 +267,9 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 			.forEach(m->mergedParameters.add(m.getKey(), m.getValue()));
 		wrapper.add("parameters", mergedParameters);
 		
+		if (src.getModel().hasJsonAdapterFunc()) {
+			src.getModel().adaptJson(src, wrapper, context);
+		}
 		return wrapper;
 	}
 

@@ -24,7 +24,7 @@ public class ZipArchiveWrapper {
 		ArrayList<ZipArchiveEntry> entryList = new ArrayList<>();
 	    try (ZipArchiveInputStream zi = new ZipArchiveInputStream(new ByteArrayInputStream(compressedBytes))) {
 	    	ZipArchiveEntry nextEntry = null;
-	    	while((nextEntry = zi.getNextZipEntry()) != null) {
+	    	while((nextEntry = zi.getNextEntry()) != null) {
 	    		entryList.add(nextEntry);
 	    	}
 	    } catch (IOException e) {
@@ -42,7 +42,7 @@ public class ZipArchiveWrapper {
 		
 	    try (ZipArchiveInputStream zi = new ZipArchiveInputStream(new ByteArrayInputStream(compressedBytes))) {
 	    	for (int i=0;i<=idx;i++) {
-	    		zi.getNextZipEntry();
+	    		zi.getNextEntry();
 	    	}
 	    	
     		int readBytes = IOUtils.readFully(zi, decompressedEntryData);
