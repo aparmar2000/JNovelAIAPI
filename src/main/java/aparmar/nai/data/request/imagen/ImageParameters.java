@@ -60,7 +60,7 @@ public class ImageParameters {
 	protected int steps = 28;
 	@Builder.Default
 	protected double scale = 5.0;
-	/** Only functions with V3 models */
+	/** Only functions with V3 & later models */
 	@SerializedName("cfg_rescale")
 	@Builder.Default
 	protected double scaleRescaleFactor = 0;
@@ -77,7 +77,7 @@ public class ImageParameters {
 	@SerializedName("dynamic_thresholding")
 	@Builder.Default
 	protected boolean decrisperEnabled = false;
-	/** Only functions with V3 models */
+	/** Only functions with V3 and later models */
 	@SerializedName("noise_schedule")
 	@Builder.Default
 	protected SamplingSchedule noiseSchedule = SamplingSchedule.NATIVE;
