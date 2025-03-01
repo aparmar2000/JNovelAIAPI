@@ -47,6 +47,7 @@ import aparmar.nai.data.response.UserSubscription;
 import aparmar.nai.data.response.UserSubscription.ImageGenerationLimit;
 import aparmar.nai.data.response.UserSubscription.SubscriptionPerks;
 import aparmar.nai.data.response.UserSubscription.SubscriptionTier;
+import aparmar.nai.utils.HardDepreciationException;
 import aparmar.nai.utils.InternalResourceLoader;
 import lombok.Data;
 
@@ -58,12 +59,12 @@ class UnitTestImageGenerationRequest {
 		@Test
 		void testImageGenerationRequestDataAnnotation() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 			ImageGenerationRequest testInstance1 = ImageGenerationRequest.builder()
-					.model(ImageGenModel.ANIME_CURATED)
+					.model(ImageGenModel.ANIME_V3)
 					.action(ImageGenAction.GENERATE)
 					.build();
 			ImageGenerationRequest testInstance2 = ImageGenerationRequest.builder()
 					.input("input")
-					.model(ImageGenModel.FURRY)
+					.model(ImageGenModel.FURRY_V3)
 					.action(ImageGenAction.IMG2IMG)
 					.parameters(ImageParameters.builder().build())
 					.extraParameter(Image2ImageParameters.builder().build())
@@ -169,6 +170,16 @@ class UnitTestImageGenerationRequest {
 		}
     }
 
+	@SuppressWarnings("deprecation")
+	@Test
+	void testRemovedModelRejected() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		assertThrows(HardDepreciationException.class, ()->ImageGenerationRequest.builder()
+				.model(ImageGenModel.ANIME_CURATED)
+				.action(ImageGenAction.GENERATE)
+				.parameters(ImageInpaintParameters.builder().build())
+				.build());
+	}    
+    
 	@Test
 	void testNonInpaintModelRejectsImage2ImageParameters() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
@@ -203,14 +214,14 @@ class UnitTestImageGenerationRequest {
 		@Test
 		void testModelIncompatibleExtraImageParameters() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 			assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
-					.model(ImageGenModel.ANIME_CURATED)
+					.model(ImageGenModel.ANIME_V2)
 					.action(ImageGenAction.GENERATE)
 					.extraParameter(ImageVibeTransferParameters.builder().build())
 					.build());
 			assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
 					.action(ImageGenAction.GENERATE)
 					.extraParameter(ImageVibeTransferParameters.builder().build())
-					.model(ImageGenModel.ANIME_CURATED)
+					.model(ImageGenModel.ANIME_V2)
 					.build());
 		}
 		
