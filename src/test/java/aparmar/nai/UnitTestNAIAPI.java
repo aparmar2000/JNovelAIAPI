@@ -297,7 +297,7 @@ class UnitTestNAIAPI {
 		
 		ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
 				.input("yiff")
-				.model(ImageGenModel.FURRY)
+				.model(ImageGenModel.FURRY_V3)
 				.parameters(new ImageParameters(
 						1,
 						512,512,

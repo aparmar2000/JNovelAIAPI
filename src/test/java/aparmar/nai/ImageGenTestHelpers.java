@@ -11,21 +11,21 @@ import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
 import aparmar.nai.utils.AnnotationUtils;
 
 public class ImageGenTestHelpers {
-	static Stream<ImageGenModel> getDepreciatedModels() {
-		return Arrays.stream(ImageGenModel.values()).filter(m -> AnnotationUtils.isEnumValueDepreciated(m));
+	static Stream<ImageGenModel> getDeprecatedModels() {
+		return Arrays.stream(ImageGenModel.values()).filter(m -> AnnotationUtils.isEnumValueDeprecated(m));
 	}
-	static Stream<ImageGenModel> getHardDepreciatedModels() {
-		return Arrays.stream(ImageGenModel.values()).filter(m -> AnnotationUtils.isEnumValueHardDepreciated(m));
+	static Stream<ImageGenModel> getHardDeprecatedModels() {
+		return Arrays.stream(ImageGenModel.values()).filter(m -> AnnotationUtils.isEnumValueHardDeprecated(m));
 	}
-	static Stream<ImageGenModel> getNonDepreciatedModels() {
-		return Arrays.stream(ImageGenModel.values()).filter(m -> !AnnotationUtils.isEnumValueDepreciated(m));
+	static Stream<ImageGenModel> getNonDeprecatedModels() {
+		return Arrays.stream(ImageGenModel.values()).filter(m -> !AnnotationUtils.isEnumValueDeprecated(m));
 	}
 	
 	static Stream<ImageGenModel> getNonInpaintingModels() {
-		return getNonDepreciatedModels().filter(m->!m.isInpaintingModel());
+		return getNonDeprecatedModels().filter(m->!m.isInpaintingModel());
 	}
 	static Stream<ImageGenModel> getInpaintingModels() {
-		return getNonDepreciatedModels().filter(m->m.isInpaintingModel());
+		return getNonDeprecatedModels().filter(m->m.isInpaintingModel());
 	}
 	
 	static Stream<ImageGenModel> getImg2ImgModels() {

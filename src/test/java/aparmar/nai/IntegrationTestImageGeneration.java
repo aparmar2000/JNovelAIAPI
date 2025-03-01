@@ -285,7 +285,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 							false, false, false, 
 							ImageParameters.SamplingSchedule.NATIVE, 
 							true, ImageGenerationRequest.QualityTagsLocation.DEFAULT, 
-							1, ImageGenerationRequest.ANIME_V4_LIGHT_UC, 1,
+							1, ImageGenerationRequest.ANIME_V4_CURATED_LIGHT_UC, 1,
 							1))
 					.build();
 			ImageSetWrapper result = apiInstance.generateImage(testGenerationRequest);
@@ -318,7 +318,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 							false, false, false, 
 							ImageParameters.SamplingSchedule.NATIVE, 
 							true, ImageGenerationRequest.QualityTagsLocation.DEFAULT, 
-							1, ImageGenerationRequest.ANIME_V4_LIGHT_UC, 1,
+							1, ImageGenerationRequest.ANIME_V4_CURATED_LIGHT_UC, 1,
 							1))
 					.extraParameter(V4MultiCharacterParameters.builder()
 							.characterPrompt(CharacterPrompt.builder()

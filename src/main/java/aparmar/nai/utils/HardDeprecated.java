@@ -14,12 +14,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * A program element annotated &#64;HardDepreciated is one that programmers
- * are strongly discouraged from using. Usage may cause {@link HardDepreciationException} to be thrown.
+ * A program element annotated &#64;HardDeprecated is one that programmers
+ * are strongly discouraged from using. Usage may cause {@link HardDeprecationException} to be thrown.
  */
 @Documented
 @Retention(RUNTIME)
 @Target({ CONSTRUCTOR, FIELD, LOCAL_VARIABLE, METHOD, PACKAGE, PARAMETER, TYPE })
-public @interface HardDepreciated {
+public @interface HardDeprecated {
 
 }

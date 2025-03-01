@@ -47,7 +47,7 @@ import aparmar.nai.data.response.UserSubscription;
 import aparmar.nai.data.response.UserSubscription.ImageGenerationLimit;
 import aparmar.nai.data.response.UserSubscription.SubscriptionPerks;
 import aparmar.nai.data.response.UserSubscription.SubscriptionTier;
-import aparmar.nai.utils.HardDepreciationException;
+import aparmar.nai.utils.HardDeprecationException;
 import aparmar.nai.utils.InternalResourceLoader;
 import lombok.Data;
 
@@ -171,9 +171,9 @@ class UnitTestImageGenerationRequest {
     }
 
 	@ParameterizedTest
-	@MethodSource("aparmar.nai.ImageGenTestHelpers#getHardDepreciatedModels")
+	@MethodSource("aparmar.nai.ImageGenTestHelpers#getHardDeprecatedModels")
 	void testRemovedModelRejected(ImageGenModel testModel) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		assertThrows(HardDepreciationException.class, ()->ImageGenerationRequest.builder()
+		assertThrows(HardDeprecationException.class, ()->ImageGenerationRequest.builder()
 				.model(testModel)
 				.action(ImageGenAction.GENERATE)
 				.parameters(ImageInpaintParameters.builder().build())
@@ -217,7 +217,7 @@ class UnitTestImageGenerationRequest {
     class IncompatibleExtraParameters {
     	
     	@ParameterizedTest
-    	@MethodSource("aparmar.nai.ImageGenTestHelpers#getNonDepreciatedModels")
+    	@MethodSource("aparmar.nai.ImageGenTestHelpers#getNonDeprecatedModels")
 		void testModelIncompatibleExtraImageParameters(ImageGenModel testModel) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 			assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
 					.model(testModel)

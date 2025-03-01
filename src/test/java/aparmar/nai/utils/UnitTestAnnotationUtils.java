@@ -29,16 +29,16 @@ class UnitTestAnnotationUtils {
 	@Getter
 	@RequiredArgsConstructor
 	private static enum DepreciationTestEnum {
-		NOT_DEPRECIATED(AnnotationUtils.DepreciationLevel.NONE),
+		NOT_DEPRECIATED(AnnotationUtils.DeprecationLevel.NONE),
 		@Deprecated
-		DEPRECIATED_ONLY(AnnotationUtils.DepreciationLevel.NORMAL),
-		@HardDepreciated
-		HARD_DEPRECIATED_ONLY(AnnotationUtils.DepreciationLevel.HARD),
+		DEPRECIATED_ONLY(AnnotationUtils.DeprecationLevel.NORMAL),
+		@HardDeprecated
+		HARD_DEPRECIATED_ONLY(AnnotationUtils.DeprecationLevel.HARD),
 		@Deprecated
-		@HardDepreciated
-		BOTH_DEPRECIATION(AnnotationUtils.DepreciationLevel.HARD);
+		@HardDeprecated
+		BOTH_DEPRECIATION(AnnotationUtils.DeprecationLevel.HARD);
 		
-		private final AnnotationUtils.DepreciationLevel expectedDepreciationLevel;
+		private final AnnotationUtils.DeprecationLevel expectedDepreciationLevel;
 	}
 	
 	AutoCloseable mocksAutoCloseable;
@@ -62,31 +62,31 @@ class UnitTestAnnotationUtils {
     	
 		@ParameterizedTest
 		@EnumSource
-		void testGetEnumValueDepreciationLevel(DepreciationTestEnum testValue) {
-			assertEquals(testValue.getExpectedDepreciationLevel(), AnnotationUtils.getEnumValueDepreciationLevel(testValue));
+		void testGetEnumValueDeprecationLevel(DepreciationTestEnum testValue) {
+			assertEquals(testValue.getExpectedDepreciationLevel(), AnnotationUtils.getEnumValueDeprecationLevel(testValue));
 		}
 
 		@ParameterizedTest
 		@EnumSource
-		void testIsEnumValueDepreciated(DepreciationTestEnum testValue) {
-			assertEquals(testValue.getExpectedDepreciationLevel().isDepreciation(), AnnotationUtils.isEnumValueDepreciated(testValue));
+		void testIsEnumValueDeprecated(DepreciationTestEnum testValue) {
+			assertEquals(testValue.getExpectedDepreciationLevel().isDeprecation(), AnnotationUtils.isEnumValueDeprecated(testValue));
 		}
 
 		@ParameterizedTest
 		@EnumSource
-		void testIsEnumValueHardDepreciated(DepreciationTestEnum testValue) {
-			assertEquals(testValue.getExpectedDepreciationLevel() == AnnotationUtils.DepreciationLevel.HARD, AnnotationUtils.isEnumValueHardDepreciated(testValue));
+		void testIsEnumValueHardDeprecated(DepreciationTestEnum testValue) {
+			assertEquals(testValue.getExpectedDepreciationLevel() == AnnotationUtils.DeprecationLevel.HARD, AnnotationUtils.isEnumValueHardDeprecated(testValue));
 		}
 
 		@ParameterizedTest
 		@EnumSource
-		void testEnumThrowOrWarnAboutDepreciation(DepreciationTestEnum testValue) {
-			if (testValue.getExpectedDepreciationLevel() == AnnotationUtils.DepreciationLevel.HARD) {
-				assertThrows(HardDepreciationException.class, ()->AnnotationUtils.throwOrWarnAboutDepreciation(testValue, mockLogger));
+		void testEnumThrowOrWarnAboutDeprecation(DepreciationTestEnum testValue) {
+			if (testValue.getExpectedDepreciationLevel() == AnnotationUtils.DeprecationLevel.HARD) {
+				assertThrows(HardDeprecationException.class, ()->AnnotationUtils.throwOrWarnAboutDepreciation(testValue, mockLogger));
 			} else {
 				assertDoesNotThrow(()->AnnotationUtils.throwOrWarnAboutDepreciation(testValue, mockLogger));
 			}
-			if (testValue.getExpectedDepreciationLevel() == AnnotationUtils.DepreciationLevel.NORMAL) {
+			if (testValue.getExpectedDepreciationLevel() == AnnotationUtils.DeprecationLevel.NORMAL) {
 				verify(mockLogger, times(1)).warn(anyString(), eq(testValue));
 			}
 			verifyNoMoreInteractions(mockLogger);
@@ -96,13 +96,13 @@ class UnitTestAnnotationUtils {
 
 	@ParameterizedTest
 	@EnumSource
-	void testGenericThrowOrWarnAboutDepreciation(AnnotationUtils.DepreciationLevel testValue) {
-		if (testValue == AnnotationUtils.DepreciationLevel.HARD) {
-			assertThrows(HardDepreciationException.class, ()->AnnotationUtils.throwOrWarnAboutDepreciation(testValue, Function.identity(), mockLogger));
+	void testGenericThrowOrWarnAboutDeprecation(AnnotationUtils.DeprecationLevel testValue) {
+		if (testValue == AnnotationUtils.DeprecationLevel.HARD) {
+			assertThrows(HardDeprecationException.class, ()->AnnotationUtils.throwOrWarnAboutDeprecation(testValue, Function.identity(), mockLogger));
 		} else {
-			assertDoesNotThrow(()->AnnotationUtils.throwOrWarnAboutDepreciation(testValue, Function.identity(), mockLogger));
+			assertDoesNotThrow(()->AnnotationUtils.throwOrWarnAboutDeprecation(testValue, Function.identity(), mockLogger));
 		}
-		if (testValue == AnnotationUtils.DepreciationLevel.NORMAL) {
+		if (testValue == AnnotationUtils.DeprecationLevel.NORMAL) {
 			verify(mockLogger, times(1)).warn(anyString(), eq(testValue));
 		}
 		verifyNoMoreInteractions(mockLogger);
