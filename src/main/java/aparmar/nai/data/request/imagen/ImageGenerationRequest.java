@@ -21,6 +21,8 @@ import com.google.gson.annotations.SerializedName;
 
 import aparmar.nai.data.request.imagen.ImageParameters.ImageGenSampler;
 import aparmar.nai.data.response.UserSubscription;
+import aparmar.nai.utils.AnnotationUtils;
+import aparmar.nai.utils.HardDeprecated;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,7 +30,9 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -43,8 +47,20 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 	public static final String ANIME_LOW_QUALITY_UC = "nsfw, lowres, text, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry";
 	public static final String FURRY_V3_LIGHT_UC = "nsfw, {worst quality}, guide lines, unfinished, bad, url, tall image, widescreen, compression artifacts, unknown text";
 	public static final String FURRY_V3_HEAVY_UC = "nsfw, {{worst quality}}, [displeasing], {unusual pupils}, guide lines, {{unfinished}}, {bad}, url, artist name, {{tall image}}, mosaic, {sketch page}, comic panel, impact (font), [dated], {logo}, ych, {what}, {where is your god now}, {distorted text}, repeated text, {floating head}, {1994}, {widescreen}, absolutely everyone, sequence, {compression artifacts}, hard translated, {cropped}, {commissioner name}, unknown text, high contrast";
+	/**
+	 * @deprecated Use {@link ANIME_V4_CURATED_LIGHT_UC} instead. May be removed in future.
+	 */
+	@Deprecated
 	public static final String ANIME_V4_LIGHT_UC = "blurry, lowres, error, worst quality, bad quality, jpeg artifacts, very displeasing, logo, dated, signature";
+	/**
+	 * @deprecated Use {@link ANIME_V4_CURATED_HEAVY_UC} instead. May be removed in future.
+	 */
+	@Deprecated
 	public static final String ANIME_V4_HEAVY_UC = "blurry, lowres, error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, logo, dated, signature, multiple views, gigantic breasts";
+	public static final String ANIME_V4_CURATED_LIGHT_UC = ANIME_V4_LIGHT_UC;
+	public static final String ANIME_V4_CURATED_HEAVY_UC = ANIME_V4_HEAVY_UC;
+	public static final String ANIME_V4_FULL_LIGHT_UC = "blurry, lowres, error, worst quality, bad quality, jpeg artifacts, very displeasing";
+	public static final String ANIME_V4_FULL_HEAVY_UC = "blurry, lowres, error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, multiple views, logo, too many watermarks";
 	
 	public enum QualityTagsLocation {
 		DEFAULT,
@@ -59,7 +75,13 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		ANIME_V2("very aesthetic, best quality, absurdres", QualityTagsLocation.APPEND),
 		ANIME_V3("aesthetic, best quality, absurdres", QualityTagsLocation.APPEND),
 		FURRY_V3("{best quality}, {amazing quality}", QualityTagsLocation.APPEND),
-		ANIME_V4("amazing quality, very aesthetic, absurdres", QualityTagsLocation.APPEND);
+		ANIME_V4_CURATED("rating:general, best quality, very aesthetic, absurdres", QualityTagsLocation.APPEND),
+		ANIME_V4_FULL("no text, best quality, very aesthetic, absurdres", QualityTagsLocation.APPEND),
+		/**
+		 * Use {@link ANIME_V4_CURATED} instead. May be removed in future.
+		 */
+		@Deprecated
+		ANIME_V4("rating:general, best quality, very aesthetic, absurdres", QualityTagsLocation.APPEND);
 		
 		private final String tags;
 		private final QualityTagsLocation defaultLocation;
@@ -68,10 +90,28 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 	@Getter
 	@RequiredArgsConstructor
 	public enum ImageGenModel {
+		/**
+		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
+		 * This field will be removed in the future.
+		 */
+		@Deprecated
+		@HardDeprecated
 		@SerializedName("safe-diffusion")
 		ANIME_CURATED(QualityTagsPreset.V1_MODELS, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD, null),
+		/**
+		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
+		 * This field will be removed in the future.
+		 */
+		@Deprecated
+		@HardDeprecated
 		@SerializedName("nai-diffusion")
 		ANIME_FULL(QualityTagsPreset.V1_MODELS, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD, null),
+		/**
+		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
+		 * This field will be removed in the future.
+		 */
+		@Deprecated
+		@HardDeprecated
 		@SerializedName("nai-diffusion-furry")
 		FURRY(QualityTagsPreset.V1_MODELS, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD, null),
 		@SerializedName("nai-diffusion-2")
@@ -81,18 +121,42 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		@SerializedName("nai-diffusion-furry-3")
 		FURRY_V3(QualityTagsPreset.FURRY_V3, false, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), ImageGenModel::estimateAnlasCostSDXL, null),
 		@SerializedName("nai-diffusion-4-curated-preview")
-		ANIME_V4_CURATED(QualityTagsPreset.ANIME_V4, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
-		
+		ANIME_V4_CURATED(QualityTagsPreset.ANIME_V4_CURATED, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
+		@SerializedName("nai-diffusion-4-full")
+		ANIME_V4_FULL(QualityTagsPreset.ANIME_V4_FULL, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
+
+		/**
+		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
+		 * This field will be removed in the future.
+		 */
+		@Deprecated
+		@HardDeprecated
 		@SerializedName("safe-diffusion-inpainting")
 		ANIME_CURATED_INPAINT(QualityTagsPreset.V1_MODELS, true, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD, null),
+		/**
+		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
+		 * This field will be removed in the future.
+		 */
+		@Deprecated
+		@HardDeprecated
 		@SerializedName("nai-diffusion-inpainting")
 		ANIME_FULL_INPAINT(QualityTagsPreset.V1_MODELS, true, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD, null),
+		/**
+		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
+		 * This field will be removed in the future.
+		 */
+		@Deprecated
+		@HardDeprecated
 		@SerializedName("furry-diffusion-inpainting")
 		FURRY_INPAINT(QualityTagsPreset.V1_MODELS, true, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD, null),
 		@SerializedName("nai-diffusion-3-inpainting")
 		ANIME_V3_INPAINT(QualityTagsPreset.ANIME_V3, true, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), ImageGenModel::estimateAnlasCostSDXL, null),
 		@SerializedName("nai-diffusion-furry-3-inpainting")
-		FURRY_V3_INPAINT(QualityTagsPreset.FURRY_V3, true, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), ImageGenModel::estimateAnlasCostSDXL, null);
+		FURRY_V3_INPAINT(QualityTagsPreset.FURRY_V3, true, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), ImageGenModel::estimateAnlasCostSDXL, null),
+		@SerializedName("nai-diffusion-4-curated-inpainting")
+		ANIME_V4_CURATED_INPAINT(QualityTagsPreset.ANIME_V4_CURATED, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
+		@SerializedName("nai-diffusion-4-full-inpainting")
+		ANIME_V4_FULL_INPAINT(QualityTagsPreset.ANIME_V4_FULL, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4);
 		
 		private final QualityTagsPreset qualityTagsPreset;
 		private final boolean inpaintingModel;
@@ -287,6 +351,8 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 	
 	public static class ImageGenerationRequestBuilder {
 		public ImageGenerationRequestBuilder model(ImageGenModel model) {
+			AnnotationUtils.throwOrWarnAboutDepreciation(model, log);
+			
 			if (this.parameters != null 
 					&& (this.parameters instanceof ImageInpaintParameters) != model.isInpaintingModel()) {
 				if (this.parameters instanceof ImageInpaintParameters) {

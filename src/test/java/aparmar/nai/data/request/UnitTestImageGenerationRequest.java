@@ -47,6 +47,7 @@ import aparmar.nai.data.response.UserSubscription;
 import aparmar.nai.data.response.UserSubscription.ImageGenerationLimit;
 import aparmar.nai.data.response.UserSubscription.SubscriptionPerks;
 import aparmar.nai.data.response.UserSubscription.SubscriptionTier;
+import aparmar.nai.utils.HardDeprecationException;
 import aparmar.nai.utils.InternalResourceLoader;
 import lombok.Data;
 
@@ -58,12 +59,12 @@ class UnitTestImageGenerationRequest {
 		@Test
 		void testImageGenerationRequestDataAnnotation() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 			ImageGenerationRequest testInstance1 = ImageGenerationRequest.builder()
-					.model(ImageGenModel.ANIME_CURATED)
+					.model(ImageGenModel.ANIME_V3)
 					.action(ImageGenAction.GENERATE)
 					.build();
 			ImageGenerationRequest testInstance2 = ImageGenerationRequest.builder()
 					.input("input")
-					.model(ImageGenModel.FURRY)
+					.model(ImageGenModel.FURRY_V3)
 					.action(ImageGenAction.IMG2IMG)
 					.parameters(ImageParameters.builder().build())
 					.extraParameter(Image2ImageParameters.builder().build())
@@ -169,48 +170,64 @@ class UnitTestImageGenerationRequest {
 		}
     }
 
-	@Test
-	void testNonInpaintModelRejectsImage2ImageParameters() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	@ParameterizedTest
+	@MethodSource("aparmar.nai.ImageGenTestHelpers#getHardDeprecatedModels")
+	void testRemovedModelRejected(ImageGenModel testModel) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		assertThrows(HardDeprecationException.class, ()->ImageGenerationRequest.builder()
+				.model(testModel)
+				.action(ImageGenAction.GENERATE)
+				.parameters(ImageInpaintParameters.builder().build())
+				.build());
+	}    
+
+	@ParameterizedTest
+	@MethodSource("aparmar.nai.ImageGenTestHelpers#getNonInpaintingModels")
+	void testNonInpaintModelRejectsImage2ImageParameters(ImageGenModel testModel) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
-				.model(ImageGenModel.ANIME_V3)
+				.model(testModel)
 				.action(ImageGenAction.GENERATE)
 				.parameters(ImageInpaintParameters.builder().build())
 				.build());
 		assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
 				.action(ImageGenAction.GENERATE)
 				.parameters(ImageInpaintParameters.builder().build())
-				.model(ImageGenModel.ANIME_V3)
-				.build());
-	}
-	
-	@Test
-	void testInpaintModelRejectsNonImage2ImageParameters() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
-				.model(ImageGenModel.ANIME_V3_INPAINT)
-				.action(ImageGenAction.GENERATE)
-				.parameters(ImageParameters.builder().build())
-				.build());
-		assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
-				.action(ImageGenAction.GENERATE)
-				.parameters(ImageParameters.builder().build())
-				.model(ImageGenModel.ANIME_V3_INPAINT)
+				.model(testModel)
 				.build());
 	}
 
+	@ParameterizedTest
+	@MethodSource("aparmar.nai.ImageGenTestHelpers#getInpaintingModels")
+	void testInpaintModelRejectsNonImage2ImageParameters(ImageGenModel testModel) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
+				.model(testModel)
+				.action(ImageGenAction.GENERATE)
+				.parameters(ImageParameters.builder().build())
+				.build());
+		assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
+				.action(ImageGenAction.GENERATE)
+				.parameters(ImageParameters.builder().build())
+				.model(testModel)
+				.build());
+	}
+
+	
+	private static class TestIncompatibleExtraParameters extends AbstractExtraImageParameters {}
     @Nested
     @DisplayName("incompatible extra parameters are blocked")
     class IncompatibleExtraParameters {
-		@Test
-		void testModelIncompatibleExtraImageParameters() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    	
+    	@ParameterizedTest
+    	@MethodSource("aparmar.nai.ImageGenTestHelpers#getNonDeprecatedModels")
+		void testModelIncompatibleExtraImageParameters(ImageGenModel testModel) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 			assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
-					.model(ImageGenModel.ANIME_CURATED)
+					.model(testModel)
 					.action(ImageGenAction.GENERATE)
-					.extraParameter(ImageVibeTransferParameters.builder().build())
+					.extraParameter(new TestIncompatibleExtraParameters())
 					.build());
 			assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
 					.action(ImageGenAction.GENERATE)
-					.extraParameter(ImageVibeTransferParameters.builder().build())
-					.model(ImageGenModel.ANIME_CURATED)
+					.extraParameter(new TestIncompatibleExtraParameters())
+					.model(testModel)
 					.build());
 		}
 		
