@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.Arrays;
-import java.util.stream.Stream;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -28,38 +26,11 @@ import aparmar.nai.data.request.imagen.ImageVibeTransferParameters;
 import aparmar.nai.data.request.imagen.MultiCharacterParameters.CharacterPrompt;
 import aparmar.nai.data.request.imagen.V4MultiCharacterParameters;
 import aparmar.nai.data.response.ImageSetWrapper;
-import aparmar.nai.utils.AnnotationUtils;
 import aparmar.nai.utils.InternalResourceLoader;
 
 class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
-	
-	static Stream<ImageGenModel> getNonDepreciatedModels() {
-		return Arrays.stream(ImageGenModel.values()).filter(m -> !AnnotationUtils.isEnumValueDepreciated(m));
-	}
-	static Stream<ImageGenModel> getNonInpaintingModels() {
-		return getNonDepreciatedModels().filter(m->!m.isInpaintingModel());
-	}
-	static Stream<ImageGenModel> getInpaintingModels() {
-		return getNonDepreciatedModels().filter(m->m.isInpaintingModel());
-	}
-	static Stream<ImageGenModel> getImg2ImgModels() {
-		return getNonInpaintingModels().filter(m->m.doesModelSupportExtraParameterType(Image2ImageParameters.class));
-	}
-	static Stream<ImageGenModel> getControlNetModels() {
-		return getNonInpaintingModels().filter(m->m.doesModelSupportExtraParameterType(ImageControlNetParameters.class));
-	}
-	static Stream<ImageGenModel> getVibeTransferModels() {
-		return getNonInpaintingModels().filter(m->m.doesModelSupportExtraParameterType(ImageVibeTransferParameters.class));
-	}
-	static Stream<ImageGenModel> getVibeTransferInpaintingModels() {
-		return getInpaintingModels().filter(m->m.doesModelSupportExtraParameterType(ImageVibeTransferParameters.class));
-	}
-	static Stream<ImageGenModel> getMultiCharacterModels() {
-		return getNonInpaintingModels().filter(m->m.doesModelSupportExtraParameterType(V4MultiCharacterParameters.class));
-	}
-
 	@ParameterizedTest
-	@MethodSource("getNonInpaintingModels")
+	@MethodSource("aparmar.nai.ImageGenTestHelpers#getNonInpaintingModels")
 	void testBasicImageGeneration(ImageGenModel imageGenModel) throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
 			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
@@ -93,7 +64,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 
 	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
 	@ParameterizedTest
-	@MethodSource("getInpaintingModels")
+	@MethodSource("aparmar.nai.ImageGenTestHelpers#getInpaintingModels")
 	void testImageInpainting(ImageGenModel imageGenModel) throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
 			BufferedImage baseImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.jpg"));
@@ -132,7 +103,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 
 	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
 	@ParameterizedTest
-	@MethodSource("getImg2ImgModels")
+	@MethodSource("aparmar.nai.ImageGenTestHelpers#getImg2ImgModels")
 	void testImage2ImageGeneration(ImageGenModel imageGenModel) throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
 			BufferedImage baseImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.jpg"));
@@ -174,7 +145,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 
 	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
 	@ParameterizedTest
-	@MethodSource("getControlNetModels")
+	@MethodSource("aparmar.nai.ImageGenTestHelpers#getControlNetModels")
 	void testControlledImageGeneration(ImageGenModel imageGenModel) throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
 			BufferedImage comditionImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_scribbles.png"));
@@ -214,7 +185,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 
 	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
 	@ParameterizedTest
-	@MethodSource("getVibeTransferModels")
+	@MethodSource("aparmar.nai.ImageGenTestHelpers#getVibeTransferModels")
 	void testVibeTransferImageGeneration(ImageGenModel imageGenModel) throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
 			BufferedImage conditionImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.jpg"));
@@ -255,7 +226,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 
 	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
 	@ParameterizedTest
-	@MethodSource("getVibeTransferInpaintingModels")
+	@MethodSource("aparmar.nai.ImageGenTestHelpers#getVibeTransferInpaintingModels")
 	void testVibeTransferInpaintingImageGeneration(ImageGenModel imageGenModel) throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
 			BufferedImage baseImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.jpg"));
@@ -299,7 +270,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 	}
 
 	@ParameterizedTest
-	@MethodSource("getMultiCharacterModels")
+	@MethodSource("aparmar.nai.ImageGenTestHelpers#getMultiCharacterModels")
 	void testV4SingleCharacterImageGeneration(ImageGenModel imageGenModel) throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
 			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
@@ -332,7 +303,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 	}
 
 	@ParameterizedTest
-	@MethodSource("getMultiCharacterModels")
+	@MethodSource("aparmar.nai.ImageGenTestHelpers#getMultiCharacterModels")
 	void testV4MultiCharacterImageGeneration(ImageGenModel imageGenModel) throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
 			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
