@@ -21,6 +21,8 @@ import com.google.gson.annotations.SerializedName;
 
 import aparmar.nai.data.request.imagen.ImageParameters.ImageGenSampler;
 import aparmar.nai.data.response.UserSubscription;
+import aparmar.nai.utils.AnnotationUtils;
+import aparmar.nai.utils.HardDepreciated;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,7 +30,9 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -86,10 +90,28 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 	@Getter
 	@RequiredArgsConstructor
 	public enum ImageGenModel {
+		/**
+		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
+		 * This field will be removed in the future.
+		 */
+		@Deprecated
+		@HardDepreciated
 		@SerializedName("safe-diffusion")
 		ANIME_CURATED(QualityTagsPreset.V1_MODELS, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD, null),
+		/**
+		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
+		 * This field will be removed in the future.
+		 */
+		@Deprecated
+		@HardDepreciated
 		@SerializedName("nai-diffusion")
 		ANIME_FULL(QualityTagsPreset.V1_MODELS, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD, null),
+		/**
+		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
+		 * This field will be removed in the future.
+		 */
+		@Deprecated
+		@HardDepreciated
 		@SerializedName("nai-diffusion-furry")
 		FURRY(QualityTagsPreset.V1_MODELS, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD, null),
 		@SerializedName("nai-diffusion-2")
@@ -102,11 +124,29 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		ANIME_V4_CURATED(QualityTagsPreset.ANIME_V4_CURATED, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
 		@SerializedName("nai-diffusion-4-full")
 		ANIME_V4_FULL(QualityTagsPreset.ANIME_V4_FULL, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
-		
+
+		/**
+		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
+		 * This field will be removed in the future.
+		 */
+		@Deprecated
+		@HardDepreciated
 		@SerializedName("safe-diffusion-inpainting")
 		ANIME_CURATED_INPAINT(QualityTagsPreset.V1_MODELS, true, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD, null),
+		/**
+		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
+		 * This field will be removed in the future.
+		 */
+		@Deprecated
+		@HardDepreciated
 		@SerializedName("nai-diffusion-inpainting")
 		ANIME_FULL_INPAINT(QualityTagsPreset.V1_MODELS, true, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD, null),
+		/**
+		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
+		 * This field will be removed in the future.
+		 */
+		@Deprecated
+		@HardDepreciated
 		@SerializedName("furry-diffusion-inpainting")
 		FURRY_INPAINT(QualityTagsPreset.V1_MODELS, true, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD, null),
 		@SerializedName("nai-diffusion-3-inpainting")
@@ -311,6 +351,8 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 	
 	public static class ImageGenerationRequestBuilder {
 		public ImageGenerationRequestBuilder model(ImageGenModel model) {
+			AnnotationUtils.throwOrWarnAboutDepreciation(model, log);
+			
 			if (this.parameters != null 
 					&& (this.parameters instanceof ImageInpaintParameters) != model.isInpaintingModel()) {
 				if (this.parameters instanceof ImageInpaintParameters) {
