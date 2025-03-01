@@ -28,19 +28,13 @@ import aparmar.nai.data.request.imagen.ImageVibeTransferParameters;
 import aparmar.nai.data.request.imagen.MultiCharacterParameters.CharacterPrompt;
 import aparmar.nai.data.request.imagen.V4MultiCharacterParameters;
 import aparmar.nai.data.response.ImageSetWrapper;
+import aparmar.nai.utils.AnnotationUtils;
 import aparmar.nai.utils.InternalResourceLoader;
 
 class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 	
 	static Stream<ImageGenModel> getNonDepreciatedModels() {
-		return Arrays.stream(ImageGenModel.values()).filter(m -> {
-			try {
-				return !ImageGenModel.class.getField(m.name()).isAnnotationPresent(Deprecated.class);
-			} catch (NoSuchFieldException | SecurityException e) {
-				e.printStackTrace();
-				return false;
-			}
-		});
+		return Arrays.stream(ImageGenModel.values()).filter(m -> !AnnotationUtils.isEnumValueDepreciated(m));
 	}
 	static Stream<ImageGenModel> getNonInpaintingModels() {
 		return getNonDepreciatedModels().filter(m->!m.isInpaintingModel());
