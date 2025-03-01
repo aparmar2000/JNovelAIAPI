@@ -5,12 +5,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import aparmar.nai.data.request.Base64Image;
 import aparmar.nai.data.request.imagen.Image2ImageParameters;
@@ -19,23 +22,56 @@ import aparmar.nai.data.request.imagen.ImageControlNetParameters.ControlnetModel
 import aparmar.nai.data.request.imagen.ImageGenerationRequest;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenAction;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
-import aparmar.nai.data.request.imagen.MultiCharacterParameters.CharacterPrompt;
 import aparmar.nai.data.request.imagen.ImageInpaintParameters;
 import aparmar.nai.data.request.imagen.ImageParameters;
 import aparmar.nai.data.request.imagen.ImageVibeTransferParameters;
+import aparmar.nai.data.request.imagen.MultiCharacterParameters.CharacterPrompt;
 import aparmar.nai.data.request.imagen.V4MultiCharacterParameters;
 import aparmar.nai.data.response.ImageSetWrapper;
 import aparmar.nai.utils.InternalResourceLoader;
 
 class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
+	
+	static Stream<ImageGenModel> getNonDepreciatedModels() {
+		return Arrays.stream(ImageGenModel.values()).filter(m -> {
+			try {
+				return !ImageGenModel.class.getField(m.name()).isAnnotationPresent(Deprecated.class);
+			} catch (NoSuchFieldException | SecurityException e) {
+				e.printStackTrace();
+				return false;
+			}
+		});
+	}
+	static Stream<ImageGenModel> getNonInpaintingModels() {
+		return getNonDepreciatedModels().filter(m->!m.isInpaintingModel());
+	}
+	static Stream<ImageGenModel> getInpaintingModels() {
+		return getNonDepreciatedModels().filter(m->m.isInpaintingModel());
+	}
+	static Stream<ImageGenModel> getImg2ImgModels() {
+		return getNonInpaintingModels().filter(m->m.doesModelSupportExtraParameterType(Image2ImageParameters.class));
+	}
+	static Stream<ImageGenModel> getControlNetModels() {
+		return getNonInpaintingModels().filter(m->m.doesModelSupportExtraParameterType(ImageControlNetParameters.class));
+	}
+	static Stream<ImageGenModel> getVibeTransferModels() {
+		return getNonInpaintingModels().filter(m->m.doesModelSupportExtraParameterType(ImageVibeTransferParameters.class));
+	}
+	static Stream<ImageGenModel> getVibeTransferInpaintingModels() {
+		return getInpaintingModels().filter(m->m.doesModelSupportExtraParameterType(ImageVibeTransferParameters.class));
+	}
+	static Stream<ImageGenModel> getMultiCharacterModels() {
+		return getNonInpaintingModels().filter(m->m.doesModelSupportExtraParameterType(V4MultiCharacterParameters.class));
+	}
 
-	@Test
-	void testBasicImageGeneration() throws AssertionError, Exception {
+	@ParameterizedTest
+	@MethodSource("getNonInpaintingModels")
+	void testBasicImageGeneration(ImageGenModel imageGenModel) throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
 			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
 					.input("portrait of a woman")
 					.action(ImageGenAction.GENERATE)
-					.model(ImageGenModel.ANIME_V3)
+					.model(imageGenModel)
 					.parameters(new ImageParameters(
 							1,
 							512,512,
@@ -56,13 +92,15 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 			assertEquals(512, resultImage.getRenderedImage().getHeight());
 			assertEquals(512, resultImage.getRenderedImage().getWidth());
 			
-			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"basic_generation_test.png"));
+			if (!"True".equals(System.getenv("saveTestImages"))) { return; }
+			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+imageGenModel+"_basic_generation_test.png"));
 		});
 	}
 
 	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
-	@Test
-	void testImageInpainting() throws AssertionError, Exception {
+	@ParameterizedTest
+	@MethodSource("getInpaintingModels")
+	void testImageInpainting(ImageGenModel imageGenModel) throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
 			BufferedImage baseImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.jpg"));
 			BufferedImage maskImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_mask.png"));
@@ -70,7 +108,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
 					.input("portrait of a woman")
 					.action(ImageGenAction.INFILL)
-					.model(ImageGenModel.ANIME_V3_INPAINT)
+					.model(imageGenModel)
 					.parameters(ImageInpaintParameters.builder()
 							.seed(1)
 							.width(512)
@@ -92,21 +130,23 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 			assertNotNull(resultImage);
 			assertEquals(512, resultImage.getRenderedImage().getHeight());
 			assertEquals(512, resultImage.getRenderedImage().getWidth());
-			
-			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"inpaint_test.png"));
+
+			if (!"True".equals(System.getenv("saveTestImages"))) { return; }
+			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+imageGenModel+"_inpaint_test.png"));
 		});
 	}
 
 	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
-	@Test
-	void testImage2ImageGeneration() throws AssertionError, Exception {
+	@ParameterizedTest
+	@MethodSource("getImg2ImgModels")
+	void testImage2ImageGeneration(ImageGenModel imageGenModel) throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
 			BufferedImage baseImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.jpg"));
 			
 			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
 					.input("portrait of a woman")
 					.action(ImageGenAction.IMG2IMG)
-					.model(ImageGenModel.ANIME_V3)
+					.model(imageGenModel)
 					.parameters(ImageParameters.builder()
 							.seed(1)
 							.width(512)
@@ -132,21 +172,23 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 			assertNotNull(resultImage);
 			assertEquals(512, resultImage.getRenderedImage().getHeight());
 			assertEquals(512, resultImage.getRenderedImage().getWidth());
-			
-			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"img2img_test.png"));
+
+			if (!"True".equals(System.getenv("saveTestImages"))) { return; }
+			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+imageGenModel+"_img2img_test.png"));
 		});
 	}
 
 	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
-	@Test
-	void testControlledImageGeneration() throws AssertionError, Exception {
+	@ParameterizedTest
+	@MethodSource("getControlNetModels")
+	void testControlledImageGeneration(ImageGenModel imageGenModel) throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
 			BufferedImage comditionImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_scribbles.png"));
 			
 			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
 					.input("portrait of a woman")
 					.action(ImageGenAction.GENERATE)
-					.model(ImageGenModel.ANIME_V2)
+					.model(imageGenModel)
 					.parameters(ImageParameters.builder()
 							.seed(1)
 							.width(512)
@@ -170,21 +212,23 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 			assertNotNull(resultImage);
 			assertEquals(512, resultImage.getRenderedImage().getHeight());
 			assertEquals(512, resultImage.getRenderedImage().getWidth());
-			
-			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"controlnet_conditioned_test.png"));
+
+			if (!"True".equals(System.getenv("saveTestImages"))) { return; }
+			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+imageGenModel+"_controlnet_conditioned_test.png"));
 		});
 	}
 
 	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
-	@Test
-	void testVibeTransferImageGeneration() throws AssertionError, Exception {
+	@ParameterizedTest
+	@MethodSource("getVibeTransferModels")
+	void testVibeTransferImageGeneration(ImageGenModel imageGenModel) throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
 			BufferedImage conditionImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.jpg"));
 			
 			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
 					.input("portrait of a woman")
 					.action(ImageGenAction.GENERATE)
-					.model(ImageGenModel.ANIME_V3)
+					.model(imageGenModel)
 					.parameters(ImageParameters.builder()
 							.seed(1)
 							.width(512)
@@ -209,14 +253,16 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 			assertNotNull(resultImage);
 			assertEquals(512, resultImage.getRenderedImage().getHeight());
 			assertEquals(512, resultImage.getRenderedImage().getWidth());
-			
-			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"vibe_transfer_test.png"));
+
+			if (!"True".equals(System.getenv("saveTestImages"))) { return; }
+			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+imageGenModel+"_vibe_transfer_test.png"));
 		});
 	}
 
 	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
-	@Test
-	void testVibeTransferInpaintingImageGeneration() throws AssertionError, Exception {
+	@ParameterizedTest
+	@MethodSource("getVibeTransferInpaintingModels")
+	void testVibeTransferInpaintingImageGeneration(ImageGenModel imageGenModel) throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
 			BufferedImage baseImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.jpg"));
 			BufferedImage maskImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_mask.png"));
@@ -225,7 +271,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
 					.input("portrait of a woman")
 					.action(ImageGenAction.INFILL)
-					.model(ImageGenModel.ANIME_V3_INPAINT)
+					.model(imageGenModel)
 					.parameters(ImageInpaintParameters.builder()
 							.seed(1)
 							.width(512)
@@ -252,18 +298,20 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 			assertNotNull(resultImage);
 			assertEquals(512, resultImage.getRenderedImage().getHeight());
 			assertEquals(512, resultImage.getRenderedImage().getWidth());
-			
-			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"vibe_transfer_inpaint_test.png"));
+
+			if (!"True".equals(System.getenv("saveTestImages"))) { return; }
+			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+imageGenModel+"_vibe_transfer_inpaint_test.png"));
 		});
 	}
 
-	@Test
-	void testV4SingleCharacterImageGeneration() throws AssertionError, Exception {
+	@ParameterizedTest
+	@MethodSource("getMultiCharacterModels")
+	void testV4SingleCharacterImageGeneration(ImageGenModel imageGenModel) throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
 			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
 					.input("portrait of a woman")
 					.action(ImageGenAction.GENERATE)
-					.model(ImageGenModel.ANIME_V4_CURATED)
+					.model(imageGenModel)
 					.parameters(new ImageParameters(
 							1,
 							512,512,
@@ -283,18 +331,20 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 			assertNotNull(resultImage);
 			assertEquals(512, resultImage.getRenderedImage().getHeight());
 			assertEquals(512, resultImage.getRenderedImage().getWidth());
-			
-			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"v4_single_character_test.png"));
+
+			if (!"True".equals(System.getenv("saveTestImages"))) { return; }
+			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+imageGenModel+"_v4_single_character_test.png"));
 		});
 	}
 
-	@Test
-	void testV4MultiCharacterImageGeneration() throws AssertionError, Exception {
+	@ParameterizedTest
+	@MethodSource("getMultiCharacterModels")
+	void testV4MultiCharacterImageGeneration(ImageGenModel imageGenModel) throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
 			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
 					.input("2girls. Painting of two women.")
 					.action(ImageGenAction.GENERATE)
-					.model(ImageGenModel.ANIME_V4_CURATED)
+					.model(imageGenModel)
 					.parameters(new ImageParameters(
 							1,
 							512,512,
@@ -322,8 +372,9 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 			assertNotNull(resultImage);
 			assertEquals(512, resultImage.getRenderedImage().getHeight());
 			assertEquals(512, resultImage.getRenderedImage().getWidth());
-			
-			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"v4_multi_character_test.png"));
+
+			if (!"True".equals(System.getenv("saveTestImages"))) { return; }
+			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+imageGenModel+"_v4_multi_character_test.png"));
 		});
 	}
 
