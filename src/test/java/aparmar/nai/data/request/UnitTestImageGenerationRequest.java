@@ -170,58 +170,64 @@ class UnitTestImageGenerationRequest {
 		}
     }
 
-	@SuppressWarnings("deprecation")
-	@Test
-	void testRemovedModelRejected() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	@ParameterizedTest
+	@MethodSource("aparmar.nai.ImageGenTestHelpers#getHardDepreciatedModels")
+	void testRemovedModelRejected(ImageGenModel testModel) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		assertThrows(HardDepreciationException.class, ()->ImageGenerationRequest.builder()
-				.model(ImageGenModel.ANIME_CURATED)
+				.model(testModel)
 				.action(ImageGenAction.GENERATE)
 				.parameters(ImageInpaintParameters.builder().build())
 				.build());
 	}    
-    
-	@Test
-	void testNonInpaintModelRejectsImage2ImageParameters() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+
+	@ParameterizedTest
+	@MethodSource("aparmar.nai.ImageGenTestHelpers#getNonInpaintingModels")
+	void testNonInpaintModelRejectsImage2ImageParameters(ImageGenModel testModel) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
-				.model(ImageGenModel.ANIME_V3)
+				.model(testModel)
 				.action(ImageGenAction.GENERATE)
 				.parameters(ImageInpaintParameters.builder().build())
 				.build());
 		assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
 				.action(ImageGenAction.GENERATE)
 				.parameters(ImageInpaintParameters.builder().build())
-				.model(ImageGenModel.ANIME_V3)
-				.build());
-	}
-	
-	@Test
-	void testInpaintModelRejectsNonImage2ImageParameters() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
-				.model(ImageGenModel.ANIME_V3_INPAINT)
-				.action(ImageGenAction.GENERATE)
-				.parameters(ImageParameters.builder().build())
-				.build());
-		assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
-				.action(ImageGenAction.GENERATE)
-				.parameters(ImageParameters.builder().build())
-				.model(ImageGenModel.ANIME_V3_INPAINT)
+				.model(testModel)
 				.build());
 	}
 
+	@ParameterizedTest
+	@MethodSource("aparmar.nai.ImageGenTestHelpers#getInpaintingModels")
+	void testInpaintModelRejectsNonImage2ImageParameters(ImageGenModel testModel) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
+				.model(testModel)
+				.action(ImageGenAction.GENERATE)
+				.parameters(ImageParameters.builder().build())
+				.build());
+		assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
+				.action(ImageGenAction.GENERATE)
+				.parameters(ImageParameters.builder().build())
+				.model(testModel)
+				.build());
+	}
+
+	
+	private static class TestIncompatibleExtraParameters extends AbstractExtraImageParameters {}
     @Nested
     @DisplayName("incompatible extra parameters are blocked")
     class IncompatibleExtraParameters {
-		@Test
-		void testModelIncompatibleExtraImageParameters() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    	
+    	@ParameterizedTest
+    	@MethodSource("aparmar.nai.ImageGenTestHelpers#getNonDepreciatedModels")
+		void testModelIncompatibleExtraImageParameters(ImageGenModel testModel) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 			assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
-					.model(ImageGenModel.ANIME_V2)
+					.model(testModel)
 					.action(ImageGenAction.GENERATE)
-					.extraParameter(ImageVibeTransferParameters.builder().build())
+					.extraParameter(new TestIncompatibleExtraParameters())
 					.build());
 			assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
 					.action(ImageGenAction.GENERATE)
-					.extraParameter(ImageVibeTransferParameters.builder().build())
-					.model(ImageGenModel.ANIME_V2)
+					.extraParameter(new TestIncompatibleExtraParameters())
+					.model(testModel)
 					.build());
 		}
 		
