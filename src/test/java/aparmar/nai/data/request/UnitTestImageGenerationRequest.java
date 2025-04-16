@@ -282,6 +282,28 @@ class UnitTestImageGenerationRequest {
 					.extraParameter(ImageVibeTransferParameters.builder().build())
 					.build());
 		}
+		
+		@Test
+		void testIncompatibleV4VibeEncodings() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+			assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
+					.model(ImageGenModel.ANIME_V4_FULL)
+					.action(ImageGenAction.GENERATE)
+					.extraParameter(V4ImageVibeTransferParameters.builder()
+							.vibeData(V4ImageVibeTransferParameters.VibeTransferData.builder()
+									.vibeData(new V4VibeData(1, "a", ImageGenModel.ANIME_V4_CURATED, new byte[0]))
+									.build())
+							.build())
+					.build());
+			assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
+					.action(ImageGenAction.GENERATE)
+					.extraParameter(V4ImageVibeTransferParameters.builder()
+							.vibeData(V4ImageVibeTransferParameters.VibeTransferData.builder()
+									.vibeData(new V4VibeData(1, "a", ImageGenModel.ANIME_V4_FULL, new byte[0]))
+									.build())
+							.build())
+					.model(ImageGenModel.ANIME_V4_CURATED)
+					.build());
+		}
     }
 
     @Nested
