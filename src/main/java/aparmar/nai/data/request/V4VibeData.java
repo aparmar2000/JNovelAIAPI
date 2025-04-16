@@ -1,6 +1,5 @@
 package aparmar.nai.data.request;
 
-import aparmar.nai.data.request.imagen.ImageGenerationRequest;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
 import lombok.Value;
 

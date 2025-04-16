@@ -3,7 +3,6 @@ package aparmar.nai.data.request;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 
 import org.junit.jupiter.api.Test;
 
