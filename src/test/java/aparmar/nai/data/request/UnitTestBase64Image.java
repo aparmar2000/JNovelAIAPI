@@ -45,8 +45,8 @@ class UnitTestBase64Image {
 		BufferedImage baseImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_lowres.jpg"));
 		Base64Image testBase64Image = new Base64Image(baseImage);
 		
-		String md5 = testBase64Image.generateMD5();
-		assertEquals("fca85aa07a56d17325c5c903794d6315", md5);
+		String sha256 = testBase64Image.generateSha256();
+		assertEquals("401924e7a87f8904a338996efa5ae50e8ddc45e3e656acac4b5b51b81a663879", sha256);
 	}
 
 }

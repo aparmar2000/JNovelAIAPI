@@ -38,7 +38,7 @@ public class Base64Image implements JsonSerializer<Base64Image>, JsonDeserialize
 	protected boolean isMask = false;
 	@EqualsAndHashCode.Exclude
 	@Getter(value = AccessLevel.NONE)
-	private transient AtomicReference<String> imageMd5 = new AtomicReference<String>();
+	private transient AtomicReference<String> imageSha256 = new AtomicReference<String>();
 	
 	public Base64Image(BufferedImage image) {
 		this.image = image;
@@ -55,9 +55,9 @@ public class Base64Image implements JsonSerializer<Base64Image>, JsonDeserialize
 	}
 	
 	public void setImage(BufferedImage image) {
-		imageMd5.set(null);
+		imageSha256.set(null);
 		this.image = image;
-		imageMd5.set(null);
+		imageSha256.set(null);
 	}
 
 	@Override
@@ -92,10 +92,10 @@ public class Base64Image implements JsonSerializer<Base64Image>, JsonDeserialize
 		return new Base64Image();
 	}
 
-    public String generateMD5() {
-    	return imageMd5.updateAndGet(v->{
+    public String generateSha256() {
+    	return imageSha256.updateAndGet(v->{
     		if (v!=null) { return v; }            
-            return ByteArrayEncodings.encodeBufferedImageToMd5Hex(image);
+            return ByteArrayEncodings.encodeBufferedImageToSha256Hex(image);
     	});
     }
 }

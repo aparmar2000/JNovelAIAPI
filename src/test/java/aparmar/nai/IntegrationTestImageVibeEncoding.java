@@ -35,7 +35,7 @@ class IntegrationTestImageVibeEncoding extends AbstractFeatureIntegrationTest {
 			assertNotNull(result);
 			assertEquals(1, result.getInfoExtracted());
 			assertEquals(ImageGenModel.ANIME_V4_FULL, result.getModel());
-			assertEquals(baseImage64.generateMD5(), result.getSourceHash());
+			assertEquals(baseImage64.generateSha256(), result.getSourceHash());
 			assertNotNull(result.getEncoding());
 			assertTrue(result.getEncoding().length>0, "Result encoding should not be empty");
 		});

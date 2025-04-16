@@ -34,11 +34,15 @@ public class ByteArrayEncodings {
 	}
 	
 	
+	public static String encodeByteArrayWithDigest(byte[] bytes, String algorithm) throws NoSuchAlgorithmException {
+		MessageDigest md = MessageDigest.getInstance(algorithm);
+        byte[] hashBytes = md.digest(bytes);
+        return Hex.encodeHexString(hashBytes);
+	}	
+	
 	public static String encodeByteArrayToMd5Hex(byte[] bytes) {
 		try {
-			MessageDigest md = MessageDigest.getInstance("MD5");
-	        byte[] hashBytes = md.digest(bytes);
-	        return Hex.encodeHexString(hashBytes);
+	        return encodeByteArrayWithDigest(bytes, "MD5");
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
@@ -46,5 +50,17 @@ public class ByteArrayEncodings {
 	}
 	public static String encodeBufferedImageToMd5Hex(BufferedImage image) {
 		return encodeByteArrayToMd5Hex(bufferedImageToByteArray(image));
+	}
+	
+	public static String encodeByteArrayToSha256Hex(byte[] bytes) {
+		try {
+	        return encodeByteArrayWithDigest(bytes, "SHA-256");
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	public static String encodeBufferedImageToSha256Hex(BufferedImage image) {
+		return encodeByteArrayToSha256Hex(bufferedImageToByteArray(image));
 	}
 }
