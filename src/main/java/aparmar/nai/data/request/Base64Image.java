@@ -4,16 +4,11 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.imageio.ImageIO;
-
-import org.apache.commons.codec.binary.Hex;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -23,8 +18,11 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-import lombok.AllArgsConstructor;
+import aparmar.nai.utils.ByteArrayEncodings;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
@@ -33,12 +31,14 @@ import lombok.NoArgsConstructor;
  * Uses Bicubic interpolation for resizing normally, but switches to Nearest Neighbor if the image is flagged as a mask.
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class Base64Image implements JsonSerializer<Base64Image>, JsonDeserializer<Base64Image> {
 	protected BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
 	protected int targetWidth = 1, targetHeight = 1;
 	protected boolean isMask = false;
+	@EqualsAndHashCode.Exclude
+	@Getter(value = AccessLevel.NONE)
+	private transient AtomicReference<String> imageMd5 = new AtomicReference<String>();
 	
 	public Base64Image(BufferedImage image) {
 		this.image = image;
@@ -47,38 +47,41 @@ public class Base64Image implements JsonSerializer<Base64Image>, JsonDeserialize
 		isMask = false;
 	}
 
+	public Base64Image(BufferedImage image, int width, int height, boolean isMask) {
+		this.image = image;
+		targetWidth = width;
+		targetHeight = height;
+		this.isMask = isMask;
+	}
+	
+	public void setImage(BufferedImage image) {
+		imageMd5.set(null);
+		this.image = image;
+		imageMd5.set(null);
+	}
+
 	@Override
 	public JsonElement serialize(Base64Image src, Type typeOfSrc, JsonSerializationContext context) {
-		try {
-			BufferedImage tempImage = new BufferedImage(
-					src.getTargetWidth(), src.getTargetHeight(), 
-					BufferedImage.TYPE_INT_RGB);
-			Graphics2D g2d = tempImage.createGraphics();
-			if (src.isMask()) {
-				g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-			} else {
-				g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-			}
-		    g2d.drawImage(src.getImage(), 0, 0, src.getTargetWidth(), src.getTargetHeight(), null);
-		    g2d.dispose();
-
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ImageIO.write(tempImage, "png", baos);
-			
-			String encodedImage = Base64.getMimeEncoder().encodeToString(baos.toByteArray());
-			return new JsonPrimitive(encodedImage);
-		} catch (IOException e) {
-			e.printStackTrace();
+		BufferedImage tempImage = new BufferedImage(
+				src.getTargetWidth(), src.getTargetHeight(), 
+				BufferedImage.TYPE_INT_RGB);
+		Graphics2D g2d = tempImage.createGraphics();
+		if (src.isMask()) {
+			g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+		} else {
+			g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 		}
-		
-		return new JsonPrimitive("");
+	    g2d.drawImage(src.getImage(), 0, 0, src.getTargetWidth(), src.getTargetHeight(), null);
+	    g2d.dispose();
+	    
+		return new JsonPrimitive(ByteArrayEncodings.encodeBufferedImageToB64(tempImage));
 	}
 
 	@Override
 	public Base64Image deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
 			throws JsonParseException {
 		try {
-			byte[] imgBytes = Base64.getMimeDecoder().decode(json.getAsString());
+			byte[] imgBytes = ByteArrayEncodings.decodeB64ToByteArray(json.getAsString());
 			BufferedImage readImage = ImageIO.read(new ByteArrayInputStream(imgBytes));
 			
 			return new Base64Image(readImage, readImage.getWidth(), readImage.getHeight(), false);
@@ -90,17 +93,9 @@ public class Base64Image implements JsonSerializer<Base64Image>, JsonDeserialize
 	}
 
     public String generateMD5() {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ImageIO.write(image, "png", baos);
-	        byte[] imageData = baos.toByteArray();
-
-	        MessageDigest md = MessageDigest.getInstance("MD5");
-	        byte[] hashBytes = md.digest(imageData);
-	        return Hex.encodeHexString(hashBytes);
-		} catch (IOException | NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
-        return "";
+    	return imageMd5.updateAndGet(v->{
+    		if (v!=null) { return v; }            
+            return ByteArrayEncodings.encodeBufferedImageToMd5Hex(image);
+    	});
     }
 }
