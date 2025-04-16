@@ -15,7 +15,9 @@ class UnitTestImageVibeEncodeRequest {
 
 	@Test
 	void testImageVibeEncodeRequestDataAnnotation() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		ImageVibeEncodeRequest testInstance1 = new ImageVibeEncodeRequest();
+		ImageVibeEncodeRequest testInstance1 = ImageVibeEncodeRequest.builder()
+				.model(ImageGenModel.ANIME_V4_FULL)
+				.build();
 		ImageVibeEncodeRequest testInstance2 = ImageVibeEncodeRequest.builder()
 				.image(new Base64Image())
 				.informationExtracted(0.6f)

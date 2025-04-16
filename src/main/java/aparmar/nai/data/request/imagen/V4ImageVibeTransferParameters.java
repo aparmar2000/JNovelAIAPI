@@ -71,7 +71,7 @@ public class V4ImageVibeTransferParameters extends AbstractExtraImageParameters 
 		}
 		
 		public V4ImageVibeTransferParametersBuilder vibeDatas(List<VibeTransferData> vibeDatas) {
-			if (!vibeDatas.isEmpty()) {
+			if (vibeDatas != null && !vibeDatas.isEmpty()) {
 				val testModel = vibeDatas.get(0).getVibeData().getModel();
 				val mismatchedData = vibeDatas.stream().filter(d->d.getVibeData().getModel()!=testModel).findAny();
 				if (mismatchedData.isPresent()) {
