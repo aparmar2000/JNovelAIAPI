@@ -267,7 +267,16 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 			double sampleFactor = Math.max(Math.ceil(baseSampleFactor * img2imgStrengthFactor), 2);
 			if (parameters.getUcScale()!=1) { sampleFactor = Math.ceil(sampleFactor * 1.3); }
 			
-			return (int) (sampleFactor * parameters.getImgCount());
+			int extraFactor = 0;
+			val optV4VibeTransferParameters = extraParameters.stream()
+					.filter(p->p instanceof V4ImageVibeTransferParameters)
+					.map(p->(V4ImageVibeTransferParameters)p)
+					.findAny();
+			if (optV4VibeTransferParameters.isPresent() && optV4VibeTransferParameters.get().getVibeDatas().size()>4) {
+				extraFactor += 2*(optV4VibeTransferParameters.get().getVibeDatas().size()-4);
+			}
+			
+			return (int) (sampleFactor * parameters.getImgCount())+extraFactor;
 		}
 	
 		// Adapter Functions

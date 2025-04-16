@@ -548,5 +548,44 @@ class UnitTestImageGenerationRequest {
 
 		assertEquals(0, ImageGenModel.ANIME_V2.estimateAnlasCostIncludingSubscription(testParameters, testUserSubscription));
 	}
+	
+	@Test
+	void testImageGenerationCostEstimationWithOverFourV4Vibes() {
+		ImageParameters testParameters = ImageParameters.builder()
+				.imgCount(1)
+				.width(1024)
+				.height(1024)
+				.steps(28)
+				.build();
+		V4VibeData dummyVibeData = new V4VibeData(1, "", ImageGenModel.ANIME_V4_FULL, new byte[0]);
+		V4ImageVibeTransferParameters vibeParameters = V4ImageVibeTransferParameters.builder()
+				.vibeData(V4ImageVibeTransferParameters.VibeTransferData.builder()
+						.vibeData(dummyVibeData)
+						.referenceStrength(1)
+						.build())
+				.vibeData(V4ImageVibeTransferParameters.VibeTransferData.builder()
+						.vibeData(dummyVibeData)
+						.referenceStrength(1)
+						.build())
+				.vibeData(V4ImageVibeTransferParameters.VibeTransferData.builder()
+						.vibeData(dummyVibeData)
+						.referenceStrength(1)
+						.build())
+				.vibeData(V4ImageVibeTransferParameters.VibeTransferData.builder()
+						.vibeData(dummyVibeData)
+						.referenceStrength(1)
+						.build())
+				.vibeData(V4ImageVibeTransferParameters.VibeTransferData.builder()
+						.vibeData(dummyVibeData)
+						.referenceStrength(1)
+						.build())
+				.build();
+		
+		assertEquals(22, ImageGenModel.ANIME_V4_FULL.estimateAnlasCost(testParameters, vibeParameters));
+		testParameters = testParameters.toBuilder()
+				.imgCount(2)
+				.build();
+		assertEquals(42, ImageGenModel.ANIME_V4_FULL.estimateAnlasCost(testParameters, vibeParameters));
+	}
 
 }
