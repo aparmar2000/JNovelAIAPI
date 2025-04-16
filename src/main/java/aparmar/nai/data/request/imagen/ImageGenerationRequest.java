@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonArray;
@@ -30,6 +31,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -121,9 +123,9 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		@SerializedName("nai-diffusion-furry-3")
 		FURRY_V3(QualityTagsPreset.FURRY_V3, false, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), ImageGenModel::estimateAnlasCostSDXL, null),
 		@SerializedName("nai-diffusion-4-curated-preview")
-		ANIME_V4_CURATED(QualityTagsPreset.ANIME_V4_CURATED, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
+		ANIME_V4_CURATED(QualityTagsPreset.ANIME_V4_CURATED, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, V4ImageVibeTransferParameters.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
 		@SerializedName("nai-diffusion-4-full")
-		ANIME_V4_FULL(QualityTagsPreset.ANIME_V4_FULL, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
+		ANIME_V4_FULL(QualityTagsPreset.ANIME_V4_FULL, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, V4ImageVibeTransferParameters.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
 
 		/**
 		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
@@ -165,8 +167,22 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		@Getter(AccessLevel.PROTECTED)
 		private final ImageRequestJsonAdapterFunc jsonAdapterFunc;
 
-		public boolean doesModelSupportExtraParameter(AbstractExtraImageParameters extraImageParameter) {
-			return doesModelSupportExtraParameterType(extraImageParameter.getClass());
+		/**
+		 * Tests if a particular {@link AbstractExtraImageParameters} instance is compatible with this model.
+		 * @param extraImageParameter the {@code AbstractExtraImageParameters} instance to check.
+		 * @return An {@code Optional<String>} containing the incompatibility reason, if there is one.
+		 */
+		public Optional<String> doesModelSupportExtraParameter(AbstractExtraImageParameters extraImageParameter) {
+			if (!doesModelSupportExtraParameterType(extraImageParameter.getClass())) {
+				return Optional.of(String.format("Model type %s is not compatible with extraParameter type %s", this, extraImageParameter.getClass()));
+			}
+			if (extraImageParameter instanceof V4ImageVibeTransferParameters) {
+				val encodingModel = ((V4ImageVibeTransferParameters)extraImageParameter).getEncodingModel();
+				if (encodingModel != null && encodingModel != this) {
+					return Optional.of(String.format("Model type %s is not compatible with vibes encoded by model type %s", this, encodingModel));
+				}
+			}
+			return Optional.empty();
 		}
 		public boolean doesModelSupportExtraParameterType(Class<? extends AbstractExtraImageParameters> extraParameterType) {
 			return supportedExtraParameterTypes.contains(extraParameterType);
@@ -362,11 +378,13 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 				}
 			}
         	if (this.extraParameters$value != null) {
-	        	Optional<AbstractExtraImageParameters> incompatibleExistingParameter = this.extraParameters$value.values().stream()
-	        		.filter(p->!model.doesModelSupportExtraParameter(p))
-	        		.findAny();
-	        	if (incompatibleExistingParameter.isPresent()) {
-	        		throw new IllegalArgumentException(String.format("Model type %s is not compatible with extraParameter type %s", model, incompatibleExistingParameter.getClass()));
+	        	Optional<String> incompatiblityError = this.extraParameters$value.values().stream()
+	        		.map(p->model.doesModelSupportExtraParameter(p))
+	        		.filter(Optional::isPresent)
+	        		.findAny()
+	        		.flatMap(Function.identity());
+	        	if (incompatiblityError.isPresent()) {
+	        		throw new IllegalArgumentException(incompatiblityError.get());
 	        	}
         	}
 			
@@ -403,8 +421,9 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
         	return this;
         }
         public ImageGenerationRequestBuilder extraParameter(AbstractExtraImageParameters extraParameter) {
-        	if (model != null && !model.doesModelSupportExtraParameter(extraParameter)) {
-        		throw new IllegalArgumentException(String.format("Model type %s is not compatible with extraParameter type %s", model, extraParameter.getClass()));
+        	Optional<String> errorMsg;
+			if (model != null && (errorMsg=model.doesModelSupportExtraParameter(extraParameter)).isPresent()) {
+        		throw new IllegalArgumentException(errorMsg.get());
         	}
         	if (parameters != null && !parameters.compatibleWith(extraParameter)) {
         		throw new IllegalArgumentException(String.format("ImageParameter type %s is not compatible with extraParameter type %s", parameters.getClass(), extraParameter.getClass()));

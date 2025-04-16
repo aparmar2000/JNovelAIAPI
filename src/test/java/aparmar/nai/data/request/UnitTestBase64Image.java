@@ -1,6 +1,8 @@
 package aparmar.nai.data.request;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
@@ -38,6 +40,17 @@ class UnitTestBase64Image {
 						"Pixel mismatch at ("+x+","+y+")");
 			}
 		}
+	}
+
+	@Test
+	void testHashing() throws FileNotFoundException, IOException {
+		BufferedImage baseImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_lowres.jpg"));
+		Base64Image testBase64Image = new Base64Image(baseImage);
+		
+		String md5 = testBase64Image.generateMD5();
+		assertNotNull(md5, "generateMD5() should produce a non-null result");
+		assertFalse(md5.isEmpty(), "generateMD5() should produce a non-empty result");
+		System.out.println(md5);
 	}
 
 }

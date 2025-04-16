@@ -22,6 +22,8 @@ import aparmar.nai.data.request.IQueryStringPayload;
 import aparmar.nai.data.request.ImageAnnotateRequest;
 import aparmar.nai.data.request.ImageUpscaleRequest;
 import aparmar.nai.data.request.ImageUpscaleRequest.UpscaleFactor;
+import aparmar.nai.data.request.ImageVibeEncodeRequest;
+import aparmar.nai.data.request.V4VibeData;
 import aparmar.nai.data.request.VoiceGenerationRequest;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest;
 import aparmar.nai.data.request.imagen.ImageVibeTransferParameters;
@@ -57,6 +59,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class NAIAPI {
 	private static final RateLimitInterceptor sharedRateLimiter = new RateLimitInterceptor(1);
@@ -187,6 +190,12 @@ public class NAIAPI {
 		ZipArchiveWrapper resultBody = postToNovelAI("ai/augment-image", IMAGE_API_ROOT, payload, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
 		
 		return new ImageSetWrapperRemoveBackground(resultBody);
+	}
+	
+	public V4VibeData encodeImageVibe(ImageVibeEncodeRequest payload) throws IOException {
+		byte[] resultBody = postToNovelAI("ai/encode-vibe", IMAGE_API_ROOT, payload, byte[].class, ResponseBody::bytes);
+		
+		return new V4VibeData(payload.getInformationExtracted(), payload.getImage().generateMD5(), payload.getModel(), resultBody);
 	}
 	
 	public TextGenerationResponse generateText(TextGenerationRequest payload) throws IOException {

@@ -7,9 +7,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 import javax.imageio.ImageIO;
+
+import org.apache.commons.codec.binary.Hex;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -61,7 +65,7 @@ public class Base64Image implements JsonSerializer<Base64Image>, JsonDeserialize
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ImageIO.write(tempImage, "png", baos);
 			
-			String encodedImage = Base64.getMimeEncoder().encodeToString(baos.toByteArray());			
+			String encodedImage = Base64.getMimeEncoder().encodeToString(baos.toByteArray());
 			return new JsonPrimitive(encodedImage);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -84,4 +88,19 @@ public class Base64Image implements JsonSerializer<Base64Image>, JsonDeserialize
 		
 		return new Base64Image();
 	}
+
+    public String generateMD5() {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ImageIO.write(image, "png", baos);
+	        byte[] imageData = baos.toByteArray();
+
+	        MessageDigest md = MessageDigest.getInstance("MD5");
+	        byte[] hashBytes = md.digest(imageData);
+	        return Hex.encodeHexString(hashBytes);
+		} catch (IOException | NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+        return "";
+    }
 }

@@ -43,6 +43,7 @@ import aparmar.nai.data.request.imagen.ImageParameters.ImageGenSampler;
 import aparmar.nai.data.request.imagen.ImageParameters.ImageParametersBuilder;
 import aparmar.nai.data.request.imagen.ImageParameters.SamplingSchedule;
 import aparmar.nai.data.request.imagen.ImageVibeTransferParameters;
+import aparmar.nai.data.request.imagen.V4ImageVibeTransferParameters;
 import aparmar.nai.data.response.UserSubscription;
 import aparmar.nai.data.response.UserSubscription.ImageGenerationLimit;
 import aparmar.nai.data.response.UserSubscription.SubscriptionPerks;
@@ -167,6 +168,19 @@ class UnitTestImageGenerationRequest {
 							.build())
 					.build();
 			TestHelpers.autoTestDataAndToBuilderAnnotation(ImageVibeTransferParameters.class, testInstance1, testInstance2);
+		}
+	
+		@Test
+		void testV4ImageVibeTransferParametersDataAnnotation() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+			V4ImageVibeTransferParameters testInstance1 = V4ImageVibeTransferParameters.builder()
+					.build();
+			V4ImageVibeTransferParameters testInstance2 = V4ImageVibeTransferParameters.builder()
+					.vibeData(V4ImageVibeTransferParameters.VibeTransferData.builder()
+							.referenceStrength(11)
+							.vibeData(new V4VibeData(1, "a", ImageGenModel.ANIME_V4_FULL, new byte[] {}))
+							.build())
+					.build();
+			TestHelpers.autoTestDataAndToBuilderAnnotation(V4ImageVibeTransferParameters.class, testInstance1, testInstance2);
 		}
     }
 
