@@ -196,12 +196,21 @@ public class V4VibeDataFile extends DataFile<V4VibeDataFile> {
 				modelEncodingRoot.add(encodingData.getParamSha256(), encodingRoot);
 			}
 			
-			encodingsRoot.add(gson.toJson(model), modelEncodingRoot);
+			encodingsRoot.add(V4VibeData.IMAGE_GEN_MODEL_NAME_MAP.get(model), modelEncodingRoot);
 		}
 		root.add("encodings", encodingsRoot);
 		
 		root.addProperty("name", getFilePath().getFileName().toString());
-		root.add("thumbnail", gson.toJsonTree(new Base64Image(image.getImage(), 256, 256, false))); // TODO: Not quite right - NAI preserves aspect ratio
+		int thumbHeight = image.getTargetHeight();
+		int thumbWidth = image.getTargetWidth();
+		if (thumbHeight>thumbWidth) {
+			thumbWidth = (int) Math.max(256, Math.round(thumbWidth * (256D/thumbHeight)));
+			thumbHeight = 256;
+		} else {
+			thumbHeight = (int) Math.max(256, Math.round(thumbHeight * (256D/thumbWidth)));
+			thumbWidth = 256;
+		}
+		root.add("thumbnail", gson.toJsonTree(new Base64Image(image.getImage(), thumbHeight, thumbWidth, false)));
 		root.addProperty("createdAt", createdAt);
 		root.add("importInfo", gson.toJsonTree(importInfo));
 		
@@ -222,7 +231,7 @@ public class V4VibeDataFile extends DataFile<V4VibeDataFile> {
 		JsonObject encodingsRoot = root.getAsJsonObject("encodings");
 		encodingMap.clear();
 		for (Entry<String, JsonElement> modelEntry : encodingsRoot.entrySet()) {
-			ImageGenModel model = gson.fromJson(modelEntry.getKey(), ImageGenModel.class);
+			ImageGenModel model = V4VibeData.IMAGE_GEN_MODEL_NAME_MAP.inverse().get(modelEntry.getKey());
 			
 			for (Entry<String, JsonElement> encodingEntry : modelEntry.getValue().getAsJsonObject().entrySet()) {
 				JsonObject encodingEntryValue = encodingEntry.getValue().getAsJsonObject();

@@ -1,8 +1,5 @@
 package aparmar.nai.data.request;
 
-import java.util.Set;
-
-import com.google.common.collect.ImmutableSet;
 import com.google.gson.annotations.SerializedName;
 
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
@@ -19,8 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class ImageVibeEncodeRequest {
-	public static final Set<ImageGenModel> SUPPORTED_MODELS = ImmutableSet.of(ImageGenModel.ANIME_V4_CURATED, ImageGenModel.ANIME_V4_FULL);
-	
 	private Base64Image image;
 	@SerializedName("information_extracted")
 	@Builder.Default
@@ -32,7 +27,7 @@ public class ImageVibeEncodeRequest {
 	public static class ImageVibeEncodeRequestBuilder {
 		public ImageVibeEncodeRequestBuilder model(ImageGenModel model) {
 			AnnotationUtils.throwOrWarnAboutDepreciation(model, log);
-			if (!SUPPORTED_MODELS.contains(model)) {
+			if (!V4VibeData.IMAGE_GEN_MODEL_NAME_MAP.containsKey(model)) {
 				throw new IllegalArgumentException(String.format("model %s does not support vibe encoding", model));
 			}
 			
