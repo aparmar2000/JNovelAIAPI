@@ -1,9 +1,11 @@
 package aparmar.nai.data.file;
 
 import java.awt.image.BufferedImage;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map.Entry;
@@ -50,7 +52,7 @@ public class V4VibeDataFile extends DataFile<V4VibeDataFile> {
 			.enumKeys(ImageGenModel.class)
 			.hashSetValues()
 			.build();
-	protected long createdAt = 0;
+	protected long createdAt = System.currentTimeMillis();
 	protected ImportInfo importInfo = new ImportInfo();
 
 	public V4VibeDataFile(Path filePath) {
@@ -170,7 +172,7 @@ public class V4VibeDataFile extends DataFile<V4VibeDataFile> {
 	
 
 	@Override
-	protected void innerSave() throws IOException {
+	public void saveToStream(OutputStream outputStream) throws IOException {
 		JsonObject root = new JsonObject();
 		
 		root.addProperty("identifier", "novelai-vibe-transfer");
@@ -203,15 +205,15 @@ public class V4VibeDataFile extends DataFile<V4VibeDataFile> {
 		root.addProperty("createdAt", createdAt);
 		root.add("importInfo", gson.toJsonTree(importInfo));
 		
-		try (FileWriter writer = new FileWriter(getFilePath().toFile())) {
-			gson.toJson(root, writer);
+		try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream)) {
+			gson.toJson(root, outputStreamWriter);
 		}
 	}
 
 	@Override
-	protected V4VibeDataFile innerLoad() throws IOException {
+	public V4VibeDataFile loadFromStream(InputStream inputStream) throws IOException {
 		JsonObject root;
-		try (FileReader reader = new FileReader(getFilePath().toFile())) {
+		try (InputStreamReader reader = new InputStreamReader(inputStream)) {
 			root = gson.fromJson(reader, JsonObject.class);
 		}
 		version = root.get("version").getAsInt();
