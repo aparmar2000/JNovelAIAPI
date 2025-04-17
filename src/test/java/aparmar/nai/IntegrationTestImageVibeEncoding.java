@@ -14,6 +14,7 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import aparmar.nai.data.request.Base64Image;
 import aparmar.nai.data.request.ImageVibeEncodeRequest;
 import aparmar.nai.data.request.V4VibeData;
+import aparmar.nai.data.request.V4VibeData.VibeEncodingType;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
 import aparmar.nai.utils.InternalResourceLoader;
 
@@ -34,7 +35,7 @@ class IntegrationTestImageVibeEncoding extends AbstractFeatureIntegrationTest {
 			
 			assertNotNull(result);
 			assertEquals(1, result.getInfoExtracted());
-			assertEquals(ImageGenModel.ANIME_V4_FULL, result.getModel());
+			assertEquals(VibeEncodingType.V4_FULL, result.getEncodingType());
 			assertEquals(baseImage64.generateSha256(), result.getSourceHash());
 			assertNotNull(result.getEncoding());
 			assertTrue(result.getEncoding().length>0, "Result encoding should not be empty");

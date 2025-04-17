@@ -169,7 +169,7 @@ public class NAIAPI {
 	public V4VibeData encodeImageVibe(ImageVibeEncodeRequest payload) throws IOException {
 		byte[] resultBody = postToNovelAI("ai/encode-vibe", IMAGE_API_ROOT, payload, byte[].class, ResponseBody::bytes);
 		
-		return new V4VibeData(payload.getInformationExtracted(), payload.getImage().generateSha256(), payload.getModel(), resultBody);
+		return new V4VibeData(payload.getInformationExtracted(), payload.getImage().generateSha256(), V4VibeData.VibeEncodingType.getEncodingTypeForModel(payload.getModel()), resultBody);
 	}
 	
 	public TextGenerationResponse generateText(TextGenerationRequest payload) throws IOException {
