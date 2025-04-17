@@ -42,7 +42,7 @@ public class ImageVibeEncodeRequest {
 		
 		public ImageVibeEncodeRequestBuilder informationExtracted(float informationExtracted) {
 			if (informationExtracted<0 || informationExtracted>1) {
-				throw new IllegalArgumentException(String.format("informationExtracted must be between 0 and 1 inclusive, but was %s", informationExtracted));
+				throw new IllegalArgumentException(String.format("Vibe information extracted must be between 0 and 1 inclusive, but was %s", informationExtracted));
 			}
 			
 			this.informationExtracted$value = informationExtracted;
