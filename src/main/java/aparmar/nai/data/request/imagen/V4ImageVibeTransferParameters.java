@@ -14,7 +14,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 import aparmar.nai.data.request.V4VibeData;
-import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
+import aparmar.nai.data.request.V4VibeData.VibeEncodingType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -31,11 +31,11 @@ public class V4ImageVibeTransferParameters extends AbstractExtraImageParameters 
 	protected List<VibeTransferData> vibeDatas;
 	
 	@Nullable
-	public ImageGenModel getEncodingModel() {
+	public VibeEncodingType getEncodingType() {
 		if (vibeDatas==null || vibeDatas.isEmpty()) {
 			return null;
 		}
-		return vibeDatas.get(0).getVibeData().getModel();
+		return vibeDatas.get(0).getVibeData().getEncodingType();
 	}
 	
 	protected byte[][] getVibeDataEncodings() {
@@ -59,10 +59,10 @@ public class V4ImageVibeTransferParameters extends AbstractExtraImageParameters 
 			if (this.vibeDatas == null) {
 				this.vibeDatas = new ArrayList<>();
 			} else {
-				val testModel = vibeData.getVibeData().getModel();
-				val mismatchedData = vibeDatas.stream().filter(d->d.getVibeData().getModel()!=testModel).findAny();
+				val testEncodingType = vibeData.getVibeData().getEncodingType();
+				val mismatchedData = vibeDatas.stream().filter(d->d.getVibeData().getEncodingType()!=testEncodingType).findAny();
 				if (mismatchedData.isPresent()) {
-					throw new IllegalArgumentException(String.format("All VibeTransferData must be encoded for the same model - found mismatching models %s and %s", testModel, mismatchedData.get().getVibeData().getModel()));
+					throw new IllegalArgumentException(String.format("All VibeTransferData must be of the same encoding type - found mismatching encoding types %s and %s", testEncodingType, mismatchedData.get().getVibeData().getEncodingType()));
 				}
 			}
 			
@@ -72,10 +72,10 @@ public class V4ImageVibeTransferParameters extends AbstractExtraImageParameters 
 		
 		public V4ImageVibeTransferParametersBuilder vibeDatas(List<VibeTransferData> vibeDatas) {
 			if (vibeDatas != null && !vibeDatas.isEmpty()) {
-				val testModel = vibeDatas.get(0).getVibeData().getModel();
-				val mismatchedData = vibeDatas.stream().filter(d->d.getVibeData().getModel()!=testModel).findAny();
+				val testEncodingType = vibeDatas.get(0).getVibeData().getEncodingType();
+				val mismatchedData = vibeDatas.stream().filter(d->d.getVibeData().getEncodingType()!=testEncodingType).findAny();
 				if (mismatchedData.isPresent()) {
-					throw new IllegalArgumentException(String.format("All VibeTransferData must be encoded for the same model - found mismatching models %s and %s", testModel, mismatchedData.get().getVibeData().getModel()));
+					throw new IllegalArgumentException(String.format("All VibeTransferData must be of the same encoding type - found mismatching encoding types %s and %s", testEncodingType, mismatchedData.get().getVibeData().getEncodingType()));
 				}
 			}
 			

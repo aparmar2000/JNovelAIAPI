@@ -23,6 +23,7 @@ import aparmar.nai.NAIAPI;
 import aparmar.nai.data.request.Base64Image;
 import aparmar.nai.data.request.ImageVibeEncodeRequest;
 import aparmar.nai.data.request.V4VibeData;
+import aparmar.nai.data.request.V4VibeData.VibeEncodingType;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
 import aparmar.nai.utils.ByteArrayEncodings;
 import lombok.AccessLevel;
@@ -48,8 +49,8 @@ public class V4VibeDataFile extends DataFile<V4VibeDataFile> {
 	@Getter(value = AccessLevel.NONE)
 	protected final ReentrantReadWriteLock encodingMapLock = new ReentrantReadWriteLock();
 	@Getter(value = AccessLevel.NONE)
-	protected final Multimap<ImageGenModel, EmbeddingData> encodingMap = MultimapBuilder
-			.enumKeys(ImageGenModel.class)
+	protected final Multimap<VibeEncodingType, EmbeddingData> encodingMap = MultimapBuilder
+			.enumKeys(VibeEncodingType.class)
 			.hashSetValues()
 			.build();
 	protected long createdAt = System.currentTimeMillis();
@@ -59,7 +60,7 @@ public class V4VibeDataFile extends DataFile<V4VibeDataFile> {
 		super(filePath);
 	}
 
-	protected V4VibeDataFile(Path filePath, int version, BufferedImage image, Multimap<ImageGenModel, EmbeddingData> embeddingMap, long createdAt, ImportInfo importInfo) {
+	protected V4VibeDataFile(Path filePath, int version, BufferedImage image, Multimap<VibeEncodingType, EmbeddingData> embeddingMap, long createdAt, ImportInfo importInfo) {
 		super(filePath);
 		this.version = version;
 		this.image = new Base64Image(image);
@@ -93,13 +94,21 @@ public class V4VibeDataFile extends DataFile<V4VibeDataFile> {
 				.informationExtracted(informationExtracted)
 				.build();
 	}
-	
+
+	@Locked.Read("encodingMapLock")
+	public List<V4VibeData> getVibeDataForEncodingType(VibeEncodingType encodingType) {
+		return encodingMap.get(encodingType)
+				.stream()
+				.map(d->new V4VibeData(d.informationExtracted, getImageId(), encodingType, d.encoding))
+				.collect(Collectors.toList());
+	}
 	@Locked.Read("encodingMapLock")
 	public List<V4VibeData> getVibeDataForModel(ImageGenModel model) {
-		return encodingMap.get(model)
-				.stream()
-				.map(d->new V4VibeData(d.informationExtracted, getImageId(), model, d.encoding))
-				.collect(Collectors.toList());
+		return model.getSupportedVibeEncodingTypes()
+			.stream()
+			.map(this::getVibeDataForEncodingType)
+			.flatMap(List::stream)
+			.collect(Collectors.toList());
 	}
 
 	@Locked.Read("encodingMapLock")
@@ -146,21 +155,21 @@ public class V4VibeDataFile extends DataFile<V4VibeDataFile> {
 	}
 
 	@Locked.Write("encodingMapLock")
-	public void clearVibeDataForModel(ImageGenModel model) {
-		encodingMap.removeAll(model);
+	public void clearVibeDataForEncodingType(VibeEncodingType encodingType) {
+		encodingMap.removeAll(encodingType);
 		markChanged();
 	}
 
 	@Locked.Write("encodingMapLock")
 	public boolean addVibeData(V4VibeData vibeData) {
-		boolean added = encodingMap.put(vibeData.getModel(), new EmbeddingData(vibeData));
+		boolean added = encodingMap.put(vibeData.getEncodingType(), new EmbeddingData(vibeData));
 		if (added) { markChanged(); }
 		return added;
 	}
 
 	@Locked.Write("encodingMapLock")
 	public boolean removeVibeData(V4VibeData vibeData) {
-		boolean removed = encodingMap.remove(vibeData.getModel(), new EmbeddingData(vibeData));
+		boolean removed = encodingMap.remove(vibeData.getEncodingType(), new EmbeddingData(vibeData));
 		if (removed) { markChanged(); }
 		return removed;
 	}
@@ -182,10 +191,10 @@ public class V4VibeDataFile extends DataFile<V4VibeDataFile> {
 		root.addProperty("id", image.generateSha256());
 		
 		JsonObject encodingsRoot = new JsonObject();
-		for (ImageGenModel model : encodingMap.keySet()) {
-			JsonObject modelEncodingRoot = new JsonObject();
+		for (VibeEncodingType encodingType : encodingMap.keySet()) {
+			JsonObject encodingTypeRoot = new JsonObject();
 			
-			for (EmbeddingData encodingData : encodingMap.get(model)) {
+			for (EmbeddingData encodingData : encodingMap.get(encodingType)) {
 				JsonObject encodingRoot = new JsonObject();
 				
 				encodingRoot.addProperty("encoding", ByteArrayEncodings.encodeByteArrayToB64(encodingData.getEncoding()));
@@ -193,10 +202,10 @@ public class V4VibeDataFile extends DataFile<V4VibeDataFile> {
 				paramsRoot.addProperty("information_extracted", encodingData.getInformationExtracted());
 				encodingRoot.add("params", paramsRoot);
 				
-				modelEncodingRoot.add(encodingData.getParamSha256(), encodingRoot);
+				encodingTypeRoot.add(encodingData.getParamSha256(), encodingRoot);
 			}
 			
-			encodingsRoot.add(V4VibeData.IMAGE_GEN_MODEL_NAME_MAP.get(model), modelEncodingRoot);
+			encodingsRoot.add(gson.toJson(encodingType), encodingTypeRoot);
 		}
 		root.add("encodings", encodingsRoot);
 		
@@ -231,12 +240,12 @@ public class V4VibeDataFile extends DataFile<V4VibeDataFile> {
 		JsonObject encodingsRoot = root.getAsJsonObject("encodings");
 		encodingMap.clear();
 		for (Entry<String, JsonElement> modelEntry : encodingsRoot.entrySet()) {
-			ImageGenModel model = V4VibeData.IMAGE_GEN_MODEL_NAME_MAP.inverse().get(modelEntry.getKey());
+			VibeEncodingType encodingType = gson.fromJson(modelEntry.getKey(), VibeEncodingType.class);
 			
 			for (Entry<String, JsonElement> encodingEntry : modelEntry.getValue().getAsJsonObject().entrySet()) {
 				JsonObject encodingEntryValue = encodingEntry.getValue().getAsJsonObject();
 				JsonObject encodingEntryParams = encodingEntryValue.getAsJsonObject("params");
-				encodingMap.put(model, new EmbeddingData(
+				encodingMap.put(encodingType, new EmbeddingData(
 						ByteArrayEncodings.decodeB64ToByteArray(encodingEntryValue.get("encoding").getAsString()),
 						encodingEntryParams.get("information_extracted").getAsFloat()
 						));

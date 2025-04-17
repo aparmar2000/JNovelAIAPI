@@ -29,6 +29,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 
 import aparmar.nai.TestHelpers;
+import aparmar.nai.data.request.V4VibeData.VibeEncodingType;
 import aparmar.nai.data.request.imagen.AbstractExtraImageParameters;
 import aparmar.nai.data.request.imagen.Image2ImageParameters;
 import aparmar.nai.data.request.imagen.ImageControlNetParameters;
@@ -177,7 +178,7 @@ class UnitTestImageGenerationRequest {
 			V4ImageVibeTransferParameters testInstance2 = V4ImageVibeTransferParameters.builder()
 					.vibeData(V4ImageVibeTransferParameters.VibeTransferData.builder()
 							.referenceStrength(11)
-							.vibeData(new V4VibeData(1, "a", ImageGenModel.ANIME_V4_FULL, new byte[] {}))
+							.vibeData(new V4VibeData(1, "a", VibeEncodingType.V4_FULL, new byte[] {}))
 							.build())
 					.build();
 			TestHelpers.autoTestDataAndToBuilderAnnotation(V4ImageVibeTransferParameters.class, testInstance1, testInstance2);
@@ -290,7 +291,7 @@ class UnitTestImageGenerationRequest {
 					.action(ImageGenAction.GENERATE)
 					.extraParameter(V4ImageVibeTransferParameters.builder()
 							.vibeData(V4ImageVibeTransferParameters.VibeTransferData.builder()
-									.vibeData(new V4VibeData(1, "a", ImageGenModel.ANIME_V4_CURATED, new byte[0]))
+									.vibeData(new V4VibeData(1, "a", VibeEncodingType.V4_CURATED, new byte[0]))
 									.build())
 							.build())
 					.build());
@@ -298,7 +299,7 @@ class UnitTestImageGenerationRequest {
 					.action(ImageGenAction.GENERATE)
 					.extraParameter(V4ImageVibeTransferParameters.builder()
 							.vibeData(V4ImageVibeTransferParameters.VibeTransferData.builder()
-									.vibeData(new V4VibeData(1, "a", ImageGenModel.ANIME_V4_FULL, new byte[0]))
+									.vibeData(new V4VibeData(1, "a", VibeEncodingType.V4_FULL, new byte[0]))
 									.build())
 							.build())
 					.model(ImageGenModel.ANIME_V4_CURATED)
@@ -579,7 +580,7 @@ class UnitTestImageGenerationRequest {
 				.height(1024)
 				.steps(28)
 				.build();
-		V4VibeData dummyVibeData = new V4VibeData(1, "", ImageGenModel.ANIME_V4_FULL, new byte[0]);
+		V4VibeData dummyVibeData = new V4VibeData(1, "", VibeEncodingType.V4_FULL, new byte[0]);
 		V4ImageVibeTransferParameters vibeParameters = V4ImageVibeTransferParameters.builder()
 				.vibeData(V4ImageVibeTransferParameters.VibeTransferData.builder()
 						.vibeData(dummyVibeData)
