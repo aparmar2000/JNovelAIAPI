@@ -1,6 +1,7 @@
 package aparmar.nai.data.file;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,5 +57,12 @@ abstract class UnitTestDataFile<T extends DataFile<T>> {
 		
 		T testInstance2 = makeInstanceOne(testPath);
 		assertEquals(testInstance, testInstance2);
+	}
+	
+	@Test
+	void testSaveLoadNullPath() throws IOException {
+		T testInstance = makeEmptyInstance(null);
+		assertThrows(UnsupportedOperationException.class, ()->testInstance.save());
+		assertThrows(UnsupportedOperationException.class, ()->testInstance.load());
 	}
 }
