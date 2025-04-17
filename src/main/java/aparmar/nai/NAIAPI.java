@@ -10,34 +10,28 @@ import java.io.IOException;
 import java.time.Duration;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
-import aparmar.nai.data.request.Base64Image;
 import aparmar.nai.data.request.IQueryStringPayload;
 import aparmar.nai.data.request.ImageAnnotateRequest;
 import aparmar.nai.data.request.ImageUpscaleRequest;
-import aparmar.nai.data.request.ImageUpscaleRequest.UpscaleFactor;
+import aparmar.nai.data.request.ImageVibeEncodeRequest;
+import aparmar.nai.data.request.V4VibeData;
 import aparmar.nai.data.request.VoiceGenerationRequest;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest;
-import aparmar.nai.data.request.imagen.ImageVibeTransferParameters;
-import aparmar.nai.data.request.imagen.MultiCharacterParameters.CharacterPrompt;
-import aparmar.nai.data.request.imagen.V4MultiCharacterParameters;
 import aparmar.nai.data.request.imgaug.ImageAugmentRemoveBackgroundRequest;
 import aparmar.nai.data.request.imgaug.ImageAugmentRequest;
-import aparmar.nai.data.request.imgaug.ImageAugmentRequest.DefryFactor;
-import aparmar.nai.data.request.textgen.TextGenerationRequest;
 import aparmar.nai.data.request.imgaug.ImageAugmentRequestSingleResult;
+import aparmar.nai.data.request.textgen.TextGenerationRequest;
 import aparmar.nai.data.response.AudioWrapper;
 import aparmar.nai.data.response.ImageSetWrapper;
 import aparmar.nai.data.response.ImageSetWrapperRemoveBackground;
 import aparmar.nai.data.response.SingleImageWrapper;
 import aparmar.nai.data.response.TextGenerationResponse;
-import aparmar.nai.data.response.TextGenerationResponse.LogProb;
 import aparmar.nai.data.response.TextGenerationResponse.LogProbStep;
 import aparmar.nai.data.response.TooManyRequestsException;
 import aparmar.nai.data.response.UserData;
@@ -46,7 +40,7 @@ import aparmar.nai.data.response.UserKeystore;
 import aparmar.nai.data.response.UserPriority;
 import aparmar.nai.data.response.UserSubscription;
 import aparmar.nai.utils.BuilderAssemblyFunction;
-import aparmar.nai.utils.GsonExcludeExclusionStrategy;
+import aparmar.nai.utils.GsonProvider;
 import aparmar.nai.utils.RateLimitInterceptor;
 import aparmar.nai.utils.ResultParseFunction;
 import aparmar.nai.utils.ZipArchiveWrapper;
@@ -57,10 +51,11 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class NAIAPI {
 	private static final RateLimitInterceptor sharedRateLimiter = new RateLimitInterceptor(1);
-	private static final Gson gson = buildGsonInstance();
+	private static final Gson gson = GsonProvider.buildGsonInstance();
 	
 	private final OkHttpClient client;
 	
@@ -98,24 +93,6 @@ public class NAIAPI {
 			    .addNetworkInterceptor(sharedRateLimiter)
 			    .readTimeout(readTimeout)
 			    .build();
-	}
-
-	private static Gson buildGsonInstance() {
-		GsonBuilder gsonBuilder = new GsonBuilder();
-		
-		gsonBuilder.setExclusionStrategies(new GsonExcludeExclusionStrategy());
-		gsonBuilder.registerTypeAdapter(LogProb.class, new LogProb());
-		gsonBuilder.registerTypeAdapter(Base64Image.class, new Base64Image());
-		gsonBuilder.registerTypeAdapter(UpscaleFactor.class, UpscaleFactor.TWO);
-		gsonBuilder.registerTypeAdapter(ImageUpscaleRequest.class, new ImageUpscaleRequest());
-		gsonBuilder.registerTypeAdapter(ImageAnnotateRequest.class, ImageAnnotateRequest.SERIALIZER_INSTANCE);
-		gsonBuilder.registerTypeAdapter(ImageGenerationRequest.class, new ImageGenerationRequest());
-		gsonBuilder.registerTypeAdapter(ImageVibeTransferParameters.class, new ImageVibeTransferParameters());
-		gsonBuilder.registerTypeAdapter(DefryFactor.class, DefryFactor.ZERO);
-		gsonBuilder.registerTypeAdapter(CharacterPrompt.class, new CharacterPrompt());
-		gsonBuilder.registerTypeAdapter(V4MultiCharacterParameters.class, new V4MultiCharacterParameters());
-		
-		return gsonBuilder.create();
 	}
 	
 	// === User Info Endpoints ===
@@ -187,6 +164,12 @@ public class NAIAPI {
 		ZipArchiveWrapper resultBody = postToNovelAI("ai/augment-image", IMAGE_API_ROOT, payload, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
 		
 		return new ImageSetWrapperRemoveBackground(resultBody);
+	}
+	
+	public V4VibeData encodeImageVibe(ImageVibeEncodeRequest payload) throws IOException {
+		byte[] resultBody = postToNovelAI("ai/encode-vibe", IMAGE_API_ROOT, payload, byte[].class, ResponseBody::bytes);
+		
+		return new V4VibeData(payload.getInformationExtracted(), payload.getImage().generateSha256(), payload.getModel(), resultBody);
 	}
 	
 	public TextGenerationResponse generateText(TextGenerationRequest payload) throws IOException {
