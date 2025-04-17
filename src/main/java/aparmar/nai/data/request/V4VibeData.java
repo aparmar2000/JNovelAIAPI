@@ -12,16 +12,16 @@ import lombok.Value;
 
 @Value
 public class V4VibeData {
+	protected static final ImmutableMap<ImageGenModel, VibeEncodingType> IMAGE_GEN_MODEL_TO_VIBE_ENCODING_TYPE_MAP = new ImmutableMap.Builder<ImageGenModel, VibeEncodingType>()
+			.put(ImageGenModel.ANIME_V4_CURATED, VibeEncodingType.V4_CURATED)
+			.put(ImageGenModel.ANIME_V4_FULL, VibeEncodingType.V4_FULL)
+			.build();
+	
 	public enum VibeEncodingType {
 		@SerializedName("v4full")
 		V4_FULL,
 		@SerializedName("v4curated")
 		V4_CURATED;
-		
-		public static final ImmutableMap<ImageGenModel, VibeEncodingType> IMAGE_GEN_MODEL_TO_VIBE_ENCODING_TYPE_MAP = new ImmutableMap.Builder<ImageGenModel, VibeEncodingType>()
-				.put(ImageGenModel.ANIME_V4_CURATED, V4_CURATED)
-				.put(ImageGenModel.ANIME_V4_FULL, V4_FULL)
-				.build();
 		
 		public ImageGenModel getAModelForEncodingType() {
 			return getAModelForEncodingType(this);
