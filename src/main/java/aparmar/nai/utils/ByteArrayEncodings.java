@@ -3,6 +3,7 @@ package aparmar.nai.utils;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -21,12 +22,23 @@ public class ByteArrayEncodings {
 		}
         return baos.toByteArray();
 	}
+	public static byte[] stringToByteArray(String string) {
+        try {
+			return string.getBytes("UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+        return new byte[0];
+	}
 	
 	public static String encodeByteArrayToB64(byte[] bytes) {
 		return Base64.getMimeEncoder().encodeToString(bytes);
 	}
 	public static String encodeBufferedImageToB64(BufferedImage image) {
 		return encodeByteArrayToB64(bufferedImageToByteArray(image));
+	}
+	public static String encodeStringBytesToB64(String string) {
+		return encodeByteArrayToB64(stringToByteArray(string));
 	}
 	
 	public static byte[] decodeB64ToByteArray(String base64) {
@@ -51,6 +63,9 @@ public class ByteArrayEncodings {
 	public static String encodeBufferedImageToMd5Hex(BufferedImage image) {
 		return encodeByteArrayToMd5Hex(bufferedImageToByteArray(image));
 	}
+	public static String encodeStringBytesToMd5Hex(String string) {
+		return encodeByteArrayToMd5Hex(stringToByteArray(string));
+	}
 	
 	public static String encodeByteArrayToSha256Hex(byte[] bytes) {
 		try {
@@ -62,5 +77,8 @@ public class ByteArrayEncodings {
 	}
 	public static String encodeBufferedImageToSha256Hex(BufferedImage image) {
 		return encodeByteArrayToSha256Hex(bufferedImageToByteArray(image));
+	}
+	public static String encodeStringBytesToSha256Hex(String string) {
+		return encodeByteArrayToSha256Hex(stringToByteArray(string));
 	}
 }
