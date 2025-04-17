@@ -2,22 +2,38 @@ package aparmar.nai.data.file;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.AdditionalAnswers;
 
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
 
+import aparmar.nai.NAIAPI;
 import aparmar.nai.TestHelpers;
 import aparmar.nai.data.file.V4VibeDataFile.EmbeddingData;
 import aparmar.nai.data.file.V4VibeDataFile.ImportInfo;
+import aparmar.nai.data.request.ImageVibeEncodeRequest;
 import aparmar.nai.data.request.V4VibeData;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
 
@@ -148,5 +164,64 @@ class UnitTestV4VibeDataFile extends UnitTestDataFile<V4VibeDataFile> {
     		assertEquals(actualVibeData.getModel(), expectedVibeData2.getModel());
     		assertArrayEquals(actualVibeData.getEncoding(), expectedVibeData2.getEncoding());
     	}
+    	
+    	@Test
+    	void testGetVibeDataByModelAndInfoExtracted() {
+    		V4VibeDataFile testInstance = makeEmptyInstance(null);
+    		V4VibeData expectedVibeData1 = new V4VibeData(1, "", ImageGenModel.ANIME_V4_FULL, new byte[] {1});
+    		V4VibeData expectedVibeData2 = new V4VibeData(0.5f, "", ImageGenModel.ANIME_V4_FULL, new byte[] {1, 2});
+    		testInstance.addVibeData(expectedVibeData1);
+    		testInstance.addVibeData(expectedVibeData2);
+    		
+    		assertFalse(testInstance.tryGetVibeData(ImageGenModel.ANIME_V4_CURATED, 0, 2).isPresent(), "tryGetVibeData() should return an empty optional for a model with no vibe encodings");
+    		assertFalse(testInstance.tryGetVibeData(ImageGenModel.ANIME_V4_FULL, 0, 0.1f).isPresent(), "tryGetVibeData() should return an empty optional when there are no matching vibe encodings");
+    		
+    		Optional<V4VibeData> actualVibeData1 = testInstance.tryGetVibeData(ImageGenModel.ANIME_V4_FULL, 1);
+    		Optional<V4VibeData> actualVibeData2 = testInstance.tryGetVibeData(ImageGenModel.ANIME_V4_FULL, 0.9f, 0.2f);
+    		Optional<V4VibeData> actualVibeData3 = testInstance.tryGetVibeData(ImageGenModel.ANIME_V4_FULL, 0.5f);
+    		Optional<V4VibeData> actualVibeData4 = testInstance.tryGetVibeData(ImageGenModel.ANIME_V4_FULL, 0.5f, 2);
+    		assertTrue(actualVibeData1.isPresent());
+    		assertTrue(actualVibeData2.isPresent());
+    		assertTrue(actualVibeData3.isPresent());
+    		assertTrue(actualVibeData4.isPresent());
+    		
+    		assertArrayEquals(actualVibeData1.get().getEncoding(), expectedVibeData1.getEncoding());
+    		assertArrayEquals(actualVibeData2.get().getEncoding(), expectedVibeData1.getEncoding());
+    		assertArrayEquals(actualVibeData3.get().getEncoding(), expectedVibeData2.getEncoding());
+    		assertArrayEquals(actualVibeData4.get().getEncoding(), expectedVibeData2.getEncoding());
+    	}
+    	
+    	@Test
+    	void testGetOrRequestVibeData() throws IOException, InterruptedException, ExecutionException {
+    		NAIAPI mockNai = mock(NAIAPI.class);
+    		V4VibeData expectedVibeData = new V4VibeData(1, "", ImageGenModel.ANIME_V4_FULL, new byte[] {1, 2});
+    		when(mockNai.encodeImageVibe(any())).then(AdditionalAnswers.answersWithDelay(100, i -> expectedVibeData));
+    		V4VibeDataFile testInstance = makeEmptyInstance(null);
+    		
+    		ExecutorService executor = Executors.newCachedThreadPool();
+    		Future<V4VibeData> actualVibeData1Future = executor.submit(()->testInstance.getOrRequestVibeData(mockNai, ImageGenModel.ANIME_V4_FULL, 1));
+    		Future<V4VibeData> actualVibeData2Future = executor.submit(()->testInstance.getOrRequestVibeData(mockNai, ImageGenModel.ANIME_V4_FULL, 1));
+    		
+    		V4VibeData actualVibeData1 = actualVibeData1Future.get();
+    		V4VibeData actualVibeData2 = actualVibeData2Future.get();
+    		
+    		verify(mockNai, times(1)).encodeImageVibe(any());
+    		assertEquals(actualVibeData1, actualVibeData2);
+    		assertEquals(actualVibeData1.getModel(), expectedVibeData.getModel());
+    		assertEquals(actualVibeData1.getInfoExtracted(), expectedVibeData.getInfoExtracted());
+    		assertArrayEquals(actualVibeData1.getEncoding(), expectedVibeData.getEncoding());
+    	}
     }
+    
+	@Test
+	void testEncodeRequestGeneration() {
+		V4VibeDataFile testInstance = makeEmptyInstance(null);
+		BufferedImage expectedImage = new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
+		testInstance.setImage(expectedImage);
+		
+		ImageVibeEncodeRequest actualEncodeRequest = testInstance.buildEncodeRequest(ImageGenModel.ANIME_V4_FULL, 0.6f);
+		assertEquals(actualEncodeRequest.getModel(), ImageGenModel.ANIME_V4_FULL);
+		assertEquals(actualEncodeRequest.getInformationExtracted(), 0.6f);
+		assertEquals(actualEncodeRequest.getImage().getImage(), expectedImage);
+	}
 }

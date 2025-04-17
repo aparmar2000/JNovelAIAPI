@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Multimap;
@@ -15,7 +17,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 
+import aparmar.nai.NAIAPI;
 import aparmar.nai.data.request.Base64Image;
+import aparmar.nai.data.request.ImageVibeEncodeRequest;
 import aparmar.nai.data.request.V4VibeData;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
 import aparmar.nai.utils.ByteArrayEncodings;
@@ -24,6 +28,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Locked;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.Value;
@@ -36,6 +41,10 @@ public class V4VibeDataFile extends DataFile<V4VibeDataFile> {
 	@EqualsAndHashCode.Exclude
 	@ToString.Exclude
 	protected Base64Image image = new Base64Image();
+	@EqualsAndHashCode.Exclude
+	@ToString.Exclude
+	@Getter(value = AccessLevel.NONE)
+	protected final ReentrantReadWriteLock encodingMapLock = new ReentrantReadWriteLock();
 	@Getter(value = AccessLevel.NONE)
 	protected final Multimap<ImageGenModel, EmbeddingData> encodingMap = MultimapBuilder
 			.enumKeys(ImageGenModel.class)
@@ -75,34 +84,79 @@ public class V4VibeDataFile extends DataFile<V4VibeDataFile> {
 		return image.generateSha256();
 	}
 	
+	public ImageVibeEncodeRequest buildEncodeRequest(ImageGenModel model, float informationExtracted) {		
+		return ImageVibeEncodeRequest.builder()
+				.image(image)
+				.model(model)
+				.informationExtracted(informationExtracted)
+				.build();
+	}
+	
+	@Locked.Read("encodingMapLock")
 	public List<V4VibeData> getVibeDataForModel(ImageGenModel model) {
 		return encodingMap.get(model)
 				.stream()
 				.map(d->new V4VibeData(d.informationExtracted, getImageId(), model, d.encoding))
 				.collect(Collectors.toList());
 	}
+
+	@Locked.Read("encodingMapLock")
+	public Optional<V4VibeData> tryGetVibeData(ImageGenModel model, float informationExtracted, float maxDeviation) {
+		return getVibeDataForModel(model)
+				.stream()
+				.filter(d->Math.abs(d.getInfoExtracted()-informationExtracted) <= maxDeviation)
+				.reduce((a,b)->{
+					float aDelta = Math.abs(a.getInfoExtracted()-informationExtracted);
+					float bDelta = Math.abs(b.getInfoExtracted()-informationExtracted);
+					if (aDelta<=bDelta) {
+						return a;
+					}
+					return b;
+				});
+	}
+	public Optional<V4VibeData> tryGetVibeData(ImageGenModel model, float informationExtracted) {
+		return tryGetVibeData(model, informationExtracted, 0.001f);
+	}
+
+	@Locked.Write("encodingMapLock")
+	public V4VibeData getOrRequestVibeData(NAIAPI nai, ImageGenModel model, float informationExtracted, float maxDeviation) throws IOException {
+		Optional<V4VibeData> result = tryGetVibeData(model, informationExtracted, maxDeviation);
+		if (result.isPresent()) {
+			return result.get();
+		}
+		result = Optional.of(nai.encodeImageVibe(buildEncodeRequest(model, informationExtracted)));
+		addVibeData(result.get());
+		return tryGetVibeData(model, informationExtracted, maxDeviation).get();
+	}
+	public V4VibeData getOrRequestVibeData(NAIAPI nai, ImageGenModel model, float informationExtracted) throws IOException {
+		return getOrRequestVibeData(nai, model, informationExtracted, 0.001f);
+	}
 	
 	public void setImage(BufferedImage image) {
 		this.image = new Base64Image(image);
 		markChanged();
 	}
-	
+
+	@Locked.Write("encodingMapLock")
 	public void clearVibeData() {
 		encodingMap.clear();
 		markChanged();
 	}
-	
+
+	@Locked.Write("encodingMapLock")
 	public void clearVibeDataForModel(ImageGenModel model) {
 		encodingMap.removeAll(model);
 		markChanged();
 	}
-	
+
+	@Locked.Write("encodingMapLock")
 	public boolean addVibeData(V4VibeData vibeData) {
 		boolean added = encodingMap.put(vibeData.getModel(), new EmbeddingData(vibeData));
 		if (added) { markChanged(); }
 		return added;
 	}
-	
+
+	@Locked.Write("encodingMapLock")
 	public boolean removeVibeData(V4VibeData vibeData) {
 		boolean removed = encodingMap.remove(vibeData.getModel(), new EmbeddingData(vibeData));
 		if (removed) { markChanged(); }
