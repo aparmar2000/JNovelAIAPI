@@ -1,6 +1,6 @@
 package aparmar.nai.data.request;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
@@ -38,6 +38,15 @@ class UnitTestBase64Image {
 						"Pixel mismatch at ("+x+","+y+")");
 			}
 		}
+	}
+
+	@Test
+	void testHashing() throws FileNotFoundException, IOException {
+		BufferedImage baseImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_lowres.jpg"));
+		Base64Image testBase64Image = new Base64Image(baseImage);
+		
+		String sha256 = testBase64Image.generateSha256();
+		assertEquals("401924e7a87f8904a338996efa5ae50e8ddc45e3e656acac4b5b51b81a663879", sha256);
 	}
 
 }

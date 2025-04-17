@@ -26,6 +26,7 @@ public class AnnotationUtils {
 	 * @see HardDeprecated &#64;HardDepreciated
 	 */
 	public static DeprecationLevel getEnumValueDeprecationLevel(Enum<?> value) {
+		if (value==null) { return DeprecationLevel.NONE; }
 		try {
 			val enumValueField = value.getClass().getField(value.name());
 			if (enumValueField.isAnnotationPresent(HardDeprecated.class)) { return DeprecationLevel.HARD; }

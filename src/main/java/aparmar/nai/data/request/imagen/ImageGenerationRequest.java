@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonArray;
@@ -19,6 +20,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
 
+import aparmar.nai.data.request.V4VibeData.VibeEncodingType;
 import aparmar.nai.data.request.imagen.ImageParameters.ImageGenSampler;
 import aparmar.nai.data.response.UserSubscription;
 import aparmar.nai.utils.AnnotationUtils;
@@ -30,6 +32,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -97,7 +100,7 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		@Deprecated
 		@HardDeprecated
 		@SerializedName("safe-diffusion")
-		ANIME_CURATED(QualityTagsPreset.V1_MODELS, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD, null),
+		ANIME_CURATED(QualityTagsPreset.V1_MODELS, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSD, null),
 		/**
 		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
 		 * This field will be removed in the future.
@@ -105,7 +108,7 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		@Deprecated
 		@HardDeprecated
 		@SerializedName("nai-diffusion")
-		ANIME_FULL(QualityTagsPreset.V1_MODELS, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD, null),
+		ANIME_FULL(QualityTagsPreset.V1_MODELS, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSD, null),
 		/**
 		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
 		 * This field will be removed in the future.
@@ -113,17 +116,17 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		@Deprecated
 		@HardDeprecated
 		@SerializedName("nai-diffusion-furry")
-		FURRY(QualityTagsPreset.V1_MODELS, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD, null),
+		FURRY(QualityTagsPreset.V1_MODELS, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSD, null),
 		@SerializedName("nai-diffusion-2")
-		ANIME_V2(QualityTagsPreset.ANIME_V2, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD, null),
+		ANIME_V2(QualityTagsPreset.ANIME_V2, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSD, null),
 		@SerializedName("nai-diffusion-3")
-		ANIME_V3(QualityTagsPreset.ANIME_V3, false, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), ImageGenModel::estimateAnlasCostSDXL, null),
+		ANIME_V3(QualityTagsPreset.ANIME_V3, false, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSDXL, null),
 		@SerializedName("nai-diffusion-furry-3")
-		FURRY_V3(QualityTagsPreset.FURRY_V3, false, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), ImageGenModel::estimateAnlasCostSDXL, null),
+		FURRY_V3(QualityTagsPreset.FURRY_V3, false, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSDXL, null),
 		@SerializedName("nai-diffusion-4-curated-preview")
-		ANIME_V4_CURATED(QualityTagsPreset.ANIME_V4_CURATED, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
+		ANIME_V4_CURATED(QualityTagsPreset.ANIME_V4_CURATED, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, V4ImageVibeTransferParameters.class), EnumSet.of(VibeEncodingType.V4_CURATED), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
 		@SerializedName("nai-diffusion-4-full")
-		ANIME_V4_FULL(QualityTagsPreset.ANIME_V4_FULL, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
+		ANIME_V4_FULL(QualityTagsPreset.ANIME_V4_FULL, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, V4ImageVibeTransferParameters.class), EnumSet.of(VibeEncodingType.V4_FULL), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
 
 		/**
 		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
@@ -132,7 +135,7 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		@Deprecated
 		@HardDeprecated
 		@SerializedName("safe-diffusion-inpainting")
-		ANIME_CURATED_INPAINT(QualityTagsPreset.V1_MODELS, true, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD, null),
+		ANIME_CURATED_INPAINT(QualityTagsPreset.V1_MODELS, true, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSD, null),
 		/**
 		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
 		 * This field will be removed in the future.
@@ -140,7 +143,7 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		@Deprecated
 		@HardDeprecated
 		@SerializedName("nai-diffusion-inpainting")
-		ANIME_FULL_INPAINT(QualityTagsPreset.V1_MODELS, true, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD, null),
+		ANIME_FULL_INPAINT(QualityTagsPreset.V1_MODELS, true, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSD, null),
 		/**
 		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
 		 * This field will be removed in the future.
@@ -148,25 +151,40 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		@Deprecated
 		@HardDeprecated
 		@SerializedName("furry-diffusion-inpainting")
-		FURRY_INPAINT(QualityTagsPreset.V1_MODELS, true, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), ImageGenModel::estimateAnlasCostSD, null),
+		FURRY_INPAINT(QualityTagsPreset.V1_MODELS, true, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSD, null),
 		@SerializedName("nai-diffusion-3-inpainting")
-		ANIME_V3_INPAINT(QualityTagsPreset.ANIME_V3, true, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), ImageGenModel::estimateAnlasCostSDXL, null),
+		ANIME_V3_INPAINT(QualityTagsPreset.ANIME_V3, true, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSDXL, null),
 		@SerializedName("nai-diffusion-furry-3-inpainting")
-		FURRY_V3_INPAINT(QualityTagsPreset.FURRY_V3, true, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), ImageGenModel::estimateAnlasCostSDXL, null),
+		FURRY_V3_INPAINT(QualityTagsPreset.FURRY_V3, true, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSDXL, null),
 		@SerializedName("nai-diffusion-4-curated-inpainting")
-		ANIME_V4_CURATED_INPAINT(QualityTagsPreset.ANIME_V4_CURATED, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
+		ANIME_V4_CURATED_INPAINT(QualityTagsPreset.ANIME_V4_CURATED, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
 		@SerializedName("nai-diffusion-4-full-inpainting")
-		ANIME_V4_FULL_INPAINT(QualityTagsPreset.ANIME_V4_FULL, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4);
+		ANIME_V4_FULL_INPAINT(QualityTagsPreset.ANIME_V4_FULL, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4);
 		
 		private final QualityTagsPreset qualityTagsPreset;
 		private final boolean inpaintingModel;
 		private final Set<Class<? extends AbstractExtraImageParameters>> supportedExtraParameterTypes;
+		private final EnumSet<VibeEncodingType> supportedVibeEncodingTypes;
 		private final BiFunction<ImageParameters, List<AbstractExtraImageParameters>, Integer> anlasCostEstimator;
 		@Getter(AccessLevel.PROTECTED)
 		private final ImageRequestJsonAdapterFunc jsonAdapterFunc;
 
-		public boolean doesModelSupportExtraParameter(AbstractExtraImageParameters extraImageParameter) {
-			return doesModelSupportExtraParameterType(extraImageParameter.getClass());
+		/**
+		 * Tests if a particular {@link AbstractExtraImageParameters} instance is compatible with this model.
+		 * @param extraImageParameter the {@code AbstractExtraImageParameters} instance to check.
+		 * @return An {@code Optional<String>} containing the incompatibility reason, if there is one.
+		 */
+		public Optional<String> doesModelSupportExtraParameter(AbstractExtraImageParameters extraImageParameter) {
+			if (!doesModelSupportExtraParameterType(extraImageParameter.getClass())) {
+				return Optional.of(String.format("Model type %s is not compatible with extraParameter type %s", this, extraImageParameter.getClass()));
+			}
+			if (extraImageParameter instanceof V4ImageVibeTransferParameters) {
+				val encodingType = ((V4ImageVibeTransferParameters)extraImageParameter).getEncodingType();
+				if (encodingType != null && !supportedVibeEncodingTypes.contains(encodingType)) {
+					return Optional.of(String.format("Model type %s is not compatible with vibes encoded in type %s", this, encodingType));
+				}
+			}
+			return Optional.empty();
 		}
 		public boolean doesModelSupportExtraParameterType(Class<? extends AbstractExtraImageParameters> extraParameterType) {
 			return supportedExtraParameterTypes.contains(extraParameterType);
@@ -251,7 +269,16 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 			double sampleFactor = Math.max(Math.ceil(baseSampleFactor * img2imgStrengthFactor), 2);
 			if (parameters.getUcScale()!=1) { sampleFactor = Math.ceil(sampleFactor * 1.3); }
 			
-			return (int) (sampleFactor * parameters.getImgCount());
+			int extraFactor = 0;
+			val optV4VibeTransferParameters = extraParameters.stream()
+					.filter(p->p instanceof V4ImageVibeTransferParameters)
+					.map(p->(V4ImageVibeTransferParameters)p)
+					.findAny();
+			if (optV4VibeTransferParameters.isPresent() && optV4VibeTransferParameters.get().getVibeDatas().size()>4) {
+				extraFactor += 2*(optV4VibeTransferParameters.get().getVibeDatas().size()-4);
+			}
+			
+			return (int) (sampleFactor * parameters.getImgCount())+extraFactor;
 		}
 	
 		// Adapter Functions
@@ -362,11 +389,13 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 				}
 			}
         	if (this.extraParameters$value != null) {
-	        	Optional<AbstractExtraImageParameters> incompatibleExistingParameter = this.extraParameters$value.values().stream()
-	        		.filter(p->!model.doesModelSupportExtraParameter(p))
-	        		.findAny();
-	        	if (incompatibleExistingParameter.isPresent()) {
-	        		throw new IllegalArgumentException(String.format("Model type %s is not compatible with extraParameter type %s", model, incompatibleExistingParameter.getClass()));
+	        	Optional<String> incompatiblityError = this.extraParameters$value.values().stream()
+	        		.map(p->model.doesModelSupportExtraParameter(p))
+	        		.filter(Optional::isPresent)
+	        		.findAny()
+	        		.flatMap(Function.identity());
+	        	if (incompatiblityError.isPresent()) {
+	        		throw new IllegalArgumentException(incompatiblityError.get());
 	        	}
         	}
 			
@@ -403,8 +432,9 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
         	return this;
         }
         public ImageGenerationRequestBuilder extraParameter(AbstractExtraImageParameters extraParameter) {
-        	if (model != null && !model.doesModelSupportExtraParameter(extraParameter)) {
-        		throw new IllegalArgumentException(String.format("Model type %s is not compatible with extraParameter type %s", model, extraParameter.getClass()));
+        	Optional<String> errorMsg;
+			if (model != null && (errorMsg=model.doesModelSupportExtraParameter(extraParameter)).isPresent()) {
+        		throw new IllegalArgumentException(errorMsg.get());
         	}
         	if (parameters != null && !parameters.compatibleWith(extraParameter)) {
         		throw new IllegalArgumentException(String.format("ImageParameter type %s is not compatible with extraParameter type %s", parameters.getClass(), extraParameter.getClass()));

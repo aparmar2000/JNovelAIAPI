@@ -29,6 +29,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 
 import aparmar.nai.TestHelpers;
+import aparmar.nai.data.request.V4VibeData.VibeEncodingType;
 import aparmar.nai.data.request.imagen.AbstractExtraImageParameters;
 import aparmar.nai.data.request.imagen.Image2ImageParameters;
 import aparmar.nai.data.request.imagen.ImageControlNetParameters;
@@ -43,6 +44,7 @@ import aparmar.nai.data.request.imagen.ImageParameters.ImageGenSampler;
 import aparmar.nai.data.request.imagen.ImageParameters.ImageParametersBuilder;
 import aparmar.nai.data.request.imagen.ImageParameters.SamplingSchedule;
 import aparmar.nai.data.request.imagen.ImageVibeTransferParameters;
+import aparmar.nai.data.request.imagen.V4ImageVibeTransferParameters;
 import aparmar.nai.data.response.UserSubscription;
 import aparmar.nai.data.response.UserSubscription.ImageGenerationLimit;
 import aparmar.nai.data.response.UserSubscription.SubscriptionPerks;
@@ -168,6 +170,19 @@ class UnitTestImageGenerationRequest {
 					.build();
 			TestHelpers.autoTestDataAndToBuilderAnnotation(ImageVibeTransferParameters.class, testInstance1, testInstance2);
 		}
+	
+		@Test
+		void testV4ImageVibeTransferParametersDataAnnotation() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+			V4ImageVibeTransferParameters testInstance1 = V4ImageVibeTransferParameters.builder()
+					.build();
+			V4ImageVibeTransferParameters testInstance2 = V4ImageVibeTransferParameters.builder()
+					.vibeData(V4ImageVibeTransferParameters.VibeTransferData.builder()
+							.referenceStrength(11)
+							.vibeData(new V4VibeData(1, "a", VibeEncodingType.V4_FULL, new byte[] {}))
+							.build())
+					.build();
+			TestHelpers.autoTestDataAndToBuilderAnnotation(V4ImageVibeTransferParameters.class, testInstance1, testInstance2);
+		}
     }
 
 	@ParameterizedTest
@@ -266,6 +281,28 @@ class UnitTestImageGenerationRequest {
 					.action(ImageGenAction.GENERATE)
 					.extraParameter(mockExtraParameters)
 					.extraParameter(ImageVibeTransferParameters.builder().build())
+					.build());
+		}
+		
+		@Test
+		void testIncompatibleV4VibeEncodings() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+			assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
+					.model(ImageGenModel.ANIME_V4_FULL)
+					.action(ImageGenAction.GENERATE)
+					.extraParameter(V4ImageVibeTransferParameters.builder()
+							.vibeData(V4ImageVibeTransferParameters.VibeTransferData.builder()
+									.vibeData(new V4VibeData(1, "a", VibeEncodingType.V4_CURATED, new byte[0]))
+									.build())
+							.build())
+					.build());
+			assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
+					.action(ImageGenAction.GENERATE)
+					.extraParameter(V4ImageVibeTransferParameters.builder()
+							.vibeData(V4ImageVibeTransferParameters.VibeTransferData.builder()
+									.vibeData(new V4VibeData(1, "a", VibeEncodingType.V4_FULL, new byte[0]))
+									.build())
+							.build())
+					.model(ImageGenModel.ANIME_V4_CURATED)
 					.build());
 		}
     }
@@ -533,6 +570,45 @@ class UnitTestImageGenerationRequest {
 		testParameters.setWidth(10);
 
 		assertEquals(0, ImageGenModel.ANIME_V2.estimateAnlasCostIncludingSubscription(testParameters, testUserSubscription));
+	}
+	
+	@Test
+	void testImageGenerationCostEstimationWithOverFourV4Vibes() {
+		ImageParameters testParameters = ImageParameters.builder()
+				.imgCount(1)
+				.width(1024)
+				.height(1024)
+				.steps(28)
+				.build();
+		V4VibeData dummyVibeData = new V4VibeData(1, "", VibeEncodingType.V4_FULL, new byte[0]);
+		V4ImageVibeTransferParameters vibeParameters = V4ImageVibeTransferParameters.builder()
+				.vibeData(V4ImageVibeTransferParameters.VibeTransferData.builder()
+						.vibeData(dummyVibeData)
+						.referenceStrength(1)
+						.build())
+				.vibeData(V4ImageVibeTransferParameters.VibeTransferData.builder()
+						.vibeData(dummyVibeData)
+						.referenceStrength(1)
+						.build())
+				.vibeData(V4ImageVibeTransferParameters.VibeTransferData.builder()
+						.vibeData(dummyVibeData)
+						.referenceStrength(1)
+						.build())
+				.vibeData(V4ImageVibeTransferParameters.VibeTransferData.builder()
+						.vibeData(dummyVibeData)
+						.referenceStrength(1)
+						.build())
+				.vibeData(V4ImageVibeTransferParameters.VibeTransferData.builder()
+						.vibeData(dummyVibeData)
+						.referenceStrength(1)
+						.build())
+				.build();
+		
+		assertEquals(22, ImageGenModel.ANIME_V4_FULL.estimateAnlasCost(testParameters, vibeParameters));
+		testParameters = testParameters.toBuilder()
+				.imgCount(2)
+				.build();
+		assertEquals(42, ImageGenModel.ANIME_V4_FULL.estimateAnlasCost(testParameters, vibeParameters));
 	}
 
 }

@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>aparmar</groupId>
 	<artifactId>JNovelAIAPI</artifactId>
-	<version>4.0.0</version>
+	<version>4.1.0</version>
 
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>A moderately functional library facilitating easier usage of
@@ -104,7 +104,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.30</version>
+			<version>1.18.38</version>
 			<scope>provided</scope>
 		</dependency>
 
