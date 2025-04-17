@@ -2,7 +2,6 @@ package aparmar.nai.data.file;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;

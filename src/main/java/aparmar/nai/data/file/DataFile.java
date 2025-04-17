@@ -3,7 +3,6 @@ package aparmar.nai.data.file;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
@@ -36,7 +35,7 @@ public abstract class DataFile<T extends DataFile<T>> {
 		changed = true;
 	}
 	
-	public abstract Pattern getFileExtPattern();
+	public abstract String getFileExt();
 	protected abstract void innerSave() throws IOException;
 	public void save() throws IOException {
 		if (filePath == null) { throw new UnsupportedOperationException("This DataFile has no path to save to."); }

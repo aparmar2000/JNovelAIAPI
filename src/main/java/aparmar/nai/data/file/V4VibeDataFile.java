@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Multimap;
@@ -62,8 +61,8 @@ public class V4VibeDataFile extends DataFile<V4VibeDataFile> {
 	
 
 	@Override
-	public Pattern getFileExtPattern() {
-		return Pattern.compile(".*\\.naiv4vibe");
+	public String getFileExt() {
+		return "naiv4vibe";
 	}
 	
 	public BufferedImage getImage() {
