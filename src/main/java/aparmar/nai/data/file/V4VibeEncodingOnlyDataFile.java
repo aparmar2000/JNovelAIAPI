@@ -51,8 +51,8 @@ public class V4VibeEncodingOnlyDataFile extends V4VibeDataFile<V4VibeEncodingOnl
 	}
 
 	@Override
-	public VIBE_FILE_TYPE getType() {
-		return VIBE_FILE_TYPE.ENCODING;
+	public VibeFileType getType() {
+		return VibeFileType.ENCODING;
 	}
 
 	@Override

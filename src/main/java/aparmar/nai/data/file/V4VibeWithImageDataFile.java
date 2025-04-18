@@ -74,8 +74,8 @@ public class V4VibeWithImageDataFile extends V4VibeDataFile<V4VibeWithImageDataF
 	}
 
 	@Override
-	public VIBE_FILE_TYPE getType() {
-		return VIBE_FILE_TYPE.IMAGE;
+	public VibeFileType getType() {
+		return VibeFileType.IMAGE;
 	}
 	
 	public BufferedImage getImage() {

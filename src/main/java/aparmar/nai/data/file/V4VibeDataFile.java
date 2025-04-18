@@ -35,7 +35,7 @@ public abstract class V4VibeDataFile<T extends V4VibeDataFile<T>> extends DataFi
 	protected long createdAt = System.currentTimeMillis();
 	protected ImportInfo importInfo = new ImportInfo();
 	
-	public static enum VIBE_FILE_TYPE {
+	public static enum VibeFileType {
 		@SerializedName("image")
 		IMAGE,
 		@SerializedName("encoding")
@@ -59,7 +59,7 @@ public abstract class V4VibeDataFile<T extends V4VibeDataFile<T>> extends DataFi
 		return "naiv4vibe";
 	}
 	
-	public abstract VIBE_FILE_TYPE getType();
+	public abstract VibeFileType getType();
 	
 	public abstract int getEncodingCount();
 
@@ -132,7 +132,7 @@ public abstract class V4VibeDataFile<T extends V4VibeDataFile<T>> extends DataFi
 			inputStream = new ByteArrayInputStream(outputStream.toByteArray());
 		}
 		
-		switch (gson.fromJson(vibeType, VIBE_FILE_TYPE.class)) {
+		switch (gson.fromJson(vibeType, VibeFileType.class)) {
 		case IMAGE:
 			return new V4VibeWithImageDataFile(filePath).loadFromStream(inputStream);
 		case ENCODING:
