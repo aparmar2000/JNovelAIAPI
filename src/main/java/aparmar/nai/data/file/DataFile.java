@@ -21,9 +21,7 @@ import lombok.val;
 @EqualsAndHashCode
 @ToString
 public abstract class DataFile<T extends DataFile<T>> {
-	@EqualsAndHashCode.Exclude
-	@ToString.Exclude
-	protected transient final Gson gson = GsonProvider.buildGsonInstance();
+	protected static transient final Gson gson = GsonProvider.buildGsonInstance();
 	
 	@Getter
 	@Nullable

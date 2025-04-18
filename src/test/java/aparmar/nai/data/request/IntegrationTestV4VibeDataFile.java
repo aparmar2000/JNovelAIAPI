@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import aparmar.nai.data.file.V4VibeDataFile;
+import aparmar.nai.data.file.V4VibeWithImageDataFile;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
 import aparmar.nai.utils.InternalResourceLoader;
 
@@ -18,7 +18,7 @@ import aparmar.nai.utils.InternalResourceLoader;
 public class IntegrationTestV4VibeDataFile {
 	@Test
 	void testLoadRealVibeFile(@TempDir Path tempDir) throws FileNotFoundException, IOException {
-		V4VibeDataFile vibeFile = new V4VibeDataFile(null).loadFromStream(InternalResourceLoader.getInternalResourceAsStream("700f94-d2e908.naiv4vibe"));
+		V4VibeWithImageDataFile vibeFile = new V4VibeWithImageDataFile(null).loadFromStream(InternalResourceLoader.getInternalResourceAsStream("700f94-d2e908.naiv4vibe"));
 		
 		assertEquals(1, vibeFile.getVersion());
 		assertEquals(1744861688908l, vibeFile.getCreatedAt());
@@ -30,7 +30,7 @@ public class IntegrationTestV4VibeDataFile {
 		
 		Path resavedPath = tempDir.resolve("temp_resave.naiv4vibe");
 		vibeFile = vibeFile.saveToFile(resavedPath.toFile());
-		V4VibeDataFile resavedVibeFile = new V4VibeDataFile(resavedPath).load();
+		V4VibeWithImageDataFile resavedVibeFile = new V4VibeWithImageDataFile(resavedPath).load();
 		assertEquals(vibeFile, resavedVibeFile);
 	}
 }

@@ -31,18 +31,18 @@ import com.google.common.collect.SetMultimap;
 
 import aparmar.nai.NAIAPI;
 import aparmar.nai.TestHelpers;
-import aparmar.nai.data.file.V4VibeDataFile.EmbeddingData;
-import aparmar.nai.data.file.V4VibeDataFile.ImportInfo;
+import aparmar.nai.data.file.V4VibeWithImageDataFile.EmbeddingData;
+import aparmar.nai.data.file.V4VibeWithImageDataFile.ImportInfo;
 import aparmar.nai.data.request.ImageVibeEncodeRequest;
 import aparmar.nai.data.request.V4VibeData;
 import aparmar.nai.data.request.V4VibeData.VibeEncodingType;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
 
-class UnitTestV4VibeDataFile extends UnitTestDataFile<V4VibeDataFile> {
+class UnitTestV4VibeDataFile extends UnitTestDataFile<V4VibeWithImageDataFile> {
 
 	@Override
-	Class<V4VibeDataFile> getTestedClass() {
-		return V4VibeDataFile.class;
+	Class<V4VibeWithImageDataFile> getTestedClass() {
+		return V4VibeWithImageDataFile.class;
 	}
 
 	@Override
@@ -51,7 +51,7 @@ class UnitTestV4VibeDataFile extends UnitTestDataFile<V4VibeDataFile> {
 	}
 
 	@Override
-	V4VibeDataFile makeInstanceOne(Path path) {
+	V4VibeWithImageDataFile makeInstanceOne(Path path) {
 		SetMultimap<VibeEncodingType, EmbeddingData> multimap = MultimapBuilder
 				.enumKeys(VibeEncodingType.class)
 				.hashSetValues()
@@ -59,7 +59,7 @@ class UnitTestV4VibeDataFile extends UnitTestDataFile<V4VibeDataFile> {
 		multimap.put(VibeEncodingType.V4_FULL, new EmbeddingData(new byte[] {1}, 1));
 		multimap.put(VibeEncodingType.V4_FULL, new EmbeddingData(new byte[] {5, 6}, 0.5f));
 		multimap.put(VibeEncodingType.V4_CURATED, new EmbeddingData(new byte[] {1, 2, 3}, 0.6f));
-		return new V4VibeDataFile(
+		return new V4VibeWithImageDataFile(
 				path,
 				1, 
 				new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB), 
@@ -69,12 +69,12 @@ class UnitTestV4VibeDataFile extends UnitTestDataFile<V4VibeDataFile> {
 	}
 
 	@Override
-	V4VibeDataFile makeInstanceTwo(Path path) {
+	V4VibeWithImageDataFile makeInstanceTwo(Path path) {
 		SetMultimap<VibeEncodingType, EmbeddingData> multimap = MultimapBuilder
 				.enumKeys(VibeEncodingType.class)
 				.hashSetValues()
 				.build();
-		return new V4VibeDataFile(
+		return new V4VibeWithImageDataFile(
 				path, 
 				2, 
 				new BufferedImage(5, 5, BufferedImage.TYPE_INT_RGB), 
@@ -84,8 +84,8 @@ class UnitTestV4VibeDataFile extends UnitTestDataFile<V4VibeDataFile> {
 	}
 
 	@Override
-	V4VibeDataFile makeEmptyInstance(Path path) {
-		return new V4VibeDataFile(path);
+	V4VibeWithImageDataFile makeEmptyInstance(Path path) {
+		return new V4VibeWithImageDataFile(path);
 	}
 
     @Nested
@@ -112,7 +112,7 @@ class UnitTestV4VibeDataFile extends UnitTestDataFile<V4VibeDataFile> {
     class VibeDataTests {
     	@Test
     	void testAddAndGetVibeData() {
-    		V4VibeDataFile testInstance = makeEmptyInstance(null);
+    		V4VibeWithImageDataFile testInstance = makeEmptyInstance(null);
     		assertEquals(0, testInstance.getVibeDataForModel(ImageGenModel.ANIME_V4_FULL).size());
     		V4VibeData expectedVibeData1 = new V4VibeData(1, "", VibeEncodingType.V4_FULL, new byte[] {1});
     		V4VibeData expectedVibeData2 = new V4VibeData(0.5f, "", VibeEncodingType.V4_FULL, new byte[] {1, 2});
@@ -133,7 +133,7 @@ class UnitTestV4VibeDataFile extends UnitTestDataFile<V4VibeDataFile> {
     	
     	@Test
     	void testClearVibeData() {
-    		V4VibeDataFile testInstance = makeEmptyInstance(null);
+    		V4VibeWithImageDataFile testInstance = makeEmptyInstance(null);
     		testInstance.addVibeData(new V4VibeData(1, "", VibeEncodingType.V4_FULL, new byte[] {1}));
     		testInstance.addVibeData(new V4VibeData(0.5f, "", VibeEncodingType.V4_FULL, new byte[] {1,2}));
     		testInstance.addVibeData(new V4VibeData(0.5f, "", VibeEncodingType.V4_CURATED, new byte[] {1,2}));
@@ -149,7 +149,7 @@ class UnitTestV4VibeDataFile extends UnitTestDataFile<V4VibeDataFile> {
     	
     	@Test
     	void testRemoveVibeData() {
-    		V4VibeDataFile testInstance = makeEmptyInstance(null);
+    		V4VibeWithImageDataFile testInstance = makeEmptyInstance(null);
     		V4VibeData expectedVibeData1 = new V4VibeData(1, "", VibeEncodingType.V4_FULL, new byte[] {1});
     		V4VibeData expectedVibeData2 = new V4VibeData(0.5f, "", VibeEncodingType.V4_FULL, new byte[] {1, 2});
     		testInstance.addVibeData(expectedVibeData1);
@@ -168,7 +168,7 @@ class UnitTestV4VibeDataFile extends UnitTestDataFile<V4VibeDataFile> {
     	
     	@Test
     	void testGetVibeDataByModelAndInfoExtracted() {
-    		V4VibeDataFile testInstance = makeEmptyInstance(null);
+    		V4VibeWithImageDataFile testInstance = makeEmptyInstance(null);
     		V4VibeData expectedVibeData1 = new V4VibeData(1, "", VibeEncodingType.V4_FULL, new byte[] {1});
     		V4VibeData expectedVibeData2 = new V4VibeData(0.5f, "", VibeEncodingType.V4_FULL, new byte[] {1, 2});
     		testInstance.addVibeData(expectedVibeData1);
@@ -197,7 +197,7 @@ class UnitTestV4VibeDataFile extends UnitTestDataFile<V4VibeDataFile> {
     		NAIAPI mockNai = mock(NAIAPI.class);
     		V4VibeData expectedVibeData = new V4VibeData(1, "", VibeEncodingType.V4_FULL, new byte[] {1, 2});
     		when(mockNai.encodeImageVibe(any())).then(AdditionalAnswers.answersWithDelay(100, i -> expectedVibeData));
-    		V4VibeDataFile testInstance = makeEmptyInstance(null);
+    		V4VibeWithImageDataFile testInstance = makeEmptyInstance(null);
     		
     		ExecutorService executor = Executors.newCachedThreadPool();
     		Future<V4VibeData> actualVibeData1Future = executor.submit(()->testInstance.getOrRequestVibeData(mockNai, ImageGenModel.ANIME_V4_FULL, 1));
@@ -216,7 +216,7 @@ class UnitTestV4VibeDataFile extends UnitTestDataFile<V4VibeDataFile> {
     
 	@Test
 	void testEncodeRequestGeneration() {
-		V4VibeDataFile testInstance = makeEmptyInstance(null);
+		V4VibeWithImageDataFile testInstance = makeEmptyInstance(null);
 		BufferedImage expectedImage = new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
 		testInstance.setImage(expectedImage);
 		
