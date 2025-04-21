@@ -1,10 +1,6 @@
 package aparmar.nai.data.file;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
@@ -113,16 +109,13 @@ public class V4VibeEncodingOnlyDataFile extends V4VibeDataFile<V4VibeEncodingOnl
 	
 
 	@Override
-	public void saveToStream(OutputStream outputStream) throws IOException {
+	public JsonObject saveToJson(JsonObject rootElement) throws IOException {
 		if (getEncodingCount() == 0) {
 			throw new IOException("Cannot save a vibe encoding file containing no encodings!");
 		}
-		JsonObject root = new JsonObject();
 		
-		root.addProperty("identifier", "novelai-vibe-transfer");
-		root.addProperty("version", version);
-		root.addProperty("type", "encoding");
-		root.addProperty("id", getId());
+		rootElement.addProperty("type", "encoding");
+		rootElement.addProperty("id", getId());
 		
 		JsonObject encodingsRoot = new JsonObject();
 		JsonObject encodingTypeRoot = new JsonObject();
@@ -132,27 +125,19 @@ public class V4VibeEncodingOnlyDataFile extends V4VibeDataFile<V4VibeEncodingOnl
 		
 		encodingTypeRoot.add("unknown", encodingRoot);
 		encodingsRoot.add(gson.toJson(encodingEntry.getEncodingType()), encodingTypeRoot);
-		root.add("encodings", encodingsRoot);
+		rootElement.add("encodings", encodingsRoot);
 		
-		root.addProperty("name", getFilePath().getFileName().toString());
-		root.addProperty("createdAt", createdAt);
-		root.add("importInfo", gson.toJsonTree(importInfo));
+		rootElement.addProperty("name", getFilePath().getFileName().toString());
+		rootElement.addProperty("createdAt", createdAt);
 		
-		try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream)) {
-			gson.toJson(root, outputStreamWriter);
-		}
+		return rootElement;
 	}
 
 	@Override
-	public V4VibeEncodingOnlyDataFile loadFromStream(InputStream inputStream) throws IOException {
-		JsonObject root;
-		try (InputStreamReader reader = new InputStreamReader(inputStream)) {
-			root = gson.fromJson(reader, JsonObject.class);
-		}
-		version = root.get("version").getAsInt();
+	public V4VibeEncodingOnlyDataFile loadFromJson(JsonObject rootElement) throws IOException {
 		
 		this.encodingEntry = null;
-		JsonObject encodingsRoot = root.getAsJsonObject("encodings");
+		JsonObject encodingsRoot = rootElement.getAsJsonObject("encodings");
 		for (Entry<String, JsonElement> modelEntry : encodingsRoot.entrySet()) {
 			VibeEncodingType encodingType = gson.fromJson(modelEntry.getKey(), VibeEncodingType.class);
 			
@@ -165,8 +150,7 @@ public class V4VibeEncodingOnlyDataFile extends V4VibeDataFile<V4VibeEncodingOnl
 			}
 		}
 		
-		createdAt = root.get("createdAt").getAsLong();
-		importInfo = gson.fromJson(root.get("importInfo"), ImportInfo.class);
+		createdAt = rootElement.get("createdAt").getAsLong();
 		
 		return this;
 	}

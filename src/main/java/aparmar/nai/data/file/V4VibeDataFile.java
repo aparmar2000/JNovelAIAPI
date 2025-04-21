@@ -1,11 +1,10 @@
 package aparmar.nai.data.file;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.file.Path;
 import java.util.List;
@@ -32,7 +31,7 @@ import lombok.Value;
 @Getter
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public abstract class V4VibeDataFile<T extends V4VibeDataFile<T>> extends DataFile<T> {
+public abstract class V4VibeDataFile<T extends V4VibeDataFile<T>> extends DataFile<T> implements JsonSerializableDataFile<T> {
 	protected int version = 1;
 	protected long createdAt = System.currentTimeMillis();
 	protected ImportInfo importInfo = new ImportInfo();
@@ -109,40 +108,55 @@ public abstract class V4VibeDataFile<T extends V4VibeDataFile<T>> extends DataFi
 		markChanged();
 	}
 	
-
-	public static V4VibeDataFile<?> loadUnknownV4VibeDataFileFromStream(InputStream inputStream, @Nullable Path filePath) throws IOException {
-		if (inputStream.markSupported()) {
-			inputStream.mark(Integer.MAX_VALUE);
+	public abstract JsonObject saveToJson(JsonObject rootElement) throws IOException;
+	@Override
+	public void saveToStream(OutputStream outputStream) throws IOException {
+		try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream)) {
+			JsonObject root = new JsonObject();
+			
+			root.addProperty("version", version);
+			root.addProperty("identifier", "novelai-vibe-transfer");
+			saveToJson(root);
+			root.add("importInfo", gson.toJsonTree(importInfo));
+			
+			gson.toJson(root, outputStreamWriter);
 		}
-		JsonObject root;
-		String vibeType = null;
-		InputStreamReader reader = new InputStreamReader(inputStream);
-		root = gson.fromJson(reader, JsonObject.class);
-		if (root.has("type")) {
-			vibeType = root.get("type").getAsString();
-		} else {
+	}
+
+	public abstract T loadFromJson(JsonObject rootElement) throws IOException;
+	@Override
+	public T loadFromStream(InputStream inputStream) throws IOException {
+		try (InputStreamReader reader = new InputStreamReader(inputStream)) {
+			JsonObject root = gson.fromJson(reader, JsonObject.class);
+			
+			version = root.get("version").getAsInt();
+			importInfo = gson.fromJson(root.get("importInfo"), ImportInfo.class);
+			
+			return loadFromJson(root);
+		}
+	}
+	
+
+	public static V4VibeDataFile<?> loadUnknownV4VibeDataFileFromJson(JsonObject rootElement, @Nullable Path filePath) throws IOException {
+		if (!rootElement.has("type")) {
 			throw new IOException("File has no 'type' field!");
 		}
+		VibeFileType vibeType = gson.fromJson(rootElement.get("type"), VibeFileType.class);
 		
-		if (inputStream.markSupported()) {
-			inputStream.reset();
-		} else {
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			try (OutputStreamWriter writer = new OutputStreamWriter(outputStream)) {
-				gson.toJson(root, writer);
-			}
-			inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-		}
-		
-		switch (gson.fromJson(vibeType, VibeFileType.class)) {
+		switch (vibeType) {
 		case IMAGE:
-			return new V4VibeWithImageDataFile(filePath).loadFromStream(inputStream);
+			return new V4VibeWithImageDataFile(filePath).loadFromJson(rootElement);
 		case ENCODING:
-			return new V4VibeEncodingOnlyDataFile(filePath).loadFromStream(inputStream);
+			return new V4VibeEncodingOnlyDataFile(filePath).loadFromJson(rootElement);
 		default:
 			break;
 		}
 		throw new IOException(String.format("Failed to handle vibe file type %s!", vibeType));
+	}
+	public static V4VibeDataFile<?> loadUnknownV4VibeDataFileFromStream(InputStream inputStream, @Nullable Path filePath) throws IOException {
+		try (InputStreamReader reader = new InputStreamReader(inputStream)) {
+			return loadUnknownV4VibeDataFileFromJson(gson.fromJson(reader, JsonObject.class), filePath);
+		}
 		
 	}
 	public static V4VibeDataFile<?> loadUnknownV4VibeDataFileFromStream(InputStream inputStream) throws IOException {
@@ -168,4 +182,5 @@ public abstract class V4VibeDataFile<T extends V4VibeDataFile<T>> extends DataFi
 		@Builder.Default
 		protected final float strength = 0.6f;
 	}
+
 }

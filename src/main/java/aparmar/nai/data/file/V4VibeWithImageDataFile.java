@@ -2,10 +2,6 @@ package aparmar.nai.data.file;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map.Entry;
@@ -156,17 +152,14 @@ public class V4VibeWithImageDataFile extends V4VibeDataFile<V4VibeWithImageDataF
 	
 
 	@Override
-	public void saveToStream(OutputStream outputStream) throws IOException {
+	public JsonObject saveToJson(JsonObject rootElement) throws IOException {
 		if (getEncodingCount() == 0) {
 			throw new IOException("Cannot save a vibe encoding file containing no encodings!");
 		}
-		JsonObject root = new JsonObject();
 		
-		root.addProperty("identifier", "novelai-vibe-transfer");
-		root.addProperty("version", version);
-		root.add("image", gson.toJsonTree(image));
-		root.add("type", gson.toJsonTree(getType()));
-		root.addProperty("id", getId());
+		rootElement.add("image", gson.toJsonTree(image));
+		rootElement.add("type", gson.toJsonTree(getType()));
+		rootElement.addProperty("id", getId());
 		
 		JsonObject encodingsRoot = new JsonObject();
 		for (VibeEncodingType encodingType : encodingMap.keySet()) {
@@ -185,9 +178,9 @@ public class V4VibeWithImageDataFile extends V4VibeDataFile<V4VibeWithImageDataF
 			
 			encodingsRoot.add(gson.toJson(encodingType), encodingTypeRoot);
 		}
-		root.add("encodings", encodingsRoot);
+		rootElement.add("encodings", encodingsRoot);
 		
-		root.addProperty("name", getFilePath().getFileName().toString());
+		rootElement.addProperty("name", getFilePath().getFileName().toString());
 		if (image != null) {
 			int thumbHeight = image.getTargetHeight();
 			int thumbWidth = image.getTargetWidth();
@@ -198,26 +191,18 @@ public class V4VibeWithImageDataFile extends V4VibeDataFile<V4VibeWithImageDataF
 				thumbHeight = (int) Math.max(256, Math.round(thumbHeight * (256D/thumbWidth)));
 				thumbWidth = 256;
 			}
-			root.add("thumbnail", gson.toJsonTree(new Base64Image(image.getImage(), thumbHeight, thumbWidth, false)));
+			rootElement.add("thumbnail", gson.toJsonTree(new Base64Image(image.getImage(), thumbHeight, thumbWidth, false)));
 		}
-		root.addProperty("createdAt", createdAt);
-		root.add("importInfo", gson.toJsonTree(importInfo));
+		rootElement.addProperty("createdAt", createdAt);
 		
-		try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream)) {
-			gson.toJson(root, outputStreamWriter);
-		}
+		return rootElement;
 	}
 
 	@Override
-	public V4VibeWithImageDataFile loadFromStream(InputStream inputStream) throws IOException {
-		JsonObject root;
-		try (InputStreamReader reader = new InputStreamReader(inputStream)) {
-			root = gson.fromJson(reader, JsonObject.class);
-		}
-		version = root.get("version").getAsInt();
-		image = gson.fromJson(root.get("image"), Base64Image.class);
+	public V4VibeWithImageDataFile loadFromJson(JsonObject rootElement) throws IOException {
+		image = gson.fromJson(rootElement.get("image"), Base64Image.class);
 		
-		JsonObject encodingsRoot = root.getAsJsonObject("encodings");
+		JsonObject encodingsRoot = rootElement.getAsJsonObject("encodings");
 		encodingMap.clear();
 		for (Entry<String, JsonElement> modelEntry : encodingsRoot.entrySet()) {
 			VibeEncodingType encodingType = gson.fromJson(modelEntry.getKey(), VibeEncodingType.class);
@@ -232,8 +217,7 @@ public class V4VibeWithImageDataFile extends V4VibeDataFile<V4VibeWithImageDataF
 			}
 		}
 		
-		createdAt = root.get("createdAt").getAsLong();
-		importInfo = gson.fromJson(root.get("importInfo"), ImportInfo.class);
+		createdAt = rootElement.get("createdAt").getAsLong();
 		
 		return this;
 	}
