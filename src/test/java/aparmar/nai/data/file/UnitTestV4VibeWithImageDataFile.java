@@ -36,7 +36,7 @@ import aparmar.nai.data.request.V4VibeData;
 import aparmar.nai.data.request.V4VibeData.VibeEncodingType;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
 
-class UnitTestV4VibeWithImageDataFile extends UnitTestV4VibeDataFile<V4VibeWithImageDataFile> {
+class UnitTestV4VibeWithImageDataFile extends UnitTestV4VibeDataFileSharedMethods<V4VibeWithImageDataFile> {
 
 	@Override
 	Class<V4VibeWithImageDataFile> getTestedClass() {

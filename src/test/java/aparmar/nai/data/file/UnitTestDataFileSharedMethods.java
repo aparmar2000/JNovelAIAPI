@@ -13,7 +13,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import aparmar.nai.TestHelpers;
 
-abstract class UnitTestDataFile<T extends DataFile<T>> {
+abstract class UnitTestDataFileSharedMethods<T extends DataFile<T>> {
 
 	abstract Class<T> getTestedClass();
 	abstract String getFileExtension();

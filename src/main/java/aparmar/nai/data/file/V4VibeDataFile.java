@@ -153,6 +153,9 @@ public abstract class V4VibeDataFile<T extends V4VibeDataFile<T>> extends DataFi
 		}
 		throw new IOException(String.format("Failed to handle vibe file type %s!", vibeType));
 	}
+	public static V4VibeDataFile<?> loadUnknownV4VibeDataFileFromJson(JsonObject rootElement) throws IOException {
+		return loadUnknownV4VibeDataFileFromJson(rootElement, null);
+	}
 	public static V4VibeDataFile<?> loadUnknownV4VibeDataFileFromStream(InputStream inputStream, @Nullable Path filePath) throws IOException {
 		try (InputStreamReader reader = new InputStreamReader(inputStream)) {
 			return loadUnknownV4VibeDataFileFromJson(gson.fromJson(reader, JsonObject.class), filePath);

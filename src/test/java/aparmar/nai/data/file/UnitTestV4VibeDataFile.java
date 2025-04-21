@@ -1,39 +1,72 @@
 package aparmar.nai.data.file;
 
-import java.lang.reflect.InvocationTargetException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.stream.Stream;
 
-import aparmar.nai.TestHelpers;
-import aparmar.nai.data.file.V4VibeDataFile.ImportInfo;
-import aparmar.nai.data.file.V4VibeWithImageDataFile.EmbeddingData;
-import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.MockedConstruction;
+import org.mockito.MockedConstruction.Context;
+import org.mockito.Mockito;
 
-public abstract class UnitTestV4VibeDataFile<T extends V4VibeDataFile<T>> extends UnitTestDataFile<T> {
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
-	@Override
-	String getFileExtension() {
-		return "naiv4vibe";
+import aparmar.nai.data.file.V4VibeDataFile.VibeFileType;
+
+public class UnitTestV4VibeDataFile {
+	final Gson gson = new Gson();
+	
+	static Stream<Arguments> generateVibeFileTypeTestArguments() {
+		return Stream.of(
+				Arguments.of(VibeFileType.IMAGE, V4VibeWithImageDataFile.class),
+				Arguments.of(VibeFileType.ENCODING, V4VibeEncodingOnlyDataFile.class),
+				Arguments.of(null, null)
+				);
 	}
 
-
-    @Nested
-    @DisplayName("@Data annotations work properly")
-    class DataAnnotationTests {
-    	@Test
-    	void testV4VibeDataFileDataEmbeddingDataAnnotation() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-    		EmbeddingData testInstance1 = new EmbeddingData(new byte[] {1}, 1);
-    		EmbeddingData testInstance2 = new EmbeddingData(new byte[] {2, 5}, 0.6f);
-    		TestHelpers.autoTestDataAndToBuilderAnnotation(EmbeddingData.class, testInstance1, testInstance2);
-    	}
-
-    	@Test
-    	void testV4VibeDataFileDataImportInfoAnnotation() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-    		ImportInfo testInstance1 = new ImportInfo(ImageGenModel.ANIME_V4_FULL, 1, 0.6f);
-    		ImportInfo testInstance2 = new ImportInfo(ImageGenModel.ANIME_V4_CURATED, 0.9f, 0.3f);
-    		TestHelpers.autoTestDataAndToBuilderAnnotation(ImportInfo.class, testInstance1, testInstance2);
-    	}
-    }
+	@ParameterizedTest
+	@MethodSource("generateVibeFileTypeTestArguments")
+	<T extends V4VibeDataFile<T>> void testLoadUnknownV4VibeDataFile(VibeFileType vibeFileType, Class<T> expectedLoadedClazz) throws IOException {
+		final JsonObject testJsonObject = new JsonObject();
+		if (vibeFileType != null) {
+			testJsonObject.add("type", gson.toJsonTree(vibeFileType));
+		}
+		
+		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+		try (OutputStreamWriter outWriter = new OutputStreamWriter(outStream);) {
+			gson.toJson(testJsonObject, outWriter);
+		}
+		byte[] testJsonBytes = outStream.toByteArray();
+		outStream.close();
+		
+		try (
+				ByteArrayInputStream testInputStream = new ByteArrayInputStream(testJsonBytes);
+				MockedConstruction<V4VibeWithImageDataFile> imageFileConstructorMock = Mockito.mockConstruction(V4VibeWithImageDataFile.class, UnitTestV4VibeDataFile::buildLoadMethodMocksForVibeDataFile);
+				MockedConstruction<V4VibeEncodingOnlyDataFile> encodingFileConstructorMock = Mockito.mockConstruction(V4VibeEncodingOnlyDataFile.class, UnitTestV4VibeDataFile::buildLoadMethodMocksForVibeDataFile);
+			) {
+			if (vibeFileType == null) {
+				assertThrows(IOException.class, ()->V4VibeDataFile.loadUnknownV4VibeDataFileFromJson(testJsonObject));
+				assertThrows(IOException.class, ()->V4VibeDataFile.loadUnknownV4VibeDataFileFromStream(testInputStream));
+			} else {
+				assertEquals(expectedLoadedClazz, V4VibeDataFile.loadUnknownV4VibeDataFileFromJson(testJsonObject).getClass());
+				assertEquals(expectedLoadedClazz, V4VibeDataFile.loadUnknownV4VibeDataFileFromStream(testInputStream).getClass());
+			}
+		}
+	}
+	
+	static <T extends V4VibeDataFile<T>> void buildLoadMethodMocksForVibeDataFile(T mock, Context context) throws IOException {
+		when(mock.load()).thenReturn(mock);
+		when(mock.loadFromStream(any())).thenReturn(mock);
+		when(mock.loadFromJson(any())).thenReturn(mock);
+	}
 }
