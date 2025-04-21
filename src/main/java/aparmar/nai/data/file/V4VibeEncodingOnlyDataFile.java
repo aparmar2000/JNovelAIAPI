@@ -47,6 +47,9 @@ public class V4VibeEncodingOnlyDataFile extends V4VibeDataFile<V4VibeEncodingOnl
 
 	@Override
 	public String getId() {
+		if (encodingEntry==null) {
+			return "unknown";
+		}
 		return ByteArrayEncodings.encodeStringBytesToSha256Hex(ByteArrayEncodings.encodeByteArrayToB64(encodingEntry.getEncoding()));
 	}
 

@@ -215,12 +215,7 @@ public class V4VibeWithImageDataFile extends V4VibeDataFile<V4VibeWithImageDataF
 			root = gson.fromJson(reader, JsonObject.class);
 		}
 		version = root.get("version").getAsInt();
-		boolean hasImage = root.get("type").getAsString()=="image";
-		if (hasImage) {
-			image = gson.fromJson(root.get("image"), Base64Image.class);
-		} else {
-			image = null;
-		}
+		image = gson.fromJson(root.get("image"), Base64Image.class);
 		
 		JsonObject encodingsRoot = root.getAsJsonObject("encodings");
 		encodingMap.clear();

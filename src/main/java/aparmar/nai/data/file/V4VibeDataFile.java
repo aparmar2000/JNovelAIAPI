@@ -24,10 +24,12 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.Value;
 
+@Getter
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public abstract class V4VibeDataFile<T extends V4VibeDataFile<T>> extends DataFile<T> {
@@ -79,6 +81,7 @@ public abstract class V4VibeDataFile<T extends V4VibeDataFile<T>> extends DataFi
 	public Optional<V4VibeData> tryGetVibeData(ImageGenModel model, float informationExtracted, float maxDeviation) {
 		return getVibeDataForModel(model)
 				.stream()
+				.filter(d->d.getInfoExtracted()!=null)
 				.filter(d->Math.abs(d.getInfoExtracted()-informationExtracted) <= maxDeviation)
 				.reduce((a,b)->{
 					float aDelta = Math.abs(a.getInfoExtracted()-informationExtracted);
@@ -113,13 +116,12 @@ public abstract class V4VibeDataFile<T extends V4VibeDataFile<T>> extends DataFi
 		}
 		JsonObject root;
 		String vibeType = null;
-		try (InputStreamReader reader = new InputStreamReader(inputStream)) {
-			root = gson.fromJson(reader, JsonObject.class);
-			if (root.has("type")) {
-				vibeType = root.get("type").getAsString();
-			} else {
-				throw new IOException("File has no 'type' field!");
-			}
+		InputStreamReader reader = new InputStreamReader(inputStream);
+		root = gson.fromJson(reader, JsonObject.class);
+		if (root.has("type")) {
+			vibeType = root.get("type").getAsString();
+		} else {
+			throw new IOException("File has no 'type' field!");
 		}
 		
 		if (inputStream.markSupported()) {
