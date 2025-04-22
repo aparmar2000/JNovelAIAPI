@@ -101,8 +101,20 @@ public class V4VibeWithImageDataFile extends V4VibeDataFile<V4VibeWithImageDataF
 				.collect(Collectors.toList());
 	}
 
+	/**
+	 * Tries to retrieve existing {@link V4VibeData} matching the provided parameters within the specified deviation.
+	 * If no suitable data is found, it requests a new encoding from the NAI API using the provided {@link NAIAPI} instance,
+	 * stores the result, and then returns it.
+	 *
+	 * @param nai The NAIAPI instance to use for requesting the encoding if needed.
+	 * @param model The image generation model to use for encoding.
+	 * @param informationExtracted The desired level of information extraction.
+	 * @param maxDeviation The maximum allowed deviation from the requested {@code informationExtracted}.
+	 * @return The matching or newly generated {@link V4VibeData}.
+	 * @throws IOException If an error occurs during the API request.
+	 */
 	@Locked.Write("encodingMapLock")
-	public V4VibeData getOrRequestVibeData(NAIAPI nai, ImageGenModel model, float informationExtracted, float maxDeviation) throws IOException {		
+	public V4VibeData getOrRequestVibeData(NAIAPI nai, ImageGenModel model, float informationExtracted, float maxDeviation) throws IOException {
 		Optional<V4VibeData> result = tryGetVibeData(model, informationExtracted, maxDeviation);
 		if (result.isPresent()) {
 			return result.get();
