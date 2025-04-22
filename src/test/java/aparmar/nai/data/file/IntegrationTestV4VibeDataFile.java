@@ -1,4 +1,4 @@
-package aparmar.nai.data.request;
+package aparmar.nai.data.file;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -15,9 +15,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import aparmar.nai.data.file.V4VibeDataFile;
-import aparmar.nai.data.file.V4VibeEncodingOnlyDataFile;
-import aparmar.nai.data.file.V4VibeWithImageDataFile;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
 import aparmar.nai.utils.InternalResourceLoader;
 
