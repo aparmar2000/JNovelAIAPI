@@ -20,7 +20,7 @@ class UnitTestV4ImageVibeTransferParameters {
 				.build();
 		V4ImageVibeTransferParameters testInstance2 = V4ImageVibeTransferParameters.builder()
 				.vibeData(V4ImageVibeTransferParameters.VibeTransferData.builder()
-						.vibeData(new V4VibeData(1, "a", VibeEncodingType.V4_CURATED, new byte[0]))
+						.vibeData(new V4VibeData(1f, "a", VibeEncodingType.V4_CURATED, new byte[0]))
 						.build())
 				.build();
 		TestHelpers.autoTestDataAndToBuilderAnnotation(V4ImageVibeTransferParameters.class, testInstance1, testInstance2);
@@ -30,18 +30,18 @@ class UnitTestV4ImageVibeTransferParameters {
 	void testVibeDataWithMismatchedEncodingModelsAreRejected() {
 		assertThrows(IllegalArgumentException.class, ()->V4ImageVibeTransferParameters.builder()
 				.vibeData(V4ImageVibeTransferParameters.VibeTransferData.builder()
-						.vibeData(new V4VibeData(1, "a", VibeEncodingType.V4_FULL, new byte[0]))
+						.vibeData(new V4VibeData(1f, "a", VibeEncodingType.V4_FULL, new byte[0]))
 						.build())
 				.vibeData(V4ImageVibeTransferParameters.VibeTransferData.builder()
-						.vibeData(new V4VibeData(1, "a", VibeEncodingType.V4_CURATED, new byte[0]))
+						.vibeData(new V4VibeData(1f, "a", VibeEncodingType.V4_CURATED, new byte[0]))
 						.build()));
 		assertThrows(IllegalArgumentException.class, ()->V4ImageVibeTransferParameters.builder()
 				.vibeDatas(ImmutableList.of(
 						V4ImageVibeTransferParameters.VibeTransferData.builder()
-							.vibeData(new V4VibeData(1, "a", VibeEncodingType.V4_FULL, new byte[0]))
+							.vibeData(new V4VibeData(1f, "a", VibeEncodingType.V4_FULL, new byte[0]))
 							.build(),
 						V4ImageVibeTransferParameters.VibeTransferData.builder()
-							.vibeData(new V4VibeData(1, "a", VibeEncodingType.V4_CURATED, new byte[0]))
+							.vibeData(new V4VibeData(1f, "a", VibeEncodingType.V4_CURATED, new byte[0]))
 							.build()
 						)));
 	}
