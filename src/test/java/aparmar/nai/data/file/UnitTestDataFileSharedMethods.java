@@ -13,7 +13,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import aparmar.nai.TestHelpers;
 
-abstract class UnitTestDataFile<T extends DataFile<T>> {
+abstract class UnitTestDataFileSharedMethods<T extends DataFile<T>> {
 
 	abstract Class<T> getTestedClass();
 	abstract String getFileExtension();
@@ -23,7 +23,7 @@ abstract class UnitTestDataFile<T extends DataFile<T>> {
 	abstract T makeEmptyInstance(Path path);
 
 	@Test
-	void testV4VibeDataFileDataAnnotation() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	void testDataFileDataAnnotation() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		T testInstance1 = makeInstanceOne(new File("dummy1.file").toPath());
 		T testInstance2 = makeInstanceTwo(new File("dummy2.file").toPath());
 		TestHelpers.autoTestDataAndToBuilderAnnotation(getTestedClass(), testInstance1, testInstance2);

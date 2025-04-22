@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.annotations.SerializedName;
 
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
+import lombok.NonNull;
 import lombok.Value;
 
 @Value
@@ -42,8 +43,12 @@ public class V4VibeData {
 		}
 	}
 	
-	private final float infoExtracted;
+	@Nullable
+	private final Float infoExtracted;
+	@Nullable
 	private final String sourceHash;
+	@NonNull
 	private final VibeEncodingType encodingType;
+	@NonNull
 	private final byte[] encoding;
 }
