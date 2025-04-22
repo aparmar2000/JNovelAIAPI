@@ -55,6 +55,7 @@ class UnitTestV4VibeWithImageDataFile extends UnitTestV4VibeDataFileSharedMethod
 		return new V4VibeWithImageDataFile(
 				path,
 				1, 
+				"instance_one",
 				0, 
 				new ImportInfo(ImageGenModel.ANIME_V4_FULL, 1, 0.6f),
 				new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB), 
@@ -70,6 +71,7 @@ class UnitTestV4VibeWithImageDataFile extends UnitTestV4VibeDataFileSharedMethod
 		return new V4VibeWithImageDataFile(
 				path, 
 				2, 
+				"instance_two",
 				100, 
 				new ImportInfo(ImageGenModel.ANIME_V4_CURATED, 0.9f, 0.3f), 
 				new BufferedImage(5, 5, BufferedImage.TYPE_INT_RGB), 

@@ -29,6 +29,7 @@ class UnitTestV4VibeEncodingOnlyDataFile extends UnitTestV4VibeDataFileSharedMet
 		return new V4VibeEncodingOnlyDataFile(
 				path,
 				1, 
+				"instance_one",
 				0, 
 				new ImportInfo(ImageGenModel.ANIME_V4_FULL, 1, 0.6f),
 				new V4VibeEncodingOnlyDataFile.EncodingEntry(new byte[] {1, 2, 3}, VibeEncodingType.V4_FULL));
@@ -39,6 +40,7 @@ class UnitTestV4VibeEncodingOnlyDataFile extends UnitTestV4VibeDataFileSharedMet
 		return new V4VibeEncodingOnlyDataFile(
 				path, 
 				2, 
+				"instance_two",
 				100, 
 				new ImportInfo(ImageGenModel.ANIME_V4_CURATED, 0.9f, 0.3f), 
 				null);

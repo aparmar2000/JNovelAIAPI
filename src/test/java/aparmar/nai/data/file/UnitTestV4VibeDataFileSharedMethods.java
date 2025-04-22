@@ -1,10 +1,15 @@
 package aparmar.nai.data.file;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import com.google.gson.JsonObject;
 
 import aparmar.nai.TestHelpers;
 import aparmar.nai.data.file.V4VibeDataFile.ImportInfo;
@@ -36,4 +41,13 @@ public abstract class UnitTestV4VibeDataFileSharedMethods<T extends V4VibeDataFi
     		TestHelpers.autoTestDataAndToBuilderAnnotation(ImportInfo.class, testInstance1, testInstance2);
     	}
     }
+	
+	@Test
+	void testSaveAndLoadJson() throws IOException {
+		T testInstance = makeInstanceOne(null);
+		JsonObject savedJson = testInstance.saveToJson(new JsonObject());
+		
+		T testInstance2 = makeEmptyInstance(null).loadFromJson(savedJson);
+		assertEquals(testInstance, testInstance2);
+	}
 }

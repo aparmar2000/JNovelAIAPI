@@ -33,6 +33,7 @@ import lombok.Value;
 @ToString(callSuper = true)
 public abstract class V4VibeDataFile<T extends V4VibeDataFile<T>> extends DataFile<T> implements JsonSerializableDataFile<T> {
 	protected int version = 1;
+	protected String name;
 	protected long createdAt = System.currentTimeMillis();
 	protected ImportInfo importInfo = new ImportInfo();
 	
@@ -47,9 +48,10 @@ public abstract class V4VibeDataFile<T extends V4VibeDataFile<T>> extends DataFi
 		super(filePath);
 	}
 
-	public V4VibeDataFile(Path filePath, int version, long createdAt, ImportInfo importInfo) {
+	public V4VibeDataFile(Path filePath, int version, String name, long createdAt, ImportInfo importInfo) {
 		super(filePath);
 		this.version = version;
+		this.name = name;
 		this.createdAt = createdAt;
 		this.importInfo = importInfo;
 	}
@@ -108,31 +110,42 @@ public abstract class V4VibeDataFile<T extends V4VibeDataFile<T>> extends DataFi
 		markChanged();
 	}
 	
-	public abstract JsonObject saveToJson(JsonObject rootElement) throws IOException;
+	protected abstract JsonObject saveInnerToJson(JsonObject rootElement) throws IOException;
+	@Override
+	public JsonObject saveToJson(JsonObject rootElement) throws IOException {
+		
+		rootElement.addProperty("version", version);
+		rootElement.addProperty("identifier", "novelai-vibe-transfer");
+		saveInnerToJson(rootElement);
+		rootElement.addProperty("name", name);
+		rootElement.addProperty("createdAt", createdAt);
+		rootElement.add("importInfo", gson.toJsonTree(importInfo));
+		
+		return rootElement;
+	}
 	@Override
 	public void saveToStream(OutputStream outputStream) throws IOException {
-		try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream)) {
-			JsonObject root = new JsonObject();
-			
-			root.addProperty("version", version);
-			root.addProperty("identifier", "novelai-vibe-transfer");
-			saveToJson(root);
-			root.add("importInfo", gson.toJsonTree(importInfo));
-			
-			gson.toJson(root, outputStreamWriter);
+		try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream)) {			
+			gson.toJson(saveToJson(new JsonObject()), outputStreamWriter);
 		}
 	}
 
-	public abstract T loadFromJson(JsonObject rootElement) throws IOException;
+	protected abstract T loadInnerFromJson(JsonObject rootElement) throws IOException;
+	@Override
+	public T loadFromJson(JsonObject rootElement) throws IOException {
+		T inst = loadInnerFromJson(rootElement);
+		
+		inst.version = rootElement.get("version").getAsInt();
+		inst.name = rootElement.get("name").getAsString();
+		inst.createdAt = rootElement.get("createdAt").getAsLong();
+		inst.importInfo = gson.fromJson(rootElement.get("importInfo"), ImportInfo.class);
+		
+		return inst;
+	}
 	@Override
 	public T loadFromStream(InputStream inputStream) throws IOException {
-		try (InputStreamReader reader = new InputStreamReader(inputStream)) {
-			JsonObject root = gson.fromJson(reader, JsonObject.class);
-			
-			version = root.get("version").getAsInt();
-			importInfo = gson.fromJson(root.get("importInfo"), ImportInfo.class);
-			
-			return loadFromJson(root);
+		try (InputStreamReader reader = new InputStreamReader(inputStream)) {			
+			return loadFromJson(gson.fromJson(reader, JsonObject.class));
 		}
 	}
 	

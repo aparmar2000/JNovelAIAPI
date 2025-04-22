@@ -36,8 +36,8 @@ public class V4VibeEncodingOnlyDataFile extends V4VibeDataFile<V4VibeEncodingOnl
 		super(filePath);
 	}
 
-	protected V4VibeEncodingOnlyDataFile(Path filePath, int version, long createdAt, ImportInfo importInfo, @Nullable EncodingEntry encodingEntry) {
-		super(filePath, version, createdAt, importInfo);
+	protected V4VibeEncodingOnlyDataFile(Path filePath, int version, String name, long createdAt, ImportInfo importInfo, @Nullable EncodingEntry encodingEntry) {
+		super(filePath, version, name, createdAt, importInfo);
 		this.encodingEntry = encodingEntry;
 	}
 
@@ -109,7 +109,7 @@ public class V4VibeEncodingOnlyDataFile extends V4VibeDataFile<V4VibeEncodingOnl
 	
 
 	@Override
-	public JsonObject saveToJson(JsonObject rootElement) throws IOException {
+	public JsonObject saveInnerToJson(JsonObject rootElement) throws IOException {
 		if (getEncodingCount() == 0) {
 			throw new IOException("Cannot save a vibe encoding file containing no encodings!");
 		}
@@ -127,14 +127,14 @@ public class V4VibeEncodingOnlyDataFile extends V4VibeDataFile<V4VibeEncodingOnl
 		encodingsRoot.add(gson.toJson(encodingEntry.getEncodingType()), encodingTypeRoot);
 		rootElement.add("encodings", encodingsRoot);
 		
-		rootElement.addProperty("name", getFilePath().getFileName().toString());
+		rootElement.addProperty("name", getFilePath()!=null ? getFilePath().getFileName().toString() : "unknown_name");
 		rootElement.addProperty("createdAt", createdAt);
 		
 		return rootElement;
 	}
 
 	@Override
-	public V4VibeEncodingOnlyDataFile loadFromJson(JsonObject rootElement) throws IOException {
+	public V4VibeEncodingOnlyDataFile loadInnerFromJson(JsonObject rootElement) throws IOException {
 		
 		this.encodingEntry = null;
 		JsonObject encodingsRoot = rootElement.getAsJsonObject("encodings");
@@ -160,6 +160,7 @@ public class V4VibeEncodingOnlyDataFile extends V4VibeDataFile<V4VibeEncodingOnl
 		return new V4VibeEncodingOnlyDataFile(
 				path, 
 				version, 
+				name,
 				createdAt, 
 				importInfo,
 				encodingEntry);

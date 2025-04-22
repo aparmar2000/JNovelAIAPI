@@ -56,8 +56,8 @@ public class V4VibeWithImageDataFile extends V4VibeDataFile<V4VibeWithImageDataF
 		super(filePath);
 	}
 
-	protected V4VibeWithImageDataFile(Path filePath, int version, long createdAt, ImportInfo importInfo, @NonNull BufferedImage image, @Nullable Multimap<VibeEncodingType, EmbeddingData> embeddingMap) {
-		super(filePath, version, createdAt, importInfo);
+	protected V4VibeWithImageDataFile(Path filePath, int version, String name, long createdAt, ImportInfo importInfo, @NonNull BufferedImage image, @Nullable Multimap<VibeEncodingType, EmbeddingData> embeddingMap) {
+		super(filePath, version, name, createdAt, importInfo);
 		this.image = new Base64Image(image);
 		if (embeddingMap != null) {
 			this.encodingMap.putAll(embeddingMap);
@@ -164,7 +164,7 @@ public class V4VibeWithImageDataFile extends V4VibeDataFile<V4VibeWithImageDataF
 	
 
 	@Override
-	public JsonObject saveToJson(JsonObject rootElement) throws IOException {
+	public JsonObject saveInnerToJson(JsonObject rootElement) throws IOException {
 		if (getEncodingCount() == 0) {
 			throw new IOException("Cannot save a vibe encoding file containing no encodings!");
 		}
@@ -192,7 +192,6 @@ public class V4VibeWithImageDataFile extends V4VibeDataFile<V4VibeWithImageDataF
 		}
 		rootElement.add("encodings", encodingsRoot);
 		
-		rootElement.addProperty("name", getFilePath().getFileName().toString());
 		if (image != null) {
 			int thumbHeight = image.getTargetHeight();
 			int thumbWidth = image.getTargetWidth();
@@ -205,13 +204,12 @@ public class V4VibeWithImageDataFile extends V4VibeDataFile<V4VibeWithImageDataF
 			}
 			rootElement.add("thumbnail", gson.toJsonTree(new Base64Image(image.getImage(), thumbHeight, thumbWidth, false)));
 		}
-		rootElement.addProperty("createdAt", createdAt);
 		
 		return rootElement;
 	}
 
 	@Override
-	public V4VibeWithImageDataFile loadFromJson(JsonObject rootElement) throws IOException {
+	public V4VibeWithImageDataFile loadInnerFromJson(JsonObject rootElement) throws IOException {
 		image = gson.fromJson(rootElement.get("image"), Base64Image.class);
 		
 		JsonObject encodingsRoot = rootElement.getAsJsonObject("encodings");
@@ -229,8 +227,6 @@ public class V4VibeWithImageDataFile extends V4VibeDataFile<V4VibeWithImageDataF
 			}
 		}
 		
-		createdAt = rootElement.get("createdAt").getAsLong();
-		
 		return this;
 	}
 
@@ -239,6 +235,7 @@ public class V4VibeWithImageDataFile extends V4VibeDataFile<V4VibeWithImageDataF
 		return new V4VibeWithImageDataFile(
 				path, 
 				version, 
+				name,
 				createdAt, 
 				importInfo,
 				image.getImage(), 
