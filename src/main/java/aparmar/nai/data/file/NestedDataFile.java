@@ -14,7 +14,7 @@ import lombok.experimental.Delegate;
 @Getter
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public abstract class NestedDataFile<T extends DataFile<T>, D extends DataFile<D>> extends DataFile<T> implements List<D> {
+public abstract class NestedDataFile<T extends DataFile<T>, D extends DataFile<?>> extends DataFile<T> implements List<D> {
 	
 	@Delegate
 	protected final List<D> dataFiles = new ArrayList<>();

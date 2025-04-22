@@ -19,7 +19,7 @@ import lombok.ToString;
 @Getter
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class V4VibeBundleDataFile<D extends V4VibeDataFile<D>> extends NestedDataFile<V4VibeBundleDataFile<D>, D> implements JsonSerializableDataFile<V4VibeBundleDataFile<D>> {
+public class V4VibeBundleDataFile<D extends V4VibeDataFile<?>> extends NestedDataFile<V4VibeBundleDataFile<D>, D> implements JsonSerializableDataFile<V4VibeBundleDataFile<D>> {
 	protected int version = 1;
 
 	public V4VibeBundleDataFile(Path filePath) {

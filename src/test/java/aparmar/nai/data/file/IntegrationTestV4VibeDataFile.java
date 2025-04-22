@@ -22,9 +22,10 @@ import aparmar.nai.utils.InternalResourceLoader;
 public class IntegrationTestV4VibeDataFile {
 	@Test
 	void testLoadRealV4VibeWithImageDataFile(@TempDir Path tempDir) throws FileNotFoundException, IOException {
-		V4VibeWithImageDataFile vibeFile = new V4VibeWithImageDataFile(null).loadFromStream(InternalResourceLoader.getInternalResourceAsStream("700f94-d2e908.naiv4vibe"));
+		V4VibeWithImageDataFile vibeFile = new V4VibeWithImageDataFile(null).loadFromStream(InternalResourceLoader.getInternalResourceAsStream("image_vibe.naiv4vibe"));
 		
 		assertEquals(1, vibeFile.getVersion());
+		assertEquals("700f94-d2e908", vibeFile.getName());
 		assertEquals(1744861688908l, vibeFile.getCreatedAt());
 		assertEquals(ImageGenModel.ANIME_V4_FULL, vibeFile.getImportInfo().getModel());
 		assertEquals(0.61f, vibeFile.getImportInfo().getInformationExtracted());
@@ -40,9 +41,10 @@ public class IntegrationTestV4VibeDataFile {
 	
 	@Test
 	void testLoadRealV4VibeEncodingOnlyDataFile(@TempDir Path tempDir) throws FileNotFoundException, IOException {
-		V4VibeEncodingOnlyDataFile vibeFile = new V4VibeEncodingOnlyDataFile(null).loadFromStream(InternalResourceLoader.getInternalResourceAsStream("c5301c-e4af6f.naiv4vibe"));
+		V4VibeEncodingOnlyDataFile vibeFile = new V4VibeEncodingOnlyDataFile(null).loadFromStream(InternalResourceLoader.getInternalResourceAsStream("embedding_vibe.naiv4vibe"));
 		
 		assertEquals(1, vibeFile.getVersion());
+		assertEquals("c5301c-e4af6f", vibeFile.getName());
 		assertEquals(1744827046122l, vibeFile.getCreatedAt());
 		assertEquals(ImageGenModel.ANIME_V4_FULL, vibeFile.getImportInfo().getModel());
 		assertEquals(1f, vibeFile.getImportInfo().getInformationExtracted());
@@ -58,8 +60,8 @@ public class IntegrationTestV4VibeDataFile {
 	
 	static Stream<Arguments> provideTestVibeFiles() {
 		return Stream.of(
-				Arguments.of("700f94-d2e908.naiv4vibe", V4VibeWithImageDataFile.class),
-				Arguments.of("c5301c-e4af6f.naiv4vibe", V4VibeEncodingOnlyDataFile.class)
+				Arguments.of("image_vibe.naiv4vibe", V4VibeWithImageDataFile.class),
+				Arguments.of("embedding_vibe.naiv4vibe", V4VibeEncodingOnlyDataFile.class)
 				);
 	}
 	
