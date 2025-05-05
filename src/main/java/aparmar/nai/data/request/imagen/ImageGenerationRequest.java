@@ -64,6 +64,9 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 	public static final String ANIME_V4_CURATED_HEAVY_UC = ANIME_V4_HEAVY_UC;
 	public static final String ANIME_V4_FULL_LIGHT_UC = "blurry, lowres, error, worst quality, bad quality, jpeg artifacts, very displeasing";
 	public static final String ANIME_V4_FULL_HEAVY_UC = "blurry, lowres, error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, multiple views, logo, too many watermarks";
+	public static final String ANIME_V4_5_CURATED_HUMAN_FOCUS_UC = "nsfw, blurry, lowres, upscaled, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, halftone, multiple views, logo, too many watermarks, negative space, blank page";
+	public static final String ANIME_V4_5_CURATED_LIGHT_UC = "nsfw, blurry, lowres, upscaled, artistic error, scan artifacts, jpeg artifacts, logo, too many watermarks, negative space, blank page";
+	public static final String ANIME_V4_5_CURATED_HEAVY_UC = "nsfw, blurry, lowres, upscaled, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, halftone, multiple views, logo, too many watermarks, negative space, blank page";
 	
 	public enum QualityTagsLocation {
 		DEFAULT,
@@ -84,7 +87,8 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		 * Use {@link ANIME_V4_CURATED} instead. May be removed in future.
 		 */
 		@Deprecated
-		ANIME_V4("rating:general, best quality, very aesthetic, absurdres", QualityTagsLocation.APPEND);
+		ANIME_V4("rating:general, best quality, very aesthetic, absurdres", QualityTagsLocation.APPEND),
+		ANIME_V4_5_CURATED("location, masterpiece, no text, -0.8::feet::, rating:general", QualityTagsLocation.APPEND);
 		
 		private final String tags;
 		private final QualityTagsLocation defaultLocation;
@@ -127,6 +131,8 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		ANIME_V4_CURATED(QualityTagsPreset.ANIME_V4_CURATED, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, V4ImageVibeTransferParameters.class), EnumSet.of(VibeEncodingType.V4_CURATED), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
 		@SerializedName("nai-diffusion-4-full")
 		ANIME_V4_FULL(QualityTagsPreset.ANIME_V4_FULL, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, V4ImageVibeTransferParameters.class), EnumSet.of(VibeEncodingType.V4_FULL), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
+		@SerializedName("nai-diffusion-4-5-curated")
+		ANIME_V4_5_CURATED(QualityTagsPreset.ANIME_V4_5_CURATED, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
 
 		/**
 		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
@@ -159,7 +165,9 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		@SerializedName("nai-diffusion-4-curated-inpainting")
 		ANIME_V4_CURATED_INPAINT(QualityTagsPreset.ANIME_V4_CURATED, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
 		@SerializedName("nai-diffusion-4-full-inpainting")
-		ANIME_V4_FULL_INPAINT(QualityTagsPreset.ANIME_V4_FULL, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4);
+		ANIME_V4_FULL_INPAINT(QualityTagsPreset.ANIME_V4_FULL, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
+		@SerializedName("nai-diffusion-4-5-curated-inpainting")
+		ANIME_V4_5_CURATED_INPAINT(QualityTagsPreset.ANIME_V4_5_CURATED, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4);
 		
 		private final QualityTagsPreset qualityTagsPreset;
 		private final boolean inpaintingModel;
