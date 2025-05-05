@@ -350,7 +350,7 @@ class UnitTestImageGenerationRequest {
 				});
 			
 			ImageGenerationRequest testInstance = ImageGenerationRequest.builder()
-					.input("input")
+					.input("input. Text: test")
 					.model(ImageGenModel.ANIME_V2)
 					.action(ImageGenAction.GENERATE)
 					.parameters(ImageParameters.builder()
@@ -360,7 +360,7 @@ class UnitTestImageGenerationRequest {
 			
 			JsonObject result = serializationInstance.serialize(testInstance, ImageParameters.class, mockJsonSerializationContext)
 					.getAsJsonObject();
-			assertEquals("input", result.get("input").getAsString());
+			assertEquals("input. Text: test", result.get("input").getAsString());
 			assertEquals("ANIME_V2", result.get("model").getAsJsonObject().get("ImageGenModel").getAsString());
 			assertEquals("GENERATE", result.get("action").getAsJsonObject().get("ImageGenAction").getAsString());
 			assertEquals(testInstance.getParameters().toString(), result.get("parameters").getAsJsonObject().get("ImageParameters").getAsString());
@@ -369,7 +369,7 @@ class UnitTestImageGenerationRequest {
 			// DEFAULT quality tags insertion location
 			result = serializationInstance.serialize(testInstance, ImageParameters.class, mockJsonSerializationContext)
 					.getAsJsonObject();
-			assertEquals("input, very aesthetic, best quality, absurdres", result.get("input").getAsString());
+			assertEquals("input. Text: test, very aesthetic, best quality, absurdres", result.get("input").getAsString());
 			assertEquals("ANIME_V2", result.get("model").getAsJsonObject().get("ImageGenModel").getAsString());
 			assertEquals("GENERATE", result.get("action").getAsJsonObject().get("ImageGenAction").getAsString());
 			assertEquals(testInstance.getParameters().toString(), result.get("parameters").getAsJsonObject().get("ImageParameters").getAsString());
@@ -378,7 +378,7 @@ class UnitTestImageGenerationRequest {
 			testInstance.getParameters().setQualityInsertLocation(QualityTagsLocation.PREPEND);
 			result = serializationInstance.serialize(testInstance, ImageParameters.class, mockJsonSerializationContext)
 					.getAsJsonObject();
-			assertEquals("very aesthetic, best quality, absurdres, input", result.get("input").getAsString());
+			assertEquals("very aesthetic, best quality, absurdres, input. Text: test", result.get("input").getAsString());
 			assertEquals("ANIME_V2", result.get("model").getAsJsonObject().get("ImageGenModel").getAsString());
 			assertEquals("GENERATE", result.get("action").getAsJsonObject().get("ImageGenAction").getAsString());
 			assertEquals(testInstance.getParameters().toString(), result.get("parameters").getAsJsonObject().get("ImageParameters").getAsString());
@@ -387,7 +387,16 @@ class UnitTestImageGenerationRequest {
 			testInstance.getParameters().setQualityInsertLocation(QualityTagsLocation.APPEND);
 			result = serializationInstance.serialize(testInstance, ImageParameters.class, mockJsonSerializationContext)
 					.getAsJsonObject();
-			assertEquals("input, very aesthetic, best quality, absurdres", result.get("input").getAsString());
+			assertEquals("input. Text: test, very aesthetic, best quality, absurdres", result.get("input").getAsString());
+			assertEquals("ANIME_V2", result.get("model").getAsJsonObject().get("ImageGenModel").getAsString());
+			assertEquals("GENERATE", result.get("action").getAsJsonObject().get("ImageGenAction").getAsString());
+			assertEquals(testInstance.getParameters().toString(), result.get("parameters").getAsJsonObject().get("ImageParameters").getAsString());
+			
+			// APPEND_MOVE_TEXT_PROMPT quality tags insertion location
+			testInstance.getParameters().setQualityInsertLocation(QualityTagsLocation.APPEND_MOVE_TEXT_PROMPT);
+			result = serializationInstance.serialize(testInstance, ImageParameters.class, mockJsonSerializationContext)
+					.getAsJsonObject();
+			assertEquals("input, very aesthetic, best quality, absurdres. Text: test", result.get("input").getAsString());
 			assertEquals("ANIME_V2", result.get("model").getAsJsonObject().get("ImageGenModel").getAsString());
 			assertEquals("GENERATE", result.get("action").getAsJsonObject().get("ImageGenAction").getAsString());
 			assertEquals(testInstance.getParameters().toString(), result.get("parameters").getAsJsonObject().get("ImageParameters").getAsString());

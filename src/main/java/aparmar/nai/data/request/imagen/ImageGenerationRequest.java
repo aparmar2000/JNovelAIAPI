@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonArray;
@@ -33,6 +34,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import lombok.var;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -64,11 +66,16 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 	public static final String ANIME_V4_CURATED_HEAVY_UC = ANIME_V4_HEAVY_UC;
 	public static final String ANIME_V4_FULL_LIGHT_UC = "blurry, lowres, error, worst quality, bad quality, jpeg artifacts, very displeasing";
 	public static final String ANIME_V4_FULL_HEAVY_UC = "blurry, lowres, error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, multiple views, logo, too many watermarks";
+	public static final String ANIME_V4_5_CURATED_HUMAN_FOCUS_UC = "nsfw, blurry, lowres, upscaled, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, halftone, multiple views, logo, too many watermarks, negative space, blank page";
+	public static final String ANIME_V4_5_CURATED_LIGHT_UC = "nsfw, blurry, lowres, upscaled, artistic error, scan artifacts, jpeg artifacts, logo, too many watermarks, negative space, blank page";
+	public static final String ANIME_V4_5_CURATED_HEAVY_UC = "nsfw, blurry, lowres, upscaled, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, halftone, multiple views, logo, too many watermarks, negative space, blank page";
 	
+	protected static final Pattern TEXT_PROMPT_START_PATTERN = Pattern.compile("[.,]?\\s*text:(?!:)", Pattern.CASE_INSENSITIVE);
 	public enum QualityTagsLocation {
 		DEFAULT,
 		PREPEND,
-		APPEND;
+		APPEND,
+		APPEND_MOVE_TEXT_PROMPT;
 	}
 	
 	@Getter
@@ -78,13 +85,14 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		ANIME_V2("very aesthetic, best quality, absurdres", QualityTagsLocation.APPEND),
 		ANIME_V3("aesthetic, best quality, absurdres", QualityTagsLocation.APPEND),
 		FURRY_V3("{best quality}, {amazing quality}", QualityTagsLocation.APPEND),
-		ANIME_V4_CURATED("rating:general, best quality, very aesthetic, absurdres", QualityTagsLocation.APPEND),
-		ANIME_V4_FULL("no text, best quality, very aesthetic, absurdres", QualityTagsLocation.APPEND),
+		ANIME_V4_CURATED("rating:general, best quality, very aesthetic, absurdres", QualityTagsLocation.APPEND_MOVE_TEXT_PROMPT),
+		ANIME_V4_FULL("no text, best quality, very aesthetic, absurdres", QualityTagsLocation.APPEND_MOVE_TEXT_PROMPT),
 		/**
 		 * Use {@link ANIME_V4_CURATED} instead. May be removed in future.
 		 */
 		@Deprecated
-		ANIME_V4("rating:general, best quality, very aesthetic, absurdres", QualityTagsLocation.APPEND);
+		ANIME_V4("rating:general, best quality, very aesthetic, absurdres", QualityTagsLocation.APPEND_MOVE_TEXT_PROMPT),
+		ANIME_V4_5_CURATED("location, masterpiece, no text, -0.8::feet::, rating:general", QualityTagsLocation.APPEND_MOVE_TEXT_PROMPT);
 		
 		private final String tags;
 		private final QualityTagsLocation defaultLocation;
@@ -127,6 +135,8 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		ANIME_V4_CURATED(QualityTagsPreset.ANIME_V4_CURATED, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, V4ImageVibeTransferParameters.class), EnumSet.of(VibeEncodingType.V4_CURATED), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
 		@SerializedName("nai-diffusion-4-full")
 		ANIME_V4_FULL(QualityTagsPreset.ANIME_V4_FULL, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, V4ImageVibeTransferParameters.class), EnumSet.of(VibeEncodingType.V4_FULL), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
+		@SerializedName("nai-diffusion-4-5-curated")
+		ANIME_V4_5_CURATED(QualityTagsPreset.ANIME_V4_5_CURATED, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
 
 		/**
 		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
@@ -159,7 +169,9 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		@SerializedName("nai-diffusion-4-curated-inpainting")
 		ANIME_V4_CURATED_INPAINT(QualityTagsPreset.ANIME_V4_CURATED, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
 		@SerializedName("nai-diffusion-4-full-inpainting")
-		ANIME_V4_FULL_INPAINT(QualityTagsPreset.ANIME_V4_FULL, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4);
+		ANIME_V4_FULL_INPAINT(QualityTagsPreset.ANIME_V4_FULL, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
+		@SerializedName("nai-diffusion-4-5-curated-inpainting")
+		ANIME_V4_5_CURATED_INPAINT(QualityTagsPreset.ANIME_V4_5_CURATED, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4);
 		
 		private final QualityTagsPreset qualityTagsPreset;
 		private final boolean inpaintingModel;
@@ -343,6 +355,19 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 				break;
 			case APPEND:
 				alteredInput = alteredInput+", "+qualityTagString;
+				break;
+			case APPEND_MOVE_TEXT_PROMPT:
+				val textPromptMatcher = TEXT_PROMPT_START_PATTERN.matcher(alteredInput);
+				var textPrompt = "";
+				if (textPromptMatcher.find()) {
+					textPrompt = alteredInput.substring(textPromptMatcher.end());
+					alteredInput = alteredInput.substring(0, textPromptMatcher.start());
+				}
+				textPrompt = textPrompt.trim();
+				alteredInput = alteredInput+", "+qualityTagString;
+				if (!textPrompt.isEmpty()) {
+					alteredInput = alteredInput + ". Text: " + textPrompt;
+				}
 				break;
 			}
 		}
