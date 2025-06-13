@@ -30,6 +30,7 @@ import com.google.gson.JsonSerializationContext;
 
 import aparmar.nai.TestHelpers;
 import aparmar.nai.data.request.V4VibeData.VibeEncodingType;
+import aparmar.nai.data.request.imagen.ImageGenerationRequest.ModeTag;
 import aparmar.nai.data.request.imagen.AbstractExtraImageParameters;
 import aparmar.nai.data.request.imagen.Image2ImageParameters;
 import aparmar.nai.data.request.imagen.ImageControlNetParameters;
@@ -66,10 +67,11 @@ class UnitTestImageGenerationRequest {
 					.build();
 			ImageGenerationRequest testInstance2 = ImageGenerationRequest.builder()
 					.input("input")
-					.model(ImageGenModel.FURRY_V3)
+					.model(ImageGenModel.ANIME_V4_FULL)
 					.action(ImageGenAction.IMG2IMG)
 					.parameters(ImageParameters.builder().build())
 					.extraParameter(Image2ImageParameters.builder().build())
+					.modeTag(ModeTag.ANIME)
 					.build();
 			TestHelpers.autoTestDataAndToBuilderAnnotation(ImageGenerationRequest.class, testInstance1, testInstance2);
 		}
@@ -304,6 +306,70 @@ class UnitTestImageGenerationRequest {
 							.build())
 					.model(ImageGenModel.ANIME_V4_CURATED)
 					.build());
+		}
+    }
+    
+    @Nested
+    @DisplayName("mode tags work correctly")
+    class ModeTagTests {
+		@Test
+		void testModelRejectsInvalidModeTag() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {			
+			assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
+					.model(ImageGenModel.ANIME_V4_CURATED)
+					.action(ImageGenAction.GENERATE)
+					.modeTag(ModeTag.BACKGROUNDS)
+					.build());
+		}
+		@Test
+		void testModeTagRejectsInvalidModel() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {			
+			assertThrows(IllegalArgumentException.class, ()->ImageGenerationRequest.builder()
+					.action(ImageGenAction.GENERATE)
+					.modeTag(ModeTag.BACKGROUNDS)
+					.model(ImageGenModel.ANIME_V4_CURATED)
+					.build());
+		}
+
+    	@ParameterizedTest
+    	@MethodSource("aparmar.nai.ImageGenTestHelpers#getNonDeprecatedModels")
+		void testModeTagIsAddedCorrectly(ImageGenModel testModel) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+			ImageGenerationRequest serializationInstance = new ImageGenerationRequest();
+			JsonSerializationContext mockJsonSerializationContext = mock(JsonSerializationContext.class);
+			when(mockJsonSerializationContext.serialize(any(), any()))
+				.then(a->{
+					JsonObject mockObj = new JsonObject();
+					mockObj.addProperty(a.getArgument(0).getClass().getSimpleName(),a.getArgument(0).toString());
+					return mockObj;
+				});
+			
+			ImageGenAction action = testModel.isInpaintingModel() ? ImageGenAction.INFILL : ImageGenAction.GENERATE;
+			ImageParameters parameters = ( testModel.isInpaintingModel() ? ImageInpaintParameters.builder() : ImageParameters.builder() )
+					.qualityToggle(false)
+					.build();
+    		for (ModeTag modeTag : testModel.getSupportedModeTags()) {
+    			String expectedPrefixed = modeTag.getPrefixTag().isEmpty() ? "input" : modeTag.getPrefixTag()+", input";
+    			
+    			ImageGenerationRequest testRequestNeedsInsert = ImageGenerationRequest.builder()
+					.model(testModel)
+					.action(action)
+					.modeTag(modeTag)
+					.input("input")
+					.parameters(parameters)
+					.build();
+    			JsonObject needsInsertResult = serializationInstance.serialize(testRequestNeedsInsert, ImageGenerationRequest.class, mockJsonSerializationContext)
+    					.getAsJsonObject();
+    			assertEquals(expectedPrefixed, needsInsertResult.get("input").getAsString());
+    			
+    			ImageGenerationRequest testRequestNoInsert = ImageGenerationRequest.builder()
+					.model(testModel)
+					.action(action)
+					.modeTag(modeTag)
+					.input(expectedPrefixed)
+					.parameters(parameters)
+					.build();
+    			JsonObject noInsertResult = serializationInstance.serialize(testRequestNoInsert, ImageGenerationRequest.class, mockJsonSerializationContext)
+    					.getAsJsonObject();
+    			assertEquals(expectedPrefixed, noInsertResult.get("input").getAsString());
+    		}
 		}
     }
 

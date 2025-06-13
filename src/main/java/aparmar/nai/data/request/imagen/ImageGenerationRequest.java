@@ -13,6 +13,8 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -69,6 +71,10 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 	public static final String ANIME_V4_5_CURATED_HUMAN_FOCUS_UC = "nsfw, blurry, lowres, upscaled, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, halftone, multiple views, logo, too many watermarks, negative space, blank page";
 	public static final String ANIME_V4_5_CURATED_LIGHT_UC = "nsfw, blurry, lowres, upscaled, artistic error, scan artifacts, jpeg artifacts, logo, too many watermarks, negative space, blank page";
 	public static final String ANIME_V4_5_CURATED_HEAVY_UC = "nsfw, blurry, lowres, upscaled, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, halftone, multiple views, logo, too many watermarks, negative space, blank page";
+	public static final String V4_5_FULL_HEAVY_UC = "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page, chibi, thick lips, 1.2::victorian, historical,::, adult, mature";
+	public static final String V4_5_FULL_LIGHT_UC = "nsfw, lowres, artistic error, scan artifacts, worst quality, bad quality, jpeg artifacts, multiple views, very displeasing, too many watermarks, negative space, blank page, chibi, thick lips, 1.2::victorian, historical,::, adult, mature";
+	public static final String V4_5_FULL_FURRY_FOCUS_UC = "nsfw, {worst quality}, distracting watermark, unfinished, bad quality, {widescreen}, upscale, {sequence}, {{grandfathered content}}, blurred foreground, chromatic aberration, sketch, everyone, [sketch background], simple, [flat colors], ych (character), outline, multiple scenes, [[horror (theme)]], comic, chibi, thick lips, 1.2::victorian, historical,::, adult, mature";
+	public static final String V4_5_FULL_HUMAN_FOCUS_UC = "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page, @_@, mismatched pupils, glowing eyes, bad anatomy, chibi, thick lips, 1.2::victorian, historical,::, adult, mature";
 	
 	protected static final Pattern TEXT_PROMPT_START_PATTERN = Pattern.compile("[.,]?\\s*text:(?!:)", Pattern.CASE_INSENSITIVE);
 	public enum QualityTagsLocation {
@@ -92,10 +98,31 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		 */
 		@Deprecated
 		ANIME_V4("rating:general, best quality, very aesthetic, absurdres", QualityTagsLocation.APPEND_MOVE_TEXT_PROMPT),
-		ANIME_V4_5_CURATED("location, masterpiece, no text, -0.8::feet::, rating:general", QualityTagsLocation.APPEND_MOVE_TEXT_PROMPT);
+		ANIME_V4_5_CURATED("location, masterpiece, no text, -0.8::feet::, rating:general", QualityTagsLocation.APPEND_MOVE_TEXT_PROMPT),
+		V4_5_FULL("very aesthetic, masterpiece, no text", QualityTagsLocation.APPEND_MOVE_TEXT_PROMPT);
 		
 		private final String tags;
 		private final QualityTagsLocation defaultLocation;
+	}
+	
+	@Getter
+	@RequiredArgsConstructor
+	public enum ModeTag {
+		ANIME(""),
+		FURRY("fur dataset"),
+		BACKGROUNDS("background dataset");
+		
+		private final String prefixTag;
+		
+		public String addTag(String input) {
+			if (getPrefixTag().isEmpty()) {
+				return input;
+			}
+			if (input.trim().toLowerCase().startsWith(getPrefixTag().toLowerCase())) {
+				return input;
+			}
+			return getPrefixTag()+", "+input;
+		}
 	}
 	
 	@Getter
@@ -108,7 +135,7 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		@Deprecated
 		@HardDeprecated
 		@SerializedName("safe-diffusion")
-		ANIME_CURATED(QualityTagsPreset.V1_MODELS, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSD, null),
+		ANIME_CURATED(QualityTagsPreset.V1_MODELS, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.noneOf(ModeTag.class), ImageGenModel::estimateAnlasCostSD, null),
 		/**
 		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
 		 * This field will be removed in the future.
@@ -116,7 +143,7 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		@Deprecated
 		@HardDeprecated
 		@SerializedName("nai-diffusion")
-		ANIME_FULL(QualityTagsPreset.V1_MODELS, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSD, null),
+		ANIME_FULL(QualityTagsPreset.V1_MODELS, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.noneOf(ModeTag.class), ImageGenModel::estimateAnlasCostSD, null),
 		/**
 		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
 		 * This field will be removed in the future.
@@ -124,19 +151,21 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		@Deprecated
 		@HardDeprecated
 		@SerializedName("nai-diffusion-furry")
-		FURRY(QualityTagsPreset.V1_MODELS, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSD, null),
+		FURRY(QualityTagsPreset.V1_MODELS, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.noneOf(ModeTag.class), ImageGenModel::estimateAnlasCostSD, null),
 		@SerializedName("nai-diffusion-2")
-		ANIME_V2(QualityTagsPreset.ANIME_V2, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSD, null),
+		ANIME_V2(QualityTagsPreset.ANIME_V2, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.noneOf(ModeTag.class), ImageGenModel::estimateAnlasCostSD, null),
 		@SerializedName("nai-diffusion-3")
-		ANIME_V3(QualityTagsPreset.ANIME_V3, false, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSDXL, null),
+		ANIME_V3(QualityTagsPreset.ANIME_V3, false, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.noneOf(ModeTag.class), ImageGenModel::estimateAnlasCostSDXL, null),
 		@SerializedName("nai-diffusion-furry-3")
-		FURRY_V3(QualityTagsPreset.FURRY_V3, false, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSDXL, null),
+		FURRY_V3(QualityTagsPreset.FURRY_V3, false, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.noneOf(ModeTag.class), ImageGenModel::estimateAnlasCostSDXL, null),
 		@SerializedName("nai-diffusion-4-curated-preview")
-		ANIME_V4_CURATED(QualityTagsPreset.ANIME_V4_CURATED, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, V4ImageVibeTransferParameters.class), EnumSet.of(VibeEncodingType.V4_CURATED), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
+		ANIME_V4_CURATED(QualityTagsPreset.ANIME_V4_CURATED, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, V4ImageVibeTransferParameters.class), EnumSet.of(VibeEncodingType.V4_CURATED), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
 		@SerializedName("nai-diffusion-4-full")
-		ANIME_V4_FULL(QualityTagsPreset.ANIME_V4_FULL, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, V4ImageVibeTransferParameters.class), EnumSet.of(VibeEncodingType.V4_FULL), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
+		ANIME_V4_FULL(QualityTagsPreset.ANIME_V4_FULL, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, V4ImageVibeTransferParameters.class), EnumSet.of(VibeEncodingType.V4_FULL), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
 		@SerializedName("nai-diffusion-4-5-curated")
-		ANIME_V4_5_CURATED(QualityTagsPreset.ANIME_V4_5_CURATED, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
+		ANIME_V4_5_CURATED(QualityTagsPreset.ANIME_V4_5_CURATED, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
+		@SerializedName("nai-diffusion-4-5-full")
+		V4_5_FULL(QualityTagsPreset.V4_5_FULL, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY, ModeTag.BACKGROUNDS), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
 
 		/**
 		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
@@ -145,7 +174,7 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		@Deprecated
 		@HardDeprecated
 		@SerializedName("safe-diffusion-inpainting")
-		ANIME_CURATED_INPAINT(QualityTagsPreset.V1_MODELS, true, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSD, null),
+		ANIME_CURATED_INPAINT(QualityTagsPreset.V1_MODELS, true, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.noneOf(ModeTag.class), ImageGenModel::estimateAnlasCostSD, null),
 		/**
 		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
 		 * This field will be removed in the future.
@@ -153,7 +182,7 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		@Deprecated
 		@HardDeprecated
 		@SerializedName("nai-diffusion-inpainting")
-		ANIME_FULL_INPAINT(QualityTagsPreset.V1_MODELS, true, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSD, null),
+		ANIME_FULL_INPAINT(QualityTagsPreset.V1_MODELS, true, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.noneOf(ModeTag.class), ImageGenModel::estimateAnlasCostSD, null),
 		/**
 		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
 		 * This field will be removed in the future.
@@ -161,22 +190,23 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		@Deprecated
 		@HardDeprecated
 		@SerializedName("furry-diffusion-inpainting")
-		FURRY_INPAINT(QualityTagsPreset.V1_MODELS, true, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSD, null),
+		FURRY_INPAINT(QualityTagsPreset.V1_MODELS, true, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.noneOf(ModeTag.class), ImageGenModel::estimateAnlasCostSD, null),
 		@SerializedName("nai-diffusion-3-inpainting")
-		ANIME_V3_INPAINT(QualityTagsPreset.ANIME_V3, true, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSDXL, null),
+		ANIME_V3_INPAINT(QualityTagsPreset.ANIME_V3, true, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.noneOf(ModeTag.class), ImageGenModel::estimateAnlasCostSDXL, null),
 		@SerializedName("nai-diffusion-furry-3-inpainting")
-		FURRY_V3_INPAINT(QualityTagsPreset.FURRY_V3, true, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSDXL, null),
+		FURRY_V3_INPAINT(QualityTagsPreset.FURRY_V3, true, ImmutableSet.of(Image2ImageParameters.class, ImageVibeTransferParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.noneOf(ModeTag.class), ImageGenModel::estimateAnlasCostSDXL, null),
 		@SerializedName("nai-diffusion-4-curated-inpainting")
-		ANIME_V4_CURATED_INPAINT(QualityTagsPreset.ANIME_V4_CURATED, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
+		ANIME_V4_CURATED_INPAINT(QualityTagsPreset.ANIME_V4_CURATED, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
 		@SerializedName("nai-diffusion-4-full-inpainting")
-		ANIME_V4_FULL_INPAINT(QualityTagsPreset.ANIME_V4_FULL, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
+		ANIME_V4_FULL_INPAINT(QualityTagsPreset.ANIME_V4_FULL, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
 		@SerializedName("nai-diffusion-4-5-curated-inpainting")
-		ANIME_V4_5_CURATED_INPAINT(QualityTagsPreset.ANIME_V4_5_CURATED, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4);
+		ANIME_V4_5_CURATED_INPAINT(QualityTagsPreset.ANIME_V4_5_CURATED, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4);
 		
 		private final QualityTagsPreset qualityTagsPreset;
 		private final boolean inpaintingModel;
 		private final Set<Class<? extends AbstractExtraImageParameters>> supportedExtraParameterTypes;
 		private final EnumSet<VibeEncodingType> supportedVibeEncodingTypes;
+		private final EnumSet<ModeTag> supportedModeTags;
 		private final BiFunction<ImageParameters, List<AbstractExtraImageParameters>, Integer> anlasCostEstimator;
 		@Getter(AccessLevel.PROTECTED)
 		private final ImageRequestJsonAdapterFunc jsonAdapterFunc;
@@ -200,6 +230,10 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		}
 		public boolean doesModelSupportExtraParameterType(Class<? extends AbstractExtraImageParameters> extraParameterType) {
 			return supportedExtraParameterTypes.contains(extraParameterType);
+		}
+		
+		boolean doesModelSupportModeTag(ModeTag modeTag) {
+			return modeTag==null || supportedModeTags.contains(modeTag);
 		}
 		
 		public int estimateAnlasCost(ImageParameters parameters) {
@@ -335,6 +369,7 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 	private ImageParameters parameters;
 	@Builder.Default
  	private Map<Class<? extends AbstractExtraImageParameters>, AbstractExtraImageParameters> extraParameters = new HashMap<>();
+	private ModeTag modeTag;
 	
 	@Override
 	public JsonElement serialize(ImageGenerationRequest src, Type typeOfSrc, JsonSerializationContext context) {
@@ -370,6 +405,9 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 				}
 				break;
 			}
+		}
+		if (src.getModeTag() != null) {
+			alteredInput = src.getModeTag().addTag(alteredInput);
 		}
 		
 		wrapper.addProperty("input", alteredInput);
@@ -422,6 +460,11 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 	        	if (incompatiblityError.isPresent()) {
 	        		throw new IllegalArgumentException(incompatiblityError.get());
 	        	}
+        	}
+        	if (this.modeTag != null) {
+    			if (!model.doesModelSupportModeTag(this.modeTag)) {
+            		throw new IllegalArgumentException(String.format("Model %s does not support mode tag %s", model, this.modeTag));
+            	}
         	}
 			
 			this.model = model;
@@ -479,6 +522,15 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
         	}
             this.extraParameters$value.put(extraParameter.getClass(), extraParameter);
             return this;
+        }
+		
+        public ImageGenerationRequestBuilder modeTag(@Nullable ModeTag modeTag) {
+			if (model != null && !model.doesModelSupportModeTag(modeTag)) {
+        		throw new IllegalArgumentException(String.format("Model %s does not support mode tag %s", model, modeTag));
+        	}
+			
+        	this.modeTag = modeTag;
+        	return this;
         }
 	}
 }
