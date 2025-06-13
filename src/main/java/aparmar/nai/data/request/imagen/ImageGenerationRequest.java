@@ -165,7 +165,7 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		@SerializedName("nai-diffusion-4-5-curated")
 		ANIME_V4_5_CURATED(QualityTagsPreset.ANIME_V4_5_CURATED, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
 		@SerializedName("nai-diffusion-4-5-full")
-		V4_5_FULL(QualityTagsPreset.ANIME_V4_5_FULL, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY, ModeTag.BACKGROUNDS), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
+		V4_5_FULL(QualityTagsPreset.V4_5_FULL, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY, ModeTag.BACKGROUNDS), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
 
 		/**
 		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
