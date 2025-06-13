@@ -69,6 +69,10 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 	public static final String ANIME_V4_5_CURATED_HUMAN_FOCUS_UC = "nsfw, blurry, lowres, upscaled, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, halftone, multiple views, logo, too many watermarks, negative space, blank page";
 	public static final String ANIME_V4_5_CURATED_LIGHT_UC = "nsfw, blurry, lowres, upscaled, artistic error, scan artifacts, jpeg artifacts, logo, too many watermarks, negative space, blank page";
 	public static final String ANIME_V4_5_CURATED_HEAVY_UC = "nsfw, blurry, lowres, upscaled, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, halftone, multiple views, logo, too many watermarks, negative space, blank page";
+	public static final String V4_5_FULL_HEAVY_UC = "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page, chibi, thick lips, 1.2::victorian, historical,::, adult, mature";
+	public static final String V4_5_FULL_LIGHT_UC = "nsfw, lowres, artistic error, scan artifacts, worst quality, bad quality, jpeg artifacts, multiple views, very displeasing, too many watermarks, negative space, blank page, chibi, thick lips, 1.2::victorian, historical,::, adult, mature";
+	public static final String V4_5_FULL_FURRY_FOCUS_UC = "nsfw, {worst quality}, distracting watermark, unfinished, bad quality, {widescreen}, upscale, {sequence}, {{grandfathered content}}, blurred foreground, chromatic aberration, sketch, everyone, [sketch background], simple, [flat colors], ych (character), outline, multiple scenes, [[horror (theme)]], comic, chibi, thick lips, 1.2::victorian, historical,::, adult, mature";
+	public static final String V4_5_FULL_HUMAN_FOCUS_UC = "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page, @_@, mismatched pupils, glowing eyes, bad anatomy, chibi, thick lips, 1.2::victorian, historical,::, adult, mature";
 	
 	protected static final Pattern TEXT_PROMPT_START_PATTERN = Pattern.compile("[.,]?\\s*text:(?!:)", Pattern.CASE_INSENSITIVE);
 	public enum QualityTagsLocation {
@@ -92,7 +96,8 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		 */
 		@Deprecated
 		ANIME_V4("rating:general, best quality, very aesthetic, absurdres", QualityTagsLocation.APPEND_MOVE_TEXT_PROMPT),
-		ANIME_V4_5_CURATED("location, masterpiece, no text, -0.8::feet::, rating:general", QualityTagsLocation.APPEND_MOVE_TEXT_PROMPT);
+		ANIME_V4_5_CURATED("location, masterpiece, no text, -0.8::feet::, rating:general", QualityTagsLocation.APPEND_MOVE_TEXT_PROMPT),
+		ANIME_V4_5_FULL("very aesthetic, masterpiece, no text", QualityTagsLocation.APPEND_MOVE_TEXT_PROMPT);
 		
 		private final String tags;
 		private final QualityTagsLocation defaultLocation;
@@ -137,6 +142,8 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		ANIME_V4_FULL(QualityTagsPreset.ANIME_V4_FULL, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, V4ImageVibeTransferParameters.class), EnumSet.of(VibeEncodingType.V4_FULL), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
 		@SerializedName("nai-diffusion-4-5-curated")
 		ANIME_V4_5_CURATED(QualityTagsPreset.ANIME_V4_5_CURATED, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
+		@SerializedName("nai-diffusion-4-5-full")
+		ANIME_V4_5_FULL(QualityTagsPreset.ANIME_V4_5_FULL, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class), EnumSet.noneOf(VibeEncodingType.class), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
 
 		/**
 		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
