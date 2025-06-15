@@ -18,7 +18,7 @@ public class ByteArrayEncodings {
 		try {
 			ImageIO.write(image, "png", baos);
 		} catch (IOException e) {
-			e.printStackTrace();
+			e.printStackTrace();// Should never happen
 		}
         return baos.toByteArray();
 	}
@@ -26,7 +26,7 @@ public class ByteArrayEncodings {
         try {
 			return string.getBytes("UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			e.printStackTrace();// Should never happen
 		}
         return new byte[0];
 	}
@@ -56,7 +56,7 @@ public class ByteArrayEncodings {
 		try {
 	        return encodeByteArrayWithDigest(bytes, "MD5");
 		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+			e.printStackTrace();// Should never happen
 		}
 		return null;
 	}
@@ -71,7 +71,7 @@ public class ByteArrayEncodings {
 		try {
 	        return encodeByteArrayWithDigest(bytes, "SHA-256");
 		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+			e.printStackTrace();// Should never happen
 		}
 		return null;
 	}
