@@ -18,7 +18,7 @@ public class ZipArchiveWrapper {
 	private final byte[] compressedBytes;
 	private final ZipArchiveEntry[] entries;
 	
-	public ZipArchiveWrapper(byte[] compressedBytes) {
+	public ZipArchiveWrapper(byte[] compressedBytes) throws IOException {
 		this.compressedBytes = compressedBytes;
 		
 		ArrayList<ZipArchiveEntry> entryList = new ArrayList<>();
@@ -27,9 +27,7 @@ public class ZipArchiveWrapper {
 	    	while((nextEntry = zi.getNextEntry()) != null) {
 	    		entryList.add(nextEntry);
 	    	}
-	    } catch (IOException e) {
-			e.printStackTrace();
-		}
+	    }
 	    entries = entryList.toArray(new ZipArchiveEntry[0]);
 	}
 	
