@@ -41,6 +41,7 @@ public abstract class UnitTestNestedDataFileSharedMethods<T extends NestedDataFi
         MockitoAnnotations.openMocks(this);
         testPath = tempDir.resolve("testNested."+makeEmptyInstance(null).getFileExt());
         nestedDataFile = makeEmptyInstance(testPath);
+        nestedDataFile.resetChanged();
     }
 
     // --- Delegated List Method Tests ---
@@ -110,8 +111,10 @@ public abstract class UnitTestNestedDataFileSharedMethods<T extends NestedDataFi
 
     @Test
     void testAdd() {
+        nestedDataFile.resetChanged();
         assertTrue(nestedDataFile.add(mockDataFile1));
         
+        assertTrue(nestedDataFile.isChanged());
         assertEquals(1, nestedDataFile.size());
         assertEquals(mockDataFile1, nestedDataFile.get(0));
     }
@@ -120,9 +123,11 @@ public abstract class UnitTestNestedDataFileSharedMethods<T extends NestedDataFi
     void testRemoveObject() {
         nestedDataFile.add(mockDataFile1);
         nestedDataFile.add(mockDataFile2);
-        
+
+        nestedDataFile.resetChanged();
         assertTrue(nestedDataFile.remove(mockDataFile1));
-        
+
+        assertTrue(nestedDataFile.isChanged());
         assertEquals(1, nestedDataFile.size());
         assertFalse(nestedDataFile.contains(mockDataFile1));
         assertTrue(nestedDataFile.contains(mockDataFile2));
@@ -132,19 +137,23 @@ public abstract class UnitTestNestedDataFileSharedMethods<T extends NestedDataFi
     @Test
     void testContainsAll() {
         nestedDataFile.addAll(Arrays.asList(mockDataFile1, mockDataFile2));
-        
+        nestedDataFile.resetChanged();
+
         assertTrue(nestedDataFile.containsAll(Arrays.asList(mockDataFile1, mockDataFile2)));
         assertTrue(nestedDataFile.containsAll(Arrays.asList(mockDataFile2, mockDataFile1)));
         assertTrue(nestedDataFile.containsAll(Lists.newArrayList(mockDataFile1)));
         assertFalse(nestedDataFile.containsAll(Arrays.asList(mockDataFile1, mockDataFile3)));
         assertTrue(nestedDataFile.containsAll(Collections.emptyList()));
+        assertFalse(nestedDataFile.isChanged());
     }
 
     @Test
     void testAddAllCollection() {
+        nestedDataFile.resetChanged();
         List<D> toAdd = Arrays.asList(mockDataFile1, mockDataFile2);
         assertTrue(nestedDataFile.addAll(toAdd));
-        
+
+        assertTrue(nestedDataFile.isChanged());
         assertEquals(2, nestedDataFile.size());
         assertTrue(nestedDataFile.containsAll(toAdd));
         assertFalse(nestedDataFile.addAll(Collections.emptyList()));
@@ -153,10 +162,12 @@ public abstract class UnitTestNestedDataFileSharedMethods<T extends NestedDataFi
     @Test
     void testAddAllAtIndex() {
         nestedDataFile.add(mockDataFile3);
-        
+
+        nestedDataFile.resetChanged();
         List<D> toAdd = Arrays.asList(mockDataFile1, mockDataFile2);
         assertTrue(nestedDataFile.addAll(0, toAdd));
-        
+
+        assertTrue(nestedDataFile.isChanged());
         assertEquals(3, nestedDataFile.size());
         assertEquals(mockDataFile1, nestedDataFile.get(0));
         assertEquals(mockDataFile2, nestedDataFile.get(1));
@@ -170,13 +181,21 @@ public abstract class UnitTestNestedDataFileSharedMethods<T extends NestedDataFi
         nestedDataFile.addAll(Arrays.asList(mockDataFile1, mockDataFile2, mockDataFile3));
         D extraMock = (D) mock(mockDataFile1.getClass());
         List<D> toRemove = Arrays.asList(mockDataFile1, mockDataFile3, extraMock);
-        
+
+        nestedDataFile.resetChanged();
         assertTrue(nestedDataFile.removeAll(toRemove));
+
+        assertTrue(nestedDataFile.isChanged());
         assertEquals(1, nestedDataFile.size());
         assertFalse(nestedDataFile.contains(mockDataFile1));
         assertTrue(nestedDataFile.contains(mockDataFile2));
         assertFalse(nestedDataFile.contains(mockDataFile3));
+        
+        nestedDataFile.resetChanged();
         assertFalse(nestedDataFile.removeAll(Lists.newArrayList(mock(mockDataFile1.getClass()))));
+        assertFalse(nestedDataFile.removeAll(toRemove));
+        
+        assertFalse(nestedDataFile.isChanged());
     }
 
     @SuppressWarnings("unchecked")
@@ -185,27 +204,46 @@ public abstract class UnitTestNestedDataFileSharedMethods<T extends NestedDataFi
         nestedDataFile.addAll(Arrays.asList(mockDataFile1, mockDataFile2, mockDataFile3));
 		D extraMock = (D) mock(mockDataFile1.getClass());
         List<D> toRetain = Arrays.asList(mockDataFile2, mockDataFile3, extraMock);
-        
+
+        nestedDataFile.resetChanged();
         assertTrue(nestedDataFile.retainAll(toRetain));
+
+        assertTrue(nestedDataFile.isChanged());
         assertEquals(2, nestedDataFile.size());
         assertFalse(nestedDataFile.contains(mockDataFile1));
         assertTrue(nestedDataFile.contains(mockDataFile2));
         assertTrue(nestedDataFile.contains(mockDataFile3));
+
+        nestedDataFile.resetChanged();
         assertFalse(nestedDataFile.retainAll(Arrays.asList(mockDataFile2, mockDataFile3)));
+        
+        assertFalse(nestedDataFile.isChanged());
     }
 
     @Test
     void testClear() {
         nestedDataFile.addAll(Arrays.asList(mockDataFile1, mockDataFile2));
         assertFalse(nestedDataFile.isEmpty());
+        
+        nestedDataFile.resetChanged();
         nestedDataFile.clear();
+
+        assertTrue(nestedDataFile.isChanged());
         assertTrue(nestedDataFile.isEmpty());
         assertEquals(0, nestedDataFile.size());
+        
+        nestedDataFile.resetChanged();
+        nestedDataFile.clear();
+        
+        assertFalse(nestedDataFile.isChanged());
     }
 
     @Test
     void testGet() {
+        nestedDataFile.resetChanged();
         nestedDataFile.addAll(Arrays.asList(mockDataFile1, mockDataFile2));
+        
+        assertTrue(nestedDataFile.isChanged());
         assertEquals(mockDataFile1, nestedDataFile.get(0));
         assertEquals(mockDataFile2, nestedDataFile.get(1));
         assertThrows(IndexOutOfBoundsException.class, () -> nestedDataFile.get(2));
@@ -214,9 +252,11 @@ public abstract class UnitTestNestedDataFileSharedMethods<T extends NestedDataFi
 
     @Test
     void testSet() {
+        nestedDataFile.resetChanged();
         nestedDataFile.addAll(Arrays.asList(mockDataFile1, mockDataFile2));
         D previous = nestedDataFile.set(0, mockDataFile3);
-        
+
+        assertTrue(nestedDataFile.isChanged());
         assertEquals(mockDataFile1, previous);
         assertEquals(mockDataFile3, nestedDataFile.get(0));
         assertEquals(mockDataFile2, nestedDataFile.get(1));
@@ -227,13 +267,18 @@ public abstract class UnitTestNestedDataFileSharedMethods<T extends NestedDataFi
     @Test
     void testAddAtIndex() {
         nestedDataFile.add(mockDataFile1);
+        nestedDataFile.resetChanged();
         nestedDataFile.add(0, mockDataFile2); // Add at beginning
-        
+
+        assertTrue(nestedDataFile.isChanged());
         assertEquals(2, nestedDataFile.size());
         assertEquals(mockDataFile2, nestedDataFile.get(0));
         assertEquals(mockDataFile1, nestedDataFile.get(1));
 
+        nestedDataFile.resetChanged();
         nestedDataFile.add(1, mockDataFile3); // Add in middle
+
+        assertTrue(nestedDataFile.isChanged());
         assertEquals(3, nestedDataFile.size());
         assertEquals(mockDataFile2, nestedDataFile.get(0));
         assertEquals(mockDataFile3, nestedDataFile.get(1));
@@ -246,8 +291,10 @@ public abstract class UnitTestNestedDataFileSharedMethods<T extends NestedDataFi
     @Test
     void testRemoveAtIndex() {
         nestedDataFile.addAll(Arrays.asList(mockDataFile1, mockDataFile2, mockDataFile3));
+        nestedDataFile.resetChanged();
         D removed = nestedDataFile.remove(1);
-        
+
+        assertTrue(nestedDataFile.isChanged());
         assertEquals(mockDataFile2, removed);
         assertEquals(2, nestedDataFile.size());
         assertEquals(mockDataFile1, nestedDataFile.get(0));
@@ -260,19 +307,23 @@ public abstract class UnitTestNestedDataFileSharedMethods<T extends NestedDataFi
     @Test
     void testIndexOf() {
         nestedDataFile.addAll(Arrays.asList(mockDataFile1, mockDataFile2, mockDataFile1));
+        nestedDataFile.resetChanged();
         
         assertEquals(0, nestedDataFile.indexOf(mockDataFile1));
         assertEquals(1, nestedDataFile.indexOf(mockDataFile2));
         assertEquals(-1, nestedDataFile.indexOf(mockDataFile3));
+        assertFalse(nestedDataFile.isChanged());
     }
 
     @Test
     void testLastIndexOf() {
         nestedDataFile.addAll(Arrays.asList(mockDataFile1, mockDataFile2, mockDataFile1));
+        nestedDataFile.resetChanged();
         
         assertEquals(2, nestedDataFile.lastIndexOf(mockDataFile1));
         assertEquals(1, nestedDataFile.lastIndexOf(mockDataFile2));
         assertEquals(-1, nestedDataFile.lastIndexOf(mockDataFile3));
+        assertFalse(nestedDataFile.isChanged());
     }
 
     @Test
