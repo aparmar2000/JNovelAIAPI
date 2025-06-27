@@ -44,6 +44,9 @@ public abstract class DataFile<T extends DataFile<? extends T>> {
 	protected void markChanged() {
 		changed = true;
 	}
+	protected void resetChanged() {
+		changed = false;
+	}
 	
 	public abstract String getFileExt();
 	public abstract void saveToStream(OutputStream outputStream) throws IOException;
@@ -52,7 +55,7 @@ public abstract class DataFile<T extends DataFile<? extends T>> {
 		try (FileOutputStream fileOut = new FileOutputStream(filePath.toFile())) {
 			saveToStream(fileOut);
 		}
-		changed = false;
+		resetChanged();
 	}
 	public void saveIfChanged() throws IOException {
 		if (!changed) { return; }
@@ -71,7 +74,7 @@ public abstract class DataFile<T extends DataFile<? extends T>> {
 		try (FileInputStream fileOut = new FileInputStream(filePath.toFile())) {
 			result = loadFromStream(fileOut);
 		}
-		changed = false;
+		resetChanged();
 		return result;
 	}
 
