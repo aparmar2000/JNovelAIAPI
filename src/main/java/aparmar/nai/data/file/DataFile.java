@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Nullable;
 
@@ -27,9 +28,8 @@ public abstract class DataFile<T extends DataFile<? extends T>> {
 	@Nullable
 	@EqualsAndHashCode.Include
 	private transient final Path filePath;
-	@Getter
 	@EqualsAndHashCode.Exclude
-	private transient boolean changed = false;
+	private transient AtomicBoolean changed = new AtomicBoolean(false);
 	
 	public DataFile(@Nullable Path filePath) {
 		if (filePath != null) {
@@ -41,11 +41,14 @@ public abstract class DataFile<T extends DataFile<? extends T>> {
 		this.filePath = filePath;
 	}
 	
+	protected boolean isChanged() {
+		return changed.get();
+	}
 	protected void markChanged() {
-		changed = true;
+		changed.set(true);
 	}
 	protected void resetChanged() {
-		changed = false;
+		changed.set(false);
 	}
 	
 	public abstract String getFileExt();
@@ -58,7 +61,7 @@ public abstract class DataFile<T extends DataFile<? extends T>> {
 		resetChanged();
 	}
 	public void saveIfChanged() throws IOException {
-		if (!changed) { return; }
+		if (!isChanged()) { return; }
 		save();
 	}
 	public T saveToFile(File file) throws IOException {
