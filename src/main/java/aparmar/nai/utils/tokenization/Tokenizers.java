@@ -8,27 +8,32 @@ import aparmar.nai.utils.InternalResourceLoader;
 import lombok.Getter;
 
 public enum Tokenizers implements INaiTokenizer {
-	GPT2("gpt2_tokenizer.json", TokenBitDepth.USHORT),
-	GPT2_GENJI("genji_tokenizer.json", TokenBitDepth.USHORT), // Genji tokenizer doesn't consistently tokenize the same as NAI for some reason
-	PILE("pile_tokenizer.json", TokenBitDepth.USHORT),
-	NERDSTASH_V1("novelai.model", TokenBitDepth.USHORT),
-	NERDSTASH_V2("novelai_v2.model", TokenBitDepth.USHORT),
-	LLAMA_3("llama_3_tokenizer.json", TokenBitDepth.INTEGER);
+	GPT2("gpt2_tokenizer.json", TokenizerType.JTOKKIT, TokenBitDepth.USHORT),
+	GPT2_GENJI("genji_tokenizer.json", TokenizerType.JTOKKIT, TokenBitDepth.USHORT), // Genji tokenizer doesn't consistently tokenize the same as NAI for some reason
+	PILE("pile_tokenizer.json", TokenizerType.JTOKKIT, TokenBitDepth.USHORT),
+	NERDSTASH_V1("novelai.model", TokenizerType.SENTENCEPIECE, TokenBitDepth.USHORT),
+	NERDSTASH_V2("novelai_v2.model", TokenizerType.SENTENCEPIECE, TokenBitDepth.USHORT),
+	LLAMA_3("llama_3_tokenizer.json", TokenizerType.HUGGINGFACE, TokenBitDepth.INTEGER),
+	GLM_4_6("glm-4_6_tokenizer.json", TokenizerType.HUGGINGFACE, TokenBitDepth.INTEGER);
 	
 	@Getter
 	private final INaiTokenizer tokenizer;
 	
-	private Tokenizers(String modelFilename, TokenBitDepth tokenBitDepth) {
+	private Tokenizers(String modelFilename, TokenizerType tokenizerType, TokenBitDepth tokenBitDepth) {
 		INaiTokenizer newTokenizer = null;
 		try {
 			InputStream modelInputStream = InternalResourceLoader.getInternalResourceAsStream(modelFilename);
 			
-			if (modelFilename.contains("llama_3")) {
+			switch (tokenizerType) {
+			case HUGGINGFACE:
 				newTokenizer = new HuggingFaceTokenizerWrapper(modelInputStream, tokenBitDepth);
-			} else if (modelFilename.endsWith(".model")) {
+				break;
+			case SENTENCEPIECE:
 				newTokenizer = new SpTokenizerWrapper(modelInputStream, tokenBitDepth);
-			} else if (modelFilename.endsWith("tokenizer.json")) {
+				break;
+			case JTOKKIT:
 				newTokenizer = new JTokkitTokenizerWrapper(modelInputStream, tokenBitDepth, modelFilename.replaceAll("\\.[^.]+$", ""));
+				break;
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -59,6 +64,8 @@ public enum Tokenizers implements INaiTokenizer {
 			return NERDSTASH_V2;
 		case ERATO:
 			return LLAMA_3;
+		case GLM_4_6:
+			return GLM_4_6;
 		
 		default:
 			return null;
