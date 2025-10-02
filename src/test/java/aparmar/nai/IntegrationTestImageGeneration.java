@@ -18,12 +18,15 @@ import org.junit.jupiter.params.provider.MethodSource;
 import aparmar.nai.data.request.Base64Image;
 import aparmar.nai.data.request.ImageVibeEncodeRequest;
 import aparmar.nai.data.request.V4VibeData;
+import aparmar.nai.data.request.imagen.DirectorReferenceParameter;
+import aparmar.nai.data.request.imagen.DirectorReferenceParameters;
 import aparmar.nai.data.request.imagen.Image2ImageParameters;
 import aparmar.nai.data.request.imagen.ImageControlNetParameters;
 import aparmar.nai.data.request.imagen.ImageControlNetParameters.ControlnetModel;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenAction;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
+import aparmar.nai.data.request.imagen.ImageGenerationRequest.ModeTag;
 import aparmar.nai.data.request.imagen.ImageInpaintParameters;
 import aparmar.nai.data.request.imagen.ImageParameters;
 import aparmar.nai.data.request.imagen.ImageVibeTransferParameters;
@@ -393,6 +396,50 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 
 			if (!"True".equals(System.getenv("saveTestImages"))) { return; }
 			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"v4_vibe_transfer_test.png"));
+		});
+	}
+	
+	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
+	@Test
+	void testCharacterReferenceImageGeneration() throws AssertionError, Exception {
+		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
+			BufferedImage conditionImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.jpg"));
+			 Base64Image wrappedConditionImage = new Base64Image(
+					 conditionImage, 
+					 Math.round(conditionImage.getWidth()/64f)*64, 
+					 Math.round(conditionImage.getHeight()/64f)*64, 
+					 false);
+			
+			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
+					.input("portrait of a woman")
+					.action(ImageGenAction.GENERATE)
+					.model(ImageGenModel.V4_5_FULL)
+					.parameters(new ImageParameters(
+							1,
+							512,512,
+							23,5,0,
+							ImageParameters.ImageGenSampler.K_EULER_ANCESTRAL,
+							false, false, false, 
+							ImageParameters.SamplingSchedule.NATIVE, 
+							true, ImageGenerationRequest.QualityTagsLocation.DEFAULT, 
+							1, ImageGenerationRequest.V4_5_FULL_HUMAN_FOCUS_UC, 1,
+							1))
+					.modeTag(ModeTag.ANIME)
+					.extraParameter(DirectorReferenceParameters.builder()
+							.directorReference(DirectorReferenceParameter.characterAndStyleReference(wrappedConditionImage))
+							.build())
+					.build();
+			ImageSetWrapper result = apiInstance.generateImage(testGenerationRequest);
+			
+			assertNotNull(result);
+			assertEquals(1, result.getImageCount());
+			IIOImage resultImage = result.getImage(0);
+			assertNotNull(resultImage);
+			assertEquals(512, resultImage.getRenderedImage().getHeight());
+			assertEquals(512, resultImage.getRenderedImage().getWidth());
+
+			if (!"True".equals(System.getenv("saveTestImages"))) { return; }
+			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"character_reference_test.png"));
 		});
 	}
 
