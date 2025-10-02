@@ -152,6 +152,12 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		@HardDeprecated
 		@SerializedName("nai-diffusion-furry")
 		FURRY(QualityTagsPreset.V1_MODELS, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.noneOf(ModeTag.class), ImageGenModel::estimateAnlasCostSD, null),
+		/**
+		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
+		 * This field will be removed in the future.
+		 */
+		@Deprecated
+		@HardDeprecated
 		@SerializedName("nai-diffusion-2")
 		ANIME_V2(QualityTagsPreset.ANIME_V2, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.noneOf(ModeTag.class), ImageGenModel::estimateAnlasCostSD, null),
 		@SerializedName("nai-diffusion-3")
