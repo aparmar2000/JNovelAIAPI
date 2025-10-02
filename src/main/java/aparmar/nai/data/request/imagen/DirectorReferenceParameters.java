@@ -53,7 +53,7 @@ public class DirectorReferenceParameters extends AbstractExtraImageParameters im
 		List<Float> refInfoExtractList = new LinkedList<>();
 		List<Float> refStrengthList = new LinkedList<>();
 		
-		for (DirectorReferenceParameter directorReference : directorReferences) {
+		for (DirectorReferenceParameter directorReference : src.getDirectorReferences()) {
 			refDescriptionList.add(directorReference.getDescription());
 			refImageList.add(directorReference.getReferenceImage());
 			refInfoExtractList.add(directorReference.getInformationExtracted());
