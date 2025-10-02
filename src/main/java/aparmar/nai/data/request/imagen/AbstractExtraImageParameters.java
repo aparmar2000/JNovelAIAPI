@@ -9,4 +9,5 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public abstract class AbstractExtraImageParameters {
 	public boolean compatibleWith(AbstractExtraImageParameters otherParameters) { return true; }
+	public int getExtraCost() { return 0; }
 }
