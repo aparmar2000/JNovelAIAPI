@@ -10,6 +10,7 @@ import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -148,11 +149,12 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 	}
 
 	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
+	@EnabledIf("aparmar.nai.ImageGenTestHelpers#hasControlNetModels")
 	@ParameterizedTest
 	@MethodSource("aparmar.nai.ImageGenTestHelpers#getControlNetModels")
 	void testControlledImageGeneration(ImageGenModel imageGenModel) throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
-			BufferedImage comditionImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_scribbles.png"));
+			BufferedImage conditionImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_scribbles.png"));
 			
 			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
 					.input("portrait of a woman")
@@ -170,7 +172,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 							.build())
 					.extraParameter(ImageControlNetParameters.builder()
 							.model(ControlnetModel.SCRIBBLER)
-							.conditionImg(new Base64Image(comditionImage, 512, 512, true))
+							.conditionImg(new Base64Image(conditionImage, 512, 512, true))
 							.build())
 					.build();
 			ImageSetWrapper result = apiInstance.generateImage(testGenerationRequest);
