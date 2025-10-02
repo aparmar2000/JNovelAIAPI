@@ -10,6 +10,7 @@ import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -148,6 +149,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 	}
 
 	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
+	@EnabledIf("aparmar.nai.ImageGenTestHelpers#hasControlNetModels")
 	@ParameterizedTest
 	@MethodSource("aparmar.nai.ImageGenTestHelpers#getControlNetModels")
 	void testControlledImageGeneration(ImageGenModel imageGenModel) throws AssertionError, Exception {
