@@ -71,6 +71,8 @@ public class DirectorReferenceParameter {
 	@Builder.Default
 	private float informationExtracted = 1;
 	@Builder.Default
+	private float secondaryStrength = 1;
+	@Builder.Default
 	private float strength = 1;
 	
 	public int getExtraCost() {

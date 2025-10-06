@@ -52,18 +52,21 @@ public class DirectorReferenceParameters extends AbstractExtraImageParameters im
 		List<Base64Image> refImageList = new LinkedList<>();
 		List<Float> refInfoExtractList = new LinkedList<>();
 		List<Float> refStrengthList = new LinkedList<>();
+		List<Float> refSecStrengthList = new LinkedList<>();
 		
 		for (DirectorReferenceParameter directorReference : src.getDirectorReferences()) {
 			refDescriptionList.add(directorReference.getDescription());
 			refImageList.add(directorReference.getPreprocessedReferenceImage());
 			refInfoExtractList.add(directorReference.getInformationExtracted());
 			refStrengthList.add(directorReference.getStrength());
+			refSecStrengthList.add(directorReference.getSecondaryStrength());
 		}
 		
 		wrapper.add("director_reference_descriptions", context.serialize(refDescriptionList));
 		wrapper.add("director_reference_images", context.serialize(refImageList));
 		wrapper.add("director_reference_information_extracted", context.serialize(refInfoExtractList));
 		wrapper.add("director_reference_strength_values", context.serialize(refStrengthList));
+		wrapper.add("director_reference_secondary_strength_values", context.serialize(refSecStrengthList));
 		
 		return wrapper;
 	}
