@@ -30,14 +30,16 @@ import com.google.gson.JsonSerializationContext;
 
 import aparmar.nai.TestHelpers;
 import aparmar.nai.data.request.V4VibeData.VibeEncodingType;
-import aparmar.nai.data.request.imagen.ImageGenerationRequest.ModeTag;
 import aparmar.nai.data.request.imagen.AbstractExtraImageParameters;
+import aparmar.nai.data.request.imagen.DirectorReferenceParameter;
+import aparmar.nai.data.request.imagen.DirectorReferenceParameters;
 import aparmar.nai.data.request.imagen.Image2ImageParameters;
 import aparmar.nai.data.request.imagen.ImageControlNetParameters;
 import aparmar.nai.data.request.imagen.ImageControlNetParameters.ControlnetModel;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenAction;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
+import aparmar.nai.data.request.imagen.ImageGenerationRequest.ModeTag;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.QualityTagsLocation;
 import aparmar.nai.data.request.imagen.ImageInpaintParameters;
 import aparmar.nai.data.request.imagen.ImageParameters;
@@ -684,6 +686,26 @@ class UnitTestImageGenerationRequest {
 				.imgCount(2)
 				.build();
 		assertEquals(42, ImageGenModel.ANIME_V4_FULL.estimateAnlasCost(testParameters, vibeParameters));
+	}
+	
+	@Test
+	void testImageGenerationCostEstimationWithPricedExtraParameters() {
+		ImageParameters testParameters = ImageParameters.builder()
+				.imgCount(1)
+				.width(1024)
+				.height(1024)
+				.steps(28)
+				.build();
+		DirectorReferenceParameter dummyReference = DirectorReferenceParameter.characterAndStyleReference(new Base64Image());
+		DirectorReferenceParameters directorParameters = DirectorReferenceParameters.builder()
+				.directorReference(dummyReference)
+				.build();
+		
+		assertEquals(25, ImageGenModel.V4_5_FULL.estimateAnlasCost(testParameters, directorParameters));
+		testParameters = testParameters.toBuilder()
+				.imgCount(2)
+				.build();
+		assertEquals(45, ImageGenModel.V4_5_FULL.estimateAnlasCost(testParameters, directorParameters));
 	}
 
 }
