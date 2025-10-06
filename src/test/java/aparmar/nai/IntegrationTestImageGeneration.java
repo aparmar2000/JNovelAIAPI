@@ -404,11 +404,6 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 	void testCharacterReferenceImageGeneration() throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
 			BufferedImage conditionImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.jpg"));
-			 Base64Image wrappedConditionImage = new Base64Image(
-					 conditionImage, 
-					 Math.round(conditionImage.getWidth()/64f)*64, 
-					 Math.round(conditionImage.getHeight()/64f)*64, 
-					 false);
 			
 			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
 					.input("portrait of a woman")
@@ -420,13 +415,13 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 							23,5,0,
 							ImageParameters.ImageGenSampler.K_EULER_ANCESTRAL,
 							false, false, false, 
-							ImageParameters.SamplingSchedule.NATIVE, 
+							ImageParameters.SamplingSchedule.KARRAS, 
 							true, ImageGenerationRequest.QualityTagsLocation.DEFAULT, 
 							1, ImageGenerationRequest.V4_5_FULL_HUMAN_FOCUS_UC, 1,
 							1))
 					.modeTag(ModeTag.ANIME)
 					.extraParameter(DirectorReferenceParameters.builder()
-							.directorReference(DirectorReferenceParameter.characterAndStyleReference(wrappedConditionImage))
+							.directorReference(DirectorReferenceParameter.characterAndStyleReference(new Base64Image(conditionImage)))
 							.build())
 					.build();
 			ImageSetWrapper result = apiInstance.generateImage(testGenerationRequest);
