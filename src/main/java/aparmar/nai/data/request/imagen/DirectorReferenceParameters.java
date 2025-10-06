@@ -55,7 +55,7 @@ public class DirectorReferenceParameters extends AbstractExtraImageParameters im
 		
 		for (DirectorReferenceParameter directorReference : src.getDirectorReferences()) {
 			refDescriptionList.add(directorReference.getDescription());
-			refImageList.add(directorReference.getReferenceImage());
+			refImageList.add(directorReference.getPreprocessedReferenceImage());
 			refInfoExtractList.add(directorReference.getInformationExtracted());
 			refStrengthList.add(directorReference.getStrength());
 		}

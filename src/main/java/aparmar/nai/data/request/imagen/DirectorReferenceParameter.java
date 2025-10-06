@@ -1,8 +1,10 @@
 package aparmar.nai.data.request.imagen;
 
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -12,6 +14,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.Singular;
 import lombok.experimental.SuperBuilder;
 
@@ -20,11 +23,47 @@ import lombok.experimental.SuperBuilder;
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 public class DirectorReferenceParameter {
+	@RequiredArgsConstructor
 	public static enum DirectorReferenceCaption {
 		@SerializedName("character")
-		CHARACTER_NOT_STYLE,
+		CHARACTER_NOT_STYLE(aspectMatchingScalingPreprocessor(Base64Image.ScalingMode.PAD_BLACK, new int[] {1024, 1536}, new int[] {1536, 1024}, new int[] {1472, 1472} )),
 		@SerializedName("character&style")
-		CHARACTER_AND_STYLE;
+		CHARACTER_AND_STYLE(aspectMatchingScalingPreprocessor(Base64Image.ScalingMode.PAD_BLACK, new int[] {1024, 1536}, new int[] {1536, 1024}, new int[] {1472, 1472} ));
+		
+		private final Function<BufferedImage, Base64Image> imagePreprocessor;
+		
+		public Base64Image applyPreprocessor(BufferedImage refImage) {
+			return imagePreprocessor.apply(refImage);
+		}
+		public Base64Image applyPreprocessor(Base64Image refImage) {
+			return applyPreprocessor(refImage.getProcessedImage());
+		}
+		
+		private static Function<BufferedImage, Base64Image> aspectMatchingScalingPreprocessor(final Base64Image.ScalingMode scalingMode, final int[]... validDimensions) {
+			return (refImage) -> {
+				double refAspectRatio = (double) refImage.getWidth() / refImage.getHeight();
+				
+				int targetWidth = 0;
+				int targetHeight = 0;
+				double minAspectRatioDiff = Double.MAX_VALUE;
+		
+				for (int[] dim : validDimensions) {
+					int currentWidth = dim[0];
+					int currentHeight = dim[1];
+					double currentAspectRatio = (double) currentWidth / currentHeight;
+					
+					double diff = Math.abs(refAspectRatio - currentAspectRatio);
+					
+					if (diff < minAspectRatioDiff) {
+						minAspectRatioDiff = diff;
+						targetWidth = currentWidth;
+						targetHeight = currentHeight;
+					}
+				}
+				
+				return new Base64Image(refImage, targetWidth, targetHeight, Base64Image.ScalingMode.PAD_BLACK, false);
+			};
+		}
 	}
 	
 	private DirectorReferenceDescription description;
@@ -44,6 +83,14 @@ public class DirectorReferenceParameter {
 		default:
 			return 0;
 		}
+	}
+	
+	public Base64Image getPreprocessedReferenceImage() {
+		if (getDescription() == null || getDescription().getCaption() == null || getDescription().getCaption().getBaseCaption() == null) {
+			return referenceImage;
+		}
+		DirectorReferenceCaption baseCaption = getDescription().getCaption().getBaseCaption();
+		return baseCaption.applyPreprocessor(referenceImage);
 	}
 
 	@Data
