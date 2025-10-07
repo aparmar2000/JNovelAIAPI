@@ -1,0 +1,7 @@
+package aparmar.nai.utils.tokenization;
+
+public enum TokenizerType {
+	HUGGINGFACE,
+	SENTENCEPIECE,
+	JTOKKIT;
+}

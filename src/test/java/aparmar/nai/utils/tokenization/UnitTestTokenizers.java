@@ -68,13 +68,21 @@ class UnitTestTokenizers {
 			TEST_STRING_4, new int[] {1305, 3988, 11, 2324, 374, 198, 34431, 311, 57215, 13},
 			TEST_STRING_5, new int[] {33883, 27439, 24578, 2503, 28311, 11, 36240, 59024, 31160, 11, 11163, 656, 80222, 19502, 87504, 8791, 73304, 1880, 58396, 60017, 87027, 13}
 			);
+	private static final Map<String, int[]> expectedTokenizationsGlm46 = ImmutableMap.of(
+			TEST_STRING_1, new int[] {785, 4226, 374, 220, 15, 65, 107609, 121570},
+			TEST_STRING_2, new int[] {785, 15236, 331, 82799, 59498, 389, 279, 10871, 625, 4039, 13},
+			TEST_STRING_3, new int[] {785, 13135, 315, 279, 1651, 46638, 279, 3908, 8170, 13},
+			TEST_STRING_4, new int[] {1282, 3901, 11, 2272, 374, 198, 33171, 311, 55737, 13},
+			TEST_STRING_5, new int[] {32630, 26259, 23590, 2444, 27123, 11, 34966, 57528, 29943, 11, 10918, 653, 78485, 18930, 85686, 8620, 71651, 1842, 56909, 58510, 85219, 13}
+			);
 	private static final Map<Tokenizers, Map<String, int[]>> expectedTokenizationsByTokenizer = ImmutableMap.of(
 			Tokenizers.GPT2, expectedTokenizationsGPT2,
 			Tokenizers.GPT2_GENJI, expectedTokenizationsGPT2Genji,
 			Tokenizers.PILE, expectedTokenizationsPile,
 			Tokenizers.NERDSTASH_V1, expectedTokenizationsNerdstashV1,
 			Tokenizers.NERDSTASH_V2, expectedTokenizationsNerdstashV2,
-			Tokenizers.LLAMA_3, expectedTokenizationsLlama3
+			Tokenizers.LLAMA_3, expectedTokenizationsLlama3,
+			Tokenizers.GLM_4_6, expectedTokenizationsGlm46
 			);
 	
 	private static Stream<Arguments> generateTokenizerTestParameters() {

@@ -278,7 +278,13 @@ public enum TextGenModel {
 	ERATO(false, false, HelperConstants.TEXT_API_ROOT, new TextGenPrefix[] {
 			TextGenPrefix.ERATO_DEFAULT,
 			TextGenPrefix.ERATO_OPENING,
-			TextGenPrefix.ERATO_TEXT_ADVENTURE}, new PresetModulePrefixes[]{});
+			TextGenPrefix.ERATO_TEXT_ADVENTURE}, new PresetModulePrefixes[]{}),
+	@SerializedName("glm-4-6")
+	GLM_4_6(false, false, HelperConstants.TEXT_API_ROOT, new TextGenPrefix[] {
+			TextGenPrefix.GLM_4_6_DEFAULT,
+			TextGenPrefix.GLM_4_6_OPENING,
+			TextGenPrefix.GLM_4_6_TEXT_ADVENTURE_DEFAULT,
+			TextGenPrefix.GLM_4_6_TEXT_ADVENTURE_OPENING}, new PresetModulePrefixes[]{});
 
 	private final boolean supportsCustomModules, supportsHiddenStates;
 	private final String endpoint;
