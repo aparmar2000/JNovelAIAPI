@@ -152,6 +152,12 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		@HardDeprecated
 		@SerializedName("nai-diffusion-furry")
 		FURRY(QualityTagsPreset.V1_MODELS, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.noneOf(ModeTag.class), ImageGenModel::estimateAnlasCostSD, null),
+		/**
+		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
+		 * This field will be removed in the future.
+		 */
+		@Deprecated
+		@HardDeprecated
 		@SerializedName("nai-diffusion-2")
 		ANIME_V2(QualityTagsPreset.ANIME_V2, false, ImmutableSet.of(Image2ImageParameters.class, ImageControlNetParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.noneOf(ModeTag.class), ImageGenModel::estimateAnlasCostSD, null),
 		@SerializedName("nai-diffusion-3")
@@ -163,9 +169,9 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 		@SerializedName("nai-diffusion-4-full")
 		ANIME_V4_FULL(QualityTagsPreset.ANIME_V4_FULL, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, V4ImageVibeTransferParameters.class), EnumSet.of(VibeEncodingType.V4_FULL), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
 		@SerializedName("nai-diffusion-4-5-curated")
-		ANIME_V4_5_CURATED(QualityTagsPreset.ANIME_V4_5_CURATED, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, V4ImageVibeTransferParameters.class), EnumSet.of(VibeEncodingType.V4_5_CURATED), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
+		ANIME_V4_5_CURATED(QualityTagsPreset.ANIME_V4_5_CURATED, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, V4ImageVibeTransferParameters.class, DirectorReferenceParameters.class), EnumSet.of(VibeEncodingType.V4_5_CURATED), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
 		@SerializedName("nai-diffusion-4-5-full")
-		V4_5_FULL(QualityTagsPreset.V4_5_FULL, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, V4ImageVibeTransferParameters.class), EnumSet.of(VibeEncodingType.V4_5_FULL), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY, ModeTag.BACKGROUNDS), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
+		V4_5_FULL(QualityTagsPreset.V4_5_FULL, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, V4ImageVibeTransferParameters.class, DirectorReferenceParameters.class), EnumSet.of(VibeEncodingType.V4_5_FULL), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY, ModeTag.BACKGROUNDS), ImageGenModel::estimateAnlasCostSDXL, ImageGenModel::adaptForV4),
 
 		/**
 		 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
@@ -245,9 +251,10 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 			return estimateAnlasCost(parameters, Arrays.asList(extraParameters));
 		}
 		public int estimateAnlasCost(ImageParameters parameters, List<AbstractExtraImageParameters> extraParameters) {
-			if (parameters.getImgCount() == 0) { return 0; }
+			int extraParameterCost = extraParameters.stream().mapToInt(AbstractExtraImageParameters::getExtraCost).sum();
+			if (parameters.getImgCount() == 0) { return extraParameterCost; }
 			
-			return anlasCostEstimator.apply(parameters, extraParameters);
+			return anlasCostEstimator.apply(parameters, extraParameters) + extraParameterCost;
 		}
 		public int estimateAnlasCostIncludingSubscription(ImageParameters parameters, UserSubscription subscription) {
 			if (isFreeGeneration(subscription, parameters.toBuilder().imgCount(1).build())) {
@@ -427,6 +434,15 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 			src.getModel().adaptJson(src, wrapper, context);
 		}
 		return wrapper;
+	}
+
+	public static boolean isFreeGeneration(UserSubscription subscriptionData, ImageParameters parameters, AbstractExtraImageParameters... extraImageParameters) {
+		return isFreeGeneration(subscriptionData, parameters, Arrays.asList(extraImageParameters));
+	}
+
+	public static boolean isFreeGeneration(UserSubscription subscriptionData, ImageParameters parameters, List<AbstractExtraImageParameters> extraImageParameters) {
+		return extraImageParameters.stream().noneMatch(p->p.getExtraCost()>0)
+				&& isFreeGeneration(subscriptionData, parameters);
 	}
 
 	public static boolean isFreeGeneration(UserSubscription subscriptionData, ImageParameters parameters) {

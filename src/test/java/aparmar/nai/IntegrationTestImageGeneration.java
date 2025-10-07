@@ -10,6 +10,7 @@ import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -17,12 +18,15 @@ import org.junit.jupiter.params.provider.MethodSource;
 import aparmar.nai.data.request.Base64Image;
 import aparmar.nai.data.request.ImageVibeEncodeRequest;
 import aparmar.nai.data.request.V4VibeData;
+import aparmar.nai.data.request.imagen.DirectorReferenceParameter;
+import aparmar.nai.data.request.imagen.DirectorReferenceParameters;
 import aparmar.nai.data.request.imagen.Image2ImageParameters;
 import aparmar.nai.data.request.imagen.ImageControlNetParameters;
 import aparmar.nai.data.request.imagen.ImageControlNetParameters.ControlnetModel;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenAction;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
+import aparmar.nai.data.request.imagen.ImageGenerationRequest.ModeTag;
 import aparmar.nai.data.request.imagen.ImageInpaintParameters;
 import aparmar.nai.data.request.imagen.ImageParameters;
 import aparmar.nai.data.request.imagen.ImageVibeTransferParameters;
@@ -148,11 +152,12 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 	}
 
 	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
+	@EnabledIf("aparmar.nai.ImageGenTestHelpers#hasControlNetModels")
 	@ParameterizedTest
 	@MethodSource("aparmar.nai.ImageGenTestHelpers#getControlNetModels")
 	void testControlledImageGeneration(ImageGenModel imageGenModel) throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
-			BufferedImage comditionImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_scribbles.png"));
+			BufferedImage conditionImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_scribbles.png"));
 			
 			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
 					.input("portrait of a woman")
@@ -170,7 +175,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 							.build())
 					.extraParameter(ImageControlNetParameters.builder()
 							.model(ControlnetModel.SCRIBBLER)
-							.conditionImg(new Base64Image(comditionImage, 512, 512, true))
+							.conditionImg(new Base64Image(conditionImage, 512, 512, true))
 							.build())
 					.build();
 			ImageSetWrapper result = apiInstance.generateImage(testGenerationRequest);
@@ -391,6 +396,45 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 
 			if (!"True".equals(System.getenv("saveTestImages"))) { return; }
 			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"v4_vibe_transfer_test.png"));
+		});
+	}
+	
+	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
+	@Test
+	void testCharacterReferenceImageGeneration() throws AssertionError, Exception {
+		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
+			BufferedImage conditionImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.jpg"));
+			
+			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
+					.input("portrait of a woman")
+					.action(ImageGenAction.GENERATE)
+					.model(ImageGenModel.V4_5_FULL)
+					.parameters(new ImageParameters(
+							1,
+							512,512,
+							23,5,0,
+							ImageParameters.ImageGenSampler.K_EULER_ANCESTRAL,
+							false, false, false, 
+							ImageParameters.SamplingSchedule.KARRAS, 
+							true, ImageGenerationRequest.QualityTagsLocation.DEFAULT, 
+							1, ImageGenerationRequest.V4_5_FULL_HUMAN_FOCUS_UC, 1,
+							1))
+					.modeTag(ModeTag.ANIME)
+					.extraParameter(DirectorReferenceParameters.builder()
+							.directorReference(DirectorReferenceParameter.characterAndStyleReference(new Base64Image(conditionImage)))
+							.build())
+					.build();
+			ImageSetWrapper result = apiInstance.generateImage(testGenerationRequest);
+			
+			assertNotNull(result);
+			assertEquals(1, result.getImageCount());
+			IIOImage resultImage = result.getImage(0);
+			assertNotNull(resultImage);
+			assertEquals(512, resultImage.getRenderedImage().getHeight());
+			assertEquals(512, resultImage.getRenderedImage().getWidth());
+
+			if (!"True".equals(System.getenv("saveTestImages"))) { return; }
+			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"character_reference_test.png"));
 		});
 	}
 

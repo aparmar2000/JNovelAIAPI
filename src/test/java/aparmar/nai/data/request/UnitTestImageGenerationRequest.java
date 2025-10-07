@@ -30,14 +30,16 @@ import com.google.gson.JsonSerializationContext;
 
 import aparmar.nai.TestHelpers;
 import aparmar.nai.data.request.V4VibeData.VibeEncodingType;
-import aparmar.nai.data.request.imagen.ImageGenerationRequest.ModeTag;
 import aparmar.nai.data.request.imagen.AbstractExtraImageParameters;
+import aparmar.nai.data.request.imagen.DirectorReferenceParameter;
+import aparmar.nai.data.request.imagen.DirectorReferenceParameters;
 import aparmar.nai.data.request.imagen.Image2ImageParameters;
 import aparmar.nai.data.request.imagen.ImageControlNetParameters;
 import aparmar.nai.data.request.imagen.ImageControlNetParameters.ControlnetModel;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenAction;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
+import aparmar.nai.data.request.imagen.ImageGenerationRequest.ModeTag;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.QualityTagsLocation;
 import aparmar.nai.data.request.imagen.ImageInpaintParameters;
 import aparmar.nai.data.request.imagen.ImageParameters;
@@ -389,7 +391,7 @@ class UnitTestImageGenerationRequest {
 			
 			ImageGenerationRequest testInstance = ImageGenerationRequest.builder()
 					.input("input")
-					.model(ImageGenModel.ANIME_V2)
+					.model(ImageGenModel.ANIME_V4_5_CURATED)
 					.action(ImageGenAction.GENERATE)
 					.parameters(ImageParameters.builder()
 							.qualityToggle(false)
@@ -399,7 +401,7 @@ class UnitTestImageGenerationRequest {
 			JsonObject result = serializationInstance.serialize(testInstance, ImageParameters.class, mockJsonSerializationContext)
 					.getAsJsonObject();
 			assertEquals("input", result.get("input").getAsString());
-			assertEquals("ANIME_V2", result.get("model").getAsJsonObject().get("ImageGenModel").getAsString());
+			assertEquals("ANIME_V4_5_CURATED", result.get("model").getAsJsonObject().get("ImageGenModel").getAsString());
 			assertEquals("GENERATE", result.get("action").getAsJsonObject().get("ImageGenAction").getAsString());
 			assertEquals(testInstance.getParameters().toString(), result.get("parameters").getAsJsonObject().get("ImageParameters").getAsString());
 		}
@@ -417,7 +419,7 @@ class UnitTestImageGenerationRequest {
 			
 			ImageGenerationRequest testInstance = ImageGenerationRequest.builder()
 					.input("input. Text: test")
-					.model(ImageGenModel.ANIME_V2)
+					.model(ImageGenModel.ANIME_V4_5_CURATED)
 					.action(ImageGenAction.GENERATE)
 					.parameters(ImageParameters.builder()
 							.qualityToggle(false)
@@ -427,7 +429,7 @@ class UnitTestImageGenerationRequest {
 			JsonObject result = serializationInstance.serialize(testInstance, ImageParameters.class, mockJsonSerializationContext)
 					.getAsJsonObject();
 			assertEquals("input. Text: test", result.get("input").getAsString());
-			assertEquals("ANIME_V2", result.get("model").getAsJsonObject().get("ImageGenModel").getAsString());
+			assertEquals("ANIME_V4_5_CURATED", result.get("model").getAsJsonObject().get("ImageGenModel").getAsString());
 			assertEquals("GENERATE", result.get("action").getAsJsonObject().get("ImageGenAction").getAsString());
 			assertEquals(testInstance.getParameters().toString(), result.get("parameters").getAsJsonObject().get("ImageParameters").getAsString());
 	
@@ -435,8 +437,8 @@ class UnitTestImageGenerationRequest {
 			// DEFAULT quality tags insertion location
 			result = serializationInstance.serialize(testInstance, ImageParameters.class, mockJsonSerializationContext)
 					.getAsJsonObject();
-			assertEquals("input. Text: test, very aesthetic, best quality, absurdres", result.get("input").getAsString());
-			assertEquals("ANIME_V2", result.get("model").getAsJsonObject().get("ImageGenModel").getAsString());
+			assertEquals("input, location, masterpiece, no text, -0.8::feet::, rating:general. Text: test", result.get("input").getAsString());
+			assertEquals("ANIME_V4_5_CURATED", result.get("model").getAsJsonObject().get("ImageGenModel").getAsString());
 			assertEquals("GENERATE", result.get("action").getAsJsonObject().get("ImageGenAction").getAsString());
 			assertEquals(testInstance.getParameters().toString(), result.get("parameters").getAsJsonObject().get("ImageParameters").getAsString());
 	
@@ -444,8 +446,8 @@ class UnitTestImageGenerationRequest {
 			testInstance.getParameters().setQualityInsertLocation(QualityTagsLocation.PREPEND);
 			result = serializationInstance.serialize(testInstance, ImageParameters.class, mockJsonSerializationContext)
 					.getAsJsonObject();
-			assertEquals("very aesthetic, best quality, absurdres, input. Text: test", result.get("input").getAsString());
-			assertEquals("ANIME_V2", result.get("model").getAsJsonObject().get("ImageGenModel").getAsString());
+			assertEquals("location, masterpiece, no text, -0.8::feet::, rating:general, input. Text: test", result.get("input").getAsString());
+			assertEquals("ANIME_V4_5_CURATED", result.get("model").getAsJsonObject().get("ImageGenModel").getAsString());
 			assertEquals("GENERATE", result.get("action").getAsJsonObject().get("ImageGenAction").getAsString());
 			assertEquals(testInstance.getParameters().toString(), result.get("parameters").getAsJsonObject().get("ImageParameters").getAsString());
 			
@@ -453,8 +455,8 @@ class UnitTestImageGenerationRequest {
 			testInstance.getParameters().setQualityInsertLocation(QualityTagsLocation.APPEND);
 			result = serializationInstance.serialize(testInstance, ImageParameters.class, mockJsonSerializationContext)
 					.getAsJsonObject();
-			assertEquals("input. Text: test, very aesthetic, best quality, absurdres", result.get("input").getAsString());
-			assertEquals("ANIME_V2", result.get("model").getAsJsonObject().get("ImageGenModel").getAsString());
+			assertEquals("input. Text: test, location, masterpiece, no text, -0.8::feet::, rating:general", result.get("input").getAsString());
+			assertEquals("ANIME_V4_5_CURATED", result.get("model").getAsJsonObject().get("ImageGenModel").getAsString());
 			assertEquals("GENERATE", result.get("action").getAsJsonObject().get("ImageGenAction").getAsString());
 			assertEquals(testInstance.getParameters().toString(), result.get("parameters").getAsJsonObject().get("ImageParameters").getAsString());
 			
@@ -462,8 +464,8 @@ class UnitTestImageGenerationRequest {
 			testInstance.getParameters().setQualityInsertLocation(QualityTagsLocation.APPEND_MOVE_TEXT_PROMPT);
 			result = serializationInstance.serialize(testInstance, ImageParameters.class, mockJsonSerializationContext)
 					.getAsJsonObject();
-			assertEquals("input, very aesthetic, best quality, absurdres. Text: test", result.get("input").getAsString());
-			assertEquals("ANIME_V2", result.get("model").getAsJsonObject().get("ImageGenModel").getAsString());
+			assertEquals("input, location, masterpiece, no text, -0.8::feet::, rating:general. Text: test", result.get("input").getAsString());
+			assertEquals("ANIME_V4_5_CURATED", result.get("model").getAsJsonObject().get("ImageGenModel").getAsString());
 			assertEquals("GENERATE", result.get("action").getAsJsonObject().get("ImageGenAction").getAsString());
 			assertEquals(testInstance.getParameters().toString(), result.get("parameters").getAsJsonObject().get("ImageParameters").getAsString());
 		}
@@ -481,7 +483,7 @@ class UnitTestImageGenerationRequest {
 			
 			ImageGenerationRequest testInstance = ImageGenerationRequest.builder()
 					.input("input")
-					.model(ImageGenModel.ANIME_V2)
+					.model(ImageGenModel.ANIME_V4_5_CURATED)
 					.action(ImageGenAction.GENERATE)
 					.parameters(ImageParameters.builder()
 							.qualityToggle(false)
@@ -502,7 +504,7 @@ class UnitTestImageGenerationRequest {
 	void testImageGenerationRequestOpusValidation() {
 		ImageGenerationRequest testInstance = ImageGenerationRequest.builder()
 				.input("input")
-				.model(ImageGenModel.ANIME_V2)
+				.model(ImageGenModel.ANIME_V4_5_CURATED)
 				.action(ImageGenAction.GENERATE)
 				.parameters(ImageParameters.builder()
 						.imgCount(10)
@@ -624,7 +626,7 @@ class UnitTestImageGenerationRequest {
 				null,
 				1);
 		
-		assertNotEquals(0, ImageGenModel.ANIME_V2.estimateAnlasCostIncludingSubscription(testParameters, testUserSubscription));
+		assertNotEquals(0, ImageGenModel.ANIME_V4_5_CURATED.estimateAnlasCostIncludingSubscription(testParameters, testUserSubscription));
 		ImageGenerationLimit testImageGenerationLimit = new ImageGenerationLimit(1, 1000);
 		testSubscriptionPerks = new SubscriptionPerks(-1, 10, 9999, true, true, true, true, new ImageGenerationLimit[] {testImageGenerationLimit}, 8192);
 		testUserSubscription = new UserSubscription(
@@ -635,16 +637,16 @@ class UnitTestImageGenerationRequest {
 				null,
 				1);
 
-		assertNotEquals(0, ImageGenModel.ANIME_V2.estimateAnlasCostIncludingSubscription(testParameters, testUserSubscription));
+		assertNotEquals(0, ImageGenModel.ANIME_V4_5_CURATED.estimateAnlasCostIncludingSubscription(testParameters, testUserSubscription));
 		testParameters.setSteps(28);
 		
-		assertNotEquals(0, ImageGenModel.ANIME_V2.estimateAnlasCostIncludingSubscription(testParameters, testUserSubscription));
+		assertNotEquals(0, ImageGenModel.ANIME_V4_5_CURATED.estimateAnlasCostIncludingSubscription(testParameters, testUserSubscription));
 		testParameters.setImgCount(1);
 
-		assertNotEquals(0, ImageGenModel.ANIME_V2.estimateAnlasCostIncludingSubscription(testParameters, testUserSubscription));
+		assertNotEquals(0, ImageGenModel.ANIME_V4_5_CURATED.estimateAnlasCostIncludingSubscription(testParameters, testUserSubscription));
 		testParameters.setWidth(10);
 
-		assertEquals(0, ImageGenModel.ANIME_V2.estimateAnlasCostIncludingSubscription(testParameters, testUserSubscription));
+		assertEquals(0, ImageGenModel.ANIME_V4_5_CURATED.estimateAnlasCostIncludingSubscription(testParameters, testUserSubscription));
 	}
 	
 	@Test
@@ -684,6 +686,26 @@ class UnitTestImageGenerationRequest {
 				.imgCount(2)
 				.build();
 		assertEquals(42, ImageGenModel.ANIME_V4_FULL.estimateAnlasCost(testParameters, vibeParameters));
+	}
+	
+	@Test
+	void testImageGenerationCostEstimationWithPricedExtraParameters() {
+		ImageParameters testParameters = ImageParameters.builder()
+				.imgCount(1)
+				.width(1024)
+				.height(1024)
+				.steps(28)
+				.build();
+		DirectorReferenceParameter dummyReference = DirectorReferenceParameter.characterAndStyleReference(new Base64Image());
+		DirectorReferenceParameters directorParameters = DirectorReferenceParameters.builder()
+				.directorReference(dummyReference)
+				.build();
+		
+		assertEquals(25, ImageGenModel.V4_5_FULL.estimateAnlasCost(testParameters, directorParameters));
+		testParameters = testParameters.toBuilder()
+				.imgCount(2)
+				.build();
+		assertEquals(45, ImageGenModel.V4_5_FULL.estimateAnlasCost(testParameters, directorParameters));
 	}
 
 }

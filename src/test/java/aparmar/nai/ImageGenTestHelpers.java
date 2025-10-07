@@ -56,4 +56,9 @@ public class ImageGenTestHelpers {
 	static Stream<ImageGenModel> getNonMultiCharacterModels() {
 		return getNonInpaintingModels().filter(m->!m.doesModelSupportExtraParameterType(V4MultiCharacterParameters.class));
 	}
+	
+	
+	static boolean hasControlNetModels() {
+		return getControlNetModels().count() > 0;
+	}
 }
