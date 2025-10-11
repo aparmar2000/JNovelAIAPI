@@ -36,7 +36,7 @@ public class TextGenerationResponse {
 	private int matchedStopToken;
 	
 	public boolean finishedForReason(String reasonString) {
-		return finishReason.equalsIgnoreCase(reasonString);
+		return finishReason!=null && finishReason.equalsIgnoreCase(reasonString);
 	}
 	public boolean finishedForReason(StandardFinishReasons reason) {
 		return finishedForReason(reason.getReasonString());
