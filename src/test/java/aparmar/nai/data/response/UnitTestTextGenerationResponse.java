@@ -31,7 +31,7 @@ class UnitTestTextGenerationResponse {
 		testInstance2.setOutput(new TokenizedChunk(Tokenizers.NERDSTASH_V2, ""));
 		testInstance2.setLogprobs(new LogProbStep[0]);
 		testInstance2.setFinishReason("stop");
-		testInstance2.setMatchedStopToken(151336);
+		testInstance2.setMatchedStopTokens(new int[] {12204});
 		
 		TestHelpers.autoTestDataAndToBuilderAnnotation(TextGenerationResponse.class, testInstance1, testInstance2);
 	}
