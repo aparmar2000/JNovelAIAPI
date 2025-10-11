@@ -12,7 +12,11 @@ public class OaiApiAdapters {
 		JsonObject wrapper = new JsonObject();
 		
 		wrapper.add("model", gson.toJsonTree( textGenerationRequest.getModel() ));
-		wrapper.add("prompt", gson.toJsonTree( textGenerationRequest.getModel().getTokenizerForModel().encode(textGenerationRequest.getInput()) ));
+		if (textGenerationRequest.getParameters().isUseString()) {
+			wrapper.add("prompt", gson.toJsonTree( textGenerationRequest.getModel().getTokenizerForModel().encode(textGenerationRequest.getInput()) ));
+		} else {
+			wrapper.add("prompt", gson.toJsonTree( textGenerationRequest.getModel().getTokenizerForModel().base64ToTokens(textGenerationRequest.getInput()) ));
+		}
 		
 		TextGenerationParameters parameters = textGenerationRequest.getParameters();
 		wrapper.addProperty("stream", false);
@@ -23,7 +27,7 @@ public class OaiApiAdapters {
 			logitBiasMap.addProperty(Integer.toString(badId[0]), -100);
 		}
 		for (LogitBias logitBias : parameters.getLogitBiases()) {
-			logitBiasMap.addProperty(Integer.toString(logitBias.getSequence()[0]), logitBias.getBias());
+			logitBiasMap.addProperty(Integer.toString(logitBias.getSequence()[0]), Math.round(logitBias.getBias()));
 		}
 		wrapper.add("logit_bias", logitBiasMap);
 		wrapper.addProperty("temperature", parameters.getTemperature());
@@ -34,6 +38,8 @@ public class OaiApiAdapters {
 		wrapper.addProperty("presence_penalty", parameters.getRepetitionPenaltyPresence());
 		wrapper.addProperty("frequency_penalty", parameters.getRepetitionPenaltyFrequency());
 		wrapper.addProperty("unified_linear", parameters.getUnifiedLinear());
+		wrapper.addProperty("unified_increase_linear_with_entropy", 0);
+		wrapper.addProperty("unified_cubic", 0);
 		wrapper.addProperty("unified_quadratic", parameters.getUnifiedQuad());
 		
 		return wrapper;
