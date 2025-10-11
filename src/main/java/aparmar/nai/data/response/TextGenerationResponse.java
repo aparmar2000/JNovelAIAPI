@@ -12,17 +12,35 @@ import com.google.gson.JsonParseException;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import aparmar.nai.utils.tokenization.TokenizedChunk;
 
 @Data
 public class TextGenerationResponse {
+	@RequiredArgsConstructor
+	@Getter
+	public static enum StandardFinishReasons {
+		LENGTH("length"),
+		STOP_TOKEN("stop");
+		
+		private final String reasonString;
+	}
+	
 	private TokenizedChunk output;
 	private LogProbStep[] logprobs;
 	@Nullable
-	private String stopReason;
+	private String finishReason;
 	@Nullable
 	private String matchedStop;
+	
+	public boolean finishedForReason(String reasonString) {
+		return finishReason.equalsIgnoreCase(reasonString);
+	}
+	public boolean finishedForReason(StandardFinishReasons reason) {
+		return finishedForReason(reason.getReasonString());
+	}
 	
 	@Data
 	@NoArgsConstructor
