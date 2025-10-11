@@ -27,6 +27,8 @@ class UnitTestTextGenerationResponse {
 		TextGenerationResponse testInstance2 = new TextGenerationResponse();
 		testInstance2.setOutput(new TokenizedChunk(Tokenizers.NERDSTASH_V2, ""));
 		testInstance2.setLogprobs(new LogProbStep[0]);
+		testInstance2.setFinishReason("stop");
+		testInstance2.setMatchedStop("***");
 		
 		TestHelpers.autoTestDataAndToBuilderAnnotation(TextGenerationResponse.class, testInstance1, testInstance2);
 	}
