@@ -226,23 +226,22 @@ public class NAIAPI {
 			throw new IOException("Missing \"choices\" field in response JSON: "+resultBody);
 		}
 		
-		String output = rawResponse
+		JsonObject outputData = rawResponse
 				.getAsJsonArray("choices")
 				.get(0)
-				.getAsJsonObject()
-				.get("text")
-				.getAsString();
+				.getAsJsonObject();
+		String output = outputData.get("text").getAsString();
 		TextGenerationResponse response = new TextGenerationResponse();
 		TokenizedChunk outputChunk = new TokenizedChunk(payload.getModel().getTokenizerForModel(), "");
 		if (!output.isEmpty()) {
 			outputChunk.setTextChunk(output);
 		}
 		response.setOutput(outputChunk);
-		if (rawResponse.has("finish_reason") && !rawResponse.get("finish_reason").isJsonNull()) {
-			response.setFinishReason(rawResponse.get("finish_reason").getAsString());
+		if (outputData.has("finish_reason") && !outputData.get("finish_reason").isJsonNull()) {
+			response.setFinishReason(outputData.get("finish_reason").getAsString());
 		}
-		if (rawResponse.has("matched_stop") && !rawResponse.get("matched_stop").isJsonNull()) {
-			response.setMatchedStopToken(rawResponse.get("matched_stop").getAsInt());
+		if (outputData.has("matched_stop") && !outputData.get("matched_stop").isJsonNull()) {
+			response.setMatchedStopToken(outputData.get("matched_stop").getAsInt());
 		}
 		
 		return response;
