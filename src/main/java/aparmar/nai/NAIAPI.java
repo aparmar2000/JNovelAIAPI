@@ -41,6 +41,7 @@ import aparmar.nai.data.response.UserPriority;
 import aparmar.nai.data.response.UserSubscription;
 import aparmar.nai.utils.BuilderAssemblyFunction;
 import aparmar.nai.utils.GsonProvider;
+import aparmar.nai.utils.OaiApiAdapters;
 import aparmar.nai.utils.RateLimitInterceptor;
 import aparmar.nai.utils.ResultParseFunction;
 import aparmar.nai.utils.ZipArchiveWrapper;
@@ -176,6 +177,13 @@ public class NAIAPI {
 		payload = payload.toBuilder().build();
 		payload.getParameters().setGetHiddenStates(false);
 		
+		if (payload.getModel().isOpenAiEndpointOnly()) {
+			return generateTextOaiApi(payload);
+		}
+		return generateTextNaiApi(payload);
+	}
+	
+	private TextGenerationResponse generateTextNaiApi(TextGenerationRequest payload) throws IOException {
 		String resultBody = postToNovelAI("ai/generate", payload.getModel().getEndpoint(), payload, String.class, t -> {
 			try { return t.string(); } catch (IOException e) { return e.getLocalizedMessage(); }
 		});
@@ -200,6 +208,37 @@ public class NAIAPI {
 		}
 		response.setOutput(outputChunk);
 		response.setLogprobs(gson.fromJson(rawResponse.get("logprobs"), LogProbStep[].class));
+		
+		return response;
+	}
+	
+	private TextGenerationResponse generateTextOaiApi(TextGenerationRequest payload) throws IOException {
+		JsonObject jsonOaiPayload = OaiApiAdapters.convertTextGenerationRequest(payload, gson);
+		String resultBody = postToNovelAI("oa/v1/completions", payload.getModel().getEndpoint(), jsonOaiPayload, String.class, t -> {
+			try { return t.string(); } catch (IOException e) { return e.getLocalizedMessage(); }
+		});
+		
+		JsonObject rawResponse = gson.fromJson(resultBody, JsonObject.class);
+		if (rawResponse.has("error")) {
+			throw new IOException("Error from NAI: "+rawResponse.get("error").getAsString());
+		}
+		if (!rawResponse.has("choices")) {
+			throw new IOException("Missing \"choices\" field in response JSON: "+resultBody);
+		}
+		
+		String output = rawResponse
+				.getAsJsonArray("choices")
+				.get(0)
+				.getAsJsonObject()
+				.get("text")
+				.getAsString();
+		TextGenerationResponse response = new TextGenerationResponse();
+		TokenizedChunk outputChunk = new TokenizedChunk(payload.getModel().getTokenizerForModel(), "");
+		if (!output.isEmpty()) {
+			outputChunk.setTextChunk(output);
+		}
+		response.setOutput(outputChunk);
+		
 		return response;
 	}
 	
