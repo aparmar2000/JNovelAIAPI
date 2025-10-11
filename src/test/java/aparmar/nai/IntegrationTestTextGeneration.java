@@ -20,7 +20,10 @@ class IntegrationTestTextGeneration extends AbstractFeatureIntegrationTest {
 	void testMinimalTextGeneration(TextGenModel textGenModel) throws AssertionError, Exception {
 		String[] associatedPresets = TextParameterPresets.getAssociatedPresets(textGenModel);
 		TextGenerationParameters testPreset = associatedPresets.length>0 ? 
-				TextParameterPresets.getPresetByExtendedName(associatedPresets[0]) : 
+				TextParameterPresets.getPresetByExtendedName(associatedPresets[0])
+					.toBuilder()
+					.maxLength(30)
+					.build() : 
 				TextGenerationParameters.builder()
 					.temperature(1)
 					.minLength(10)
