@@ -8,6 +8,7 @@ import static aparmar.nai.utils.HelperConstants.PERSISTENT_KEY_PATTERN;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Arrays;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -237,11 +238,21 @@ public class NAIAPI {
 			outputChunk.setTextChunk(output);
 		}
 		response.setOutput(outputChunk);
+		
 		if (outputData.has("finish_reason") && !outputData.get("finish_reason").isJsonNull()) {
 			response.setFinishReason(outputData.get("finish_reason").getAsString());
 		}
-		if (outputData.has("matched_stop") && !outputData.get("matched_stop").isJsonNull()) {
-			response.setMatchedStopToken(outputData.get("matched_stop").getAsInt());
+		if (outputData.has("matched_stop") && !outputData.get("matched_stop").isJsonNull()) { // Why is the API like this??
+			if (outputData.get("matched_stop").getAsJsonPrimitive().isNumber()) {
+				response.setMatchedStopTokens(new int[] {outputData.get("matched_stop").getAsInt()});
+			} else {
+				int[] stopTokens = payload.getModel().getTokenizerForModel().encode(outputData.get("matched_stop").getAsString());
+				response.setMatchedStopTokens(stopTokens);
+				
+				if (outputChunk.tokenLength()>=stopTokens.length) {
+					outputChunk.setTokens( Arrays.copyOfRange(outputChunk.getTokens(),0,outputChunk.tokenLength()-stopTokens.length) );
+				}
+			}
 		}
 		
 		return response;
