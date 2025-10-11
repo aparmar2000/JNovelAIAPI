@@ -1,8 +1,10 @@
 package aparmar.nai.data.response;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -16,6 +18,7 @@ import com.google.gson.JsonPrimitive;
 import aparmar.nai.TestHelpers;
 import aparmar.nai.data.response.TextGenerationResponse.LogProb;
 import aparmar.nai.data.response.TextGenerationResponse.LogProbStep;
+import aparmar.nai.data.response.TextGenerationResponse.StandardFinishReasons;
 import aparmar.nai.utils.tokenization.TokenizedChunk;
 import aparmar.nai.utils.tokenization.Tokenizers;
 
@@ -93,6 +96,18 @@ class UnitTestTextGenerationResponse {
 		assertEquals(
 				new LogProb(10, Math.log(0.5), Math.log(0.9)), 
 				testInstance.deserialize(testElement, LogProb.class, null));
+	}
+	
+	@Test
+	void testFinishReasonUtilityFunctions() {
+		TextGenerationResponse testInstance = new TextGenerationResponse();
+		assertFalse(testInstance.finishedForReason("stop"));
+		assertFalse(testInstance.finishedForReason(StandardFinishReasons.STOP_TOKEN));
+		
+		testInstance.setFinishReason("stop");
+		assertTrue(testInstance.finishedForReason("stop"));
+		assertTrue(testInstance.finishedForReason(StandardFinishReasons.STOP_TOKEN));
+		assertFalse(testInstance.finishedForReason(StandardFinishReasons.LENGTH));
 	}
 
 }
