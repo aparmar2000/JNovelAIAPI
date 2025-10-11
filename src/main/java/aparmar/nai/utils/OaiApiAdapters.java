@@ -6,22 +6,24 @@ import com.google.gson.JsonObject;
 import aparmar.nai.data.request.textgen.TextGenerationParameters;
 import aparmar.nai.data.request.textgen.TextGenerationParameters.LogitBias;
 import aparmar.nai.data.request.textgen.TextGenerationRequest;
+import aparmar.nai.utils.tokenization.Tokenizers;
 
 public class OaiApiAdapters {
 	public static JsonObject convertTextGenerationRequest(TextGenerationRequest textGenerationRequest, Gson gson) {
 		JsonObject wrapper = new JsonObject();
+		Tokenizers tokenizer = textGenerationRequest.getModel().getTokenizerForModel();
 		
 		wrapper.add("model", gson.toJsonTree( textGenerationRequest.getModel() ));
 		if (textGenerationRequest.getParameters().isUseString()) {
-			wrapper.add("prompt", gson.toJsonTree( textGenerationRequest.getModel().getTokenizerForModel().encode(textGenerationRequest.getInput()) ));
+			wrapper.add("prompt", gson.toJsonTree( tokenizer.encode(textGenerationRequest.getInput()) ));
 		} else {
-			wrapper.add("prompt", gson.toJsonTree( textGenerationRequest.getModel().getTokenizerForModel().base64ToTokens(textGenerationRequest.getInput()) ));
+			wrapper.add("prompt", gson.toJsonTree( tokenizer.base64ToTokens(textGenerationRequest.getInput()) ));
 		}
 		
 		TextGenerationParameters parameters = textGenerationRequest.getParameters();
 		wrapper.addProperty("stream", false);
 		// Note: logprobs with a value of 0 causes 500 errors with GLM 4.6
-		wrapper.add("stop", gson.toJsonTree( parameters.getStopSequences() ));
+		wrapper.add("stop", gson.toJsonTree( parameters.getStopSequences().stream().map(tokenizer::decode).toArray(String[]::new) ));
 		JsonObject logitBiasMap = new JsonObject();
 		for (int[] badId : parameters.getBadWordIds()) {
 			logitBiasMap.addProperty(Integer.toString(badId[0]), -100);
