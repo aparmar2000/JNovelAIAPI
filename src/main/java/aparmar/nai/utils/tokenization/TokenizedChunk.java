@@ -173,7 +173,7 @@ public class TokenizedChunk implements Cloneable {
 		}
 	}
 	/**
-	 * Prepends a string to the end of this chunk. Re-encodes tokens from the text.
+	 * Prepends a string to the beginning of this chunk. Re-encodes tokens from the text.
 	 */
 	public void prependString(String newString) {
 		lock.lock();
@@ -201,7 +201,7 @@ public class TokenizedChunk implements Cloneable {
 		}
 	}
 	/**
-	 * Appends tokens to the end of this chunk. Updates the text based on the decoded tokens.
+	 * Prepends tokens to the beginning of this chunk. Updates the text based on the decoded tokens.
 	 */
 	public void prependTokens(int[] newTokens) {
 		lock.lock();

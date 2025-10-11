@@ -14,7 +14,7 @@ public enum Tokenizers implements INaiTokenizer {
 	NERDSTASH_V1("novelai.model", TokenizerType.SENTENCEPIECE, TokenBitDepth.USHORT),
 	NERDSTASH_V2("novelai_v2.model", TokenizerType.SENTENCEPIECE, TokenBitDepth.USHORT),
 	LLAMA_3("llama_3_tokenizer.json", TokenizerType.HUGGINGFACE, TokenBitDepth.INTEGER),
-	GLM_4_6("glm-4_6_tokenizer.json", TokenizerType.HUGGINGFACE, TokenBitDepth.INTEGER);
+	GLM_4_6("glm-4_6_tokenizer.json", TokenizerType.HUGGINGFACE_LONG, TokenBitDepth.INTEGER);
 	
 	@Getter
 	private final INaiTokenizer tokenizer;
@@ -27,6 +27,9 @@ public enum Tokenizers implements INaiTokenizer {
 			switch (tokenizerType) {
 			case HUGGINGFACE:
 				newTokenizer = new HuggingFaceTokenizerWrapper(modelInputStream, tokenBitDepth);
+				break;
+			case HUGGINGFACE_LONG:
+				newTokenizer = new HuggingFaceTokenizerWrapper(modelInputStream, tokenBitDepth, 200000);
 				break;
 			case SENTENCEPIECE:
 				newTokenizer = new SpTokenizerWrapper(modelInputStream, tokenBitDepth);

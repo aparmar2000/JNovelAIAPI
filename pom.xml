@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>aparmar</groupId>
 	<artifactId>JNovelAIAPI</artifactId>
-	<version>5.4.0</version>
+	<version>5.4.1</version>
 
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>A moderately functional library facilitating easier usage of
@@ -64,12 +64,6 @@
 			  <groupId>org.jacoco</groupId>
 			  <artifactId>jacoco-maven-plugin</artifactId>
 			  <version>0.8.11</version>
-			  <configuration>
-				  <excludes>
-					  <!-- This wrapper doesn't actually ever get used currently.' -->
-					  <exclude>**/HuggingFaceTokenizerWrapper.class</exclude>
-				  </excludes>
-			  </configuration>
 			  <executions>
 		        <execution>
 		            <goals>
