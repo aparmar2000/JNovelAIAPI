@@ -39,7 +39,7 @@ public enum TextGenModel {
 	@SerializedName("sigurd-2.9b-v1")
 	SIGURD_OLD,
 	@SerializedName("6B-v4")
-	SIGURD(true, true, HelperConstants.GENERAL_API_ROOT, new PresetModulePrefixes[]
+	SIGURD(true, true, HelperConstants.GENERAL_API_ROOT, false, new PresetModulePrefixes[]
 			{PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.PROSE_AUGMENTER,
 			PresetModulePrefixes.CROSSGENRE,
@@ -114,7 +114,7 @@ public enum TextGenModel {
 			PresetModulePrefixes.INSPIRATION_THRONEWARS,
 			PresetModulePrefixes.INSPIRATION_WITCH_AT_LEVEL_CAP}),
 	@SerializedName("euterpe-v2")
-	EUTERPE(true, true, HelperConstants.GENERAL_API_ROOT, new PresetModulePrefixes[]
+	EUTERPE(true, true, HelperConstants.GENERAL_API_ROOT, false, new PresetModulePrefixes[]
 			{PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.PROSE_AUGMENTER,
 			PresetModulePrefixes.CROSSGENRE,
@@ -189,7 +189,7 @@ public enum TextGenModel {
 			PresetModulePrefixes.INSPIRATION_THRONEWARS,
 			PresetModulePrefixes.INSPIRATION_WITCH_AT_LEVEL_CAP}),
 	@SerializedName("krake-v2")
-	KRAKE(false, true, HelperConstants.GENERAL_API_ROOT, new TextGenPrefix[] {TextGenPrefix.KRAKE_DEFAULT}, new PresetModulePrefixes[]{ 
+	KRAKE(false, true, HelperConstants.GENERAL_API_ROOT, false, new TextGenPrefix[] {TextGenPrefix.KRAKE_DEFAULT}, new PresetModulePrefixes[]{ 
 			PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.CROSSGENRE,
 			
@@ -262,25 +262,25 @@ public enum TextGenModel {
 			PresetModulePrefixes.INSPIRATION_THRONEWARS,
 			PresetModulePrefixes.INSPIRATION_WITCH_AT_LEVEL_CAP}),
 	@SerializedName("clio-v1")
-	CLIO(false, false, HelperConstants.GENERAL_API_ROOT, new PresetModulePrefixes[]
+	CLIO(false, false, HelperConstants.GENERAL_API_ROOT, false, new PresetModulePrefixes[]
 			{PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.INSTRUCT,
 			PresetModulePrefixes.PROSE_AUGMENTER,
 			PresetModulePrefixes.LOREBOOK_GENERATION}),
 	@SerializedName("kayra-v1")
-	KAYRA(false, false, HelperConstants.TEXT_API_ROOT, new PresetModulePrefixes[]
+	KAYRA(false, false, HelperConstants.TEXT_API_ROOT, false, new PresetModulePrefixes[]
 			{PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.INSTRUCT,
 			PresetModulePrefixes.PROSE_AUGMENTER,
 			PresetModulePrefixes.OPENINGS,
 			PresetModulePrefixes.LOREBOOK_GENERATION}),
 	@SerializedName("llama-3-erato-v1")
-	ERATO(false, false, HelperConstants.TEXT_API_ROOT, new TextGenPrefix[] {
+	ERATO(false, false, HelperConstants.TEXT_API_ROOT, false, new TextGenPrefix[] {
 			TextGenPrefix.ERATO_DEFAULT,
 			TextGenPrefix.ERATO_OPENING,
 			TextGenPrefix.ERATO_TEXT_ADVENTURE}, new PresetModulePrefixes[]{}),
 	@SerializedName("glm-4-6")
-	GLM_4_6(false, false, HelperConstants.TEXT_API_ROOT, new TextGenPrefix[] {
+	GLM_4_6(false, false, HelperConstants.TEXT_API_ROOT, true, new TextGenPrefix[] {
 			TextGenPrefix.GLM_4_6_DEFAULT,
 			TextGenPrefix.GLM_4_6_OPENING,
 			TextGenPrefix.GLM_4_6_TEXT_ADVENTURE_DEFAULT,
@@ -288,6 +288,7 @@ public enum TextGenModel {
 
 	private final boolean supportsCustomModules, supportsHiddenStates;
 	private final String endpoint;
+	private final boolean openAiEndpointOnly;
 	private final TextGenPrefix[] compatibleTextPrefixes;
 	private final PresetModulePrefixes[] compatiblePresetModules;
 	
@@ -295,15 +296,17 @@ public enum TextGenModel {
 		supportsCustomModules = false;
 		supportsHiddenStates = true;
 		endpoint = HelperConstants.GENERAL_API_ROOT;
+		openAiEndpointOnly = false;
 		compatibleTextPrefixes = new TextGenPrefix[] {TextGenPrefix.NONE};
 		compatiblePresetModules = new PresetModulePrefixes[] {PresetModulePrefixes.NO_MODULE};
 	}
 	private TextGenModel(boolean supportsCustomModules, boolean supportsHiddenStates,
-			String apiRoot,
+			String apiRoot, boolean openAiEndpointOnly,
 			PresetModulePrefixes[] presetModules) {
 		this.supportsCustomModules = supportsCustomModules;
 		this.supportsHiddenStates = supportsHiddenStates;
 		this.endpoint = apiRoot;
+		this.openAiEndpointOnly = openAiEndpointOnly;
 		
 
 		compatibleTextPrefixes = new TextGenPrefix[] {TextGenPrefix.NONE};
@@ -312,12 +315,13 @@ public enum TextGenModel {
 		compatiblePresetModules = moduleSet.toArray(new PresetModulePrefixes[0]);
 	}
 	private TextGenModel(boolean supportsCustomModules, boolean supportsHiddenStates,
-			String apiRoot,
+			String apiRoot, boolean openAiEndpointOnly,
 			TextGenPrefix[] textPrefixes,
 			PresetModulePrefixes[] presetModules) {
 		this.supportsCustomModules = supportsCustomModules;
 		this.supportsHiddenStates = supportsHiddenStates;
 		this.endpoint = apiRoot;
+		this.openAiEndpointOnly = openAiEndpointOnly;
 		
 
 		HashSet<TextGenPrefix> prefixSet = Sets.newHashSet(textPrefixes);

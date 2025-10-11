@@ -22,7 +22,7 @@ public class TextParameterPresets {
 	private static final HashMap<String, TextGenerationParameters> presets = new HashMap<>();
 	private static final HashMap<TextGenModel, String[]> modelPresetAssociations = new HashMap<>();
 	
-	private static final String LINE_PARSE_REGEX = "(([A-Z_]+) - [^:]+): *?(\\{.+\\})$";
+	private static final String LINE_PARSE_REGEX = "(([A-Z0-9_]+) - [^:]+): *?(\\{.+\\})$";
     private static final Pattern LINE_PARSE_PATTERN = Pattern.compile(LINE_PARSE_REGEX, Pattern.MULTILINE);
 	private static void parsePresetFileLine(String line) {
 		Matcher matcher = LINE_PARSE_PATTERN.matcher(line);
