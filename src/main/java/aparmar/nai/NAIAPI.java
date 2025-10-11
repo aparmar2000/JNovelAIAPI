@@ -68,7 +68,7 @@ public class NAIAPI {
 		}
 		this.accessToken = formatAccessToken(accessToken);
 		
-		client = buildHttpClient(Duration.ofSeconds(30));
+		client = buildHttpClient(Duration.ofSeconds(45));
 	}
 	
 	public NAIAPI(String accessToken, Duration readTimeout) {
