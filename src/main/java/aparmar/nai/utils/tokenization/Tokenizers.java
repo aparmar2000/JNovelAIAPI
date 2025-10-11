@@ -26,7 +26,7 @@ public enum Tokenizers implements INaiTokenizer {
 			
 			switch (tokenizerType) {
 			case HUGGINGFACE:
-				newTokenizer = new HuggingFaceTokenizerWrapper(modelInputStream, tokenBitDepth);
+				newTokenizer = new HuggingFaceTokenizerWrapper(modelInputStream, tokenBitDepth, 200000);
 				break;
 			case SENTENCEPIECE:
 				newTokenizer = new SpTokenizerWrapper(modelInputStream, tokenBitDepth);

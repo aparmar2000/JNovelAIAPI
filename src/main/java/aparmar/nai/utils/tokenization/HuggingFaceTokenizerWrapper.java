@@ -22,8 +22,20 @@ public class HuggingFaceTokenizerWrapper extends AbstractSingleBitDepthNaiTokeni
 		huggingFaceTokenizer = HuggingFaceTokenizer.newInstance(
 				modelInputStream, 
 				ImmutableMap.of(
-						"addSpecialTokens", "false",
+						"addSpecialTokens", "true",
 						"maxLength", "8192",
+						"truncation", "false",
+						"padding", "false")
+				);
+	}
+	
+	public HuggingFaceTokenizerWrapper(InputStream modelInputStream, TokenBitDepth tokenBitDepth, int maxLength) throws IOException {
+		super(tokenBitDepth);
+		huggingFaceTokenizer = HuggingFaceTokenizer.newInstance(
+				modelInputStream, 
+				ImmutableMap.of(
+						"addSpecialTokens", "true",
+						"maxLength", Integer.toString(maxLength),
 						"truncation", "false",
 						"padding", "false")
 				);
