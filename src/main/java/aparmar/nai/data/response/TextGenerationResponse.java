@@ -2,6 +2,8 @@ package aparmar.nai.data.response;
 
 import java.lang.reflect.Type;
 
+import javax.annotation.Nullable;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -17,6 +19,10 @@ import aparmar.nai.utils.tokenization.TokenizedChunk;
 public class TextGenerationResponse {
 	private TokenizedChunk output;
 	private LogProbStep[] logprobs;
+	@Nullable
+	private String stopReason;
+	@Nullable
+	private String matchedStop;
 	
 	@Data
 	@NoArgsConstructor
