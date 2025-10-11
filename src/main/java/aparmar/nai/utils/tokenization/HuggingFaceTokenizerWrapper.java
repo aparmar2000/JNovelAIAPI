@@ -51,9 +51,4 @@ public class HuggingFaceTokenizerWrapper extends AbstractSingleBitDepthNaiTokeni
 		return huggingFaceTokenizer.decode(IntStream.of(tokens).mapToLong(i->i).toArray());
 	}
 
-	@Override
-	public int countTokens(String text) {
-		return huggingFaceTokenizer.encode(text).getIds().length;
-	}
-
 }
