@@ -20,7 +20,7 @@ public class OaiApiAdapters {
 		
 		TextGenerationParameters parameters = textGenerationRequest.getParameters();
 		wrapper.addProperty("stream", false);
-		wrapper.addProperty("logprobs", 0);
+		// Note: logprobs with a value of 0 causes 500 errors with GLM 4.6
 		wrapper.add("stop", gson.toJsonTree( parameters.getStopSequences() ));
 		JsonObject logitBiasMap = new JsonObject();
 		for (int[] badId : parameters.getBadWordIds()) {
