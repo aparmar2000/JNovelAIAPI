@@ -33,7 +33,7 @@ public class TextGenerationResponse {
 	@Nullable
 	private String finishReason;
 	@Nullable
-	private String matchedStop;
+	private int matchedStopToken;
 	
 	public boolean finishedForReason(String reasonString) {
 		return finishReason.equalsIgnoreCase(reasonString);

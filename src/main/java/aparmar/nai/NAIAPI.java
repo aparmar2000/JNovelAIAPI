@@ -242,7 +242,7 @@ public class NAIAPI {
 			response.setFinishReason(rawResponse.get("finish_reason").getAsString());
 		}
 		if (rawResponse.has("matched_stop") && !rawResponse.get("matched_stop").isJsonNull()) {
-			response.setMatchedStop(rawResponse.get("matched_stop").getAsString());
+			response.setMatchedStopToken(rawResponse.get("matched_stop").getAsInt());
 		}
 		
 		return response;
