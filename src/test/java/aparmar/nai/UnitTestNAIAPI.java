@@ -1,14 +1,16 @@
 package aparmar.nai;
 
+import static aparmar.nai.utils.HelperConstants.AUTH_HEADER;
 import static aparmar.nai.utils.HelperConstants.GENERAL_API_ROOT;
 import static aparmar.nai.utils.HelperConstants.IMAGE_API_ROOT;
-import static aparmar.nai.utils.HelperConstants.AUTH_HEADER;
 import static aparmar.nai.utils.HelperConstants.MEDIA_TYPE_AUDIO;
 import static aparmar.nai.utils.HelperConstants.MEDIA_TYPE_JSON;
+import static aparmar.nai.utils.HelperConstants.TEXT_API_ROOT;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -19,6 +21,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -26,11 +29,14 @@ import java.util.Random;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.util.ReflectionUtils;
 import org.mockito.ArgumentMatcher;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
@@ -40,11 +46,12 @@ import aparmar.nai.data.request.VoiceGenerationRequest;
 import aparmar.nai.data.request.VoiceGenerationRequest.PresetV2Voice;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
+import aparmar.nai.data.request.imagen.ImageParameters;
 import aparmar.nai.data.request.textgen.TextGenerationParameters;
 import aparmar.nai.data.request.textgen.TextGenerationRequest;
-import aparmar.nai.data.request.imagen.ImageParameters;
 import aparmar.nai.data.response.AudioWrapper;
 import aparmar.nai.data.response.TextGenerationResponse;
+import aparmar.nai.data.response.TextGenerationResponse.StandardFinishReasons;
 import aparmar.nai.data.response.TooManyRequestsException;
 import aparmar.nai.data.response.UserData;
 import aparmar.nai.data.response.UserInfo;
@@ -52,6 +59,7 @@ import aparmar.nai.data.response.UserKeystore;
 import aparmar.nai.data.response.UserPriority;
 import aparmar.nai.data.response.UserSubscription;
 import aparmar.nai.data.response.UserSubscription.SubscriptionTier;
+import aparmar.nai.utils.OaiApiAdapters;
 import aparmar.nai.utils.TextParameterPresets;
 import aparmar.nai.utils.tokenization.TokenizedChunk;
 import okhttp3.Call;
@@ -337,6 +345,109 @@ class UnitTestNAIAPI {
 		verify(mockHttpClient).newCall(argThat(requestPayloadMatcher("ai/generate", GENERAL_API_ROOT, testTextRequest, TextGenerationRequest.class)));
 		assertEquals(mockResponse, actualResponse);
 	}
+
+    @Nested
+    @DisplayName("Oai API text gen works correctly")
+    class OaiTextGenTests {
+    	@Test
+    	void testGenerateOaiTextPlain() throws IOException {
+    		String testPresetName = TextParameterPresets.getAssociatedPresets(TextGenModel.GLM_4_6)[0];
+    		TextGenerationParameters testPreset = TextParameterPresets.getPresetByExtendedName(testPresetName);
+    		TextGenerationRequest testTextRequest = TextGenerationRequest.builder()
+    				.model(TextGenModel.GLM_4_6)
+    				.input("This is an API call!\n")
+    				.parameters(testPreset.toBuilder()
+    						.useString(true)
+    						.build())
+    				.build();
+    		
+    		JsonObject mockResponseJson = new JsonObject();
+    		JsonArray mockResponseChoicesArray = new JsonArray();
+    		JsonObject mockResponseChoice = new JsonObject();
+    		
+    		mockResponseChoice.addProperty("text", "test");
+    		mockResponseChoice.addProperty("finish_reason", StandardFinishReasons.LENGTH.getReasonString());
+    		mockResponseChoicesArray.add(mockResponseChoice);
+    		mockResponseJson.add("choices", mockResponseChoicesArray);
+    		mockResponseJson(mockResponseJson, JsonObject.class);
+    		
+    		TextGenerationResponse actualResponse = apiInstance.generateText(testTextRequest);
+    		testTextRequest.getParameters().setGetHiddenStates(false);
+    		verify(mockHttpClient).newCall(argThat(requestPayloadMatcher("oa/v1/completions", TEXT_API_ROOT, OaiApiAdapters.convertTextGenerationRequest(testTextRequest, gson), JsonObject.class)));
+
+    		assertEquals("test", actualResponse.getOutput().getTextChunk());
+    		assertEquals(StandardFinishReasons.LENGTH.getReasonString(), actualResponse.getFinishReason());
+    		assertTrue(actualResponse.finishedForReason(StandardFinishReasons.LENGTH));
+    	}
+    	
+    	@Test
+    	void testGenerateOaiTextSingleTokenStopSequence() throws IOException {
+    		String testPresetName = TextParameterPresets.getAssociatedPresets(TextGenModel.GLM_4_6)[0];
+    		TextGenerationParameters testPreset = TextParameterPresets.getPresetByExtendedName(testPresetName);
+    		TextGenerationRequest testTextRequest = TextGenerationRequest.builder()
+    				.model(TextGenModel.GLM_4_6)
+    				.input("This is an API call!\n")
+    				.parameters(testPreset.toBuilder()
+    						.useString(true)
+    						.stopSequences(Arrays.asList(new int[] {12204}))
+    						.build())
+    				.build();
+    		
+    		JsonObject mockResponseJson = new JsonObject();
+    		JsonArray mockResponseChoicesArray = new JsonArray();
+    		JsonObject mockResponseChoice = new JsonObject();
+    		
+    		mockResponseChoice.addProperty("text", "test\n");
+    		mockResponseChoice.addProperty("matched_stop", 12204);
+    		mockResponseChoice.addProperty("finish_reason", StandardFinishReasons.STOP_TOKEN.getReasonString());
+    		mockResponseChoicesArray.add(mockResponseChoice);
+    		mockResponseJson.add("choices", mockResponseChoicesArray);
+    		mockResponseJson(mockResponseJson, JsonObject.class);
+    		
+    		TextGenerationResponse actualResponse = apiInstance.generateText(testTextRequest);
+    		testTextRequest.getParameters().setGetHiddenStates(false);
+    		verify(mockHttpClient).newCall(argThat(requestPayloadMatcher("oa/v1/completions", TEXT_API_ROOT, OaiApiAdapters.convertTextGenerationRequest(testTextRequest, gson), JsonObject.class)));
+
+    		assertEquals("test\n", actualResponse.getOutput().getTextChunk());
+    		assertArrayEquals(new int[] {12204}, actualResponse.getMatchedStopTokens());
+    		assertEquals(StandardFinishReasons.STOP_TOKEN.getReasonString(), actualResponse.getFinishReason());
+    		assertTrue(actualResponse.finishedForReason(StandardFinishReasons.STOP_TOKEN));
+    	}
+    	
+    	@Test
+    	void testGenerateOaiTextMultiTokenStopSequence() throws IOException {
+    		String testPresetName = TextParameterPresets.getAssociatedPresets(TextGenModel.GLM_4_6)[0];
+    		TextGenerationParameters testPreset = TextParameterPresets.getPresetByExtendedName(testPresetName);
+    		TextGenerationRequest testTextRequest = TextGenerationRequest.builder()
+    				.model(TextGenModel.GLM_4_6)
+    				.input("This is an API call!\n")
+    				.parameters(testPreset.toBuilder()
+    						.useString(true)
+    						.stopSequences(Arrays.asList(new int[] {51791, 224}))
+    						.build())
+    				.build();
+    		
+    		JsonObject mockResponseJson = new JsonObject();
+    		JsonArray mockResponseChoicesArray = new JsonArray();
+    		JsonObject mockResponseChoice = new JsonObject();
+    		
+    		mockResponseChoice.addProperty("text", "test\n⁂");
+    		mockResponseChoice.addProperty("matched_stop", "⁂");
+    		mockResponseChoice.addProperty("finish_reason", StandardFinishReasons.STOP_TOKEN.getReasonString());
+    		mockResponseChoicesArray.add(mockResponseChoice);
+    		mockResponseJson.add("choices", mockResponseChoicesArray);
+    		mockResponseJson(mockResponseJson, JsonObject.class);
+    		
+    		TextGenerationResponse actualResponse = apiInstance.generateText(testTextRequest);
+    		testTextRequest.getParameters().setGetHiddenStates(false);
+    		verify(mockHttpClient).newCall(argThat(requestPayloadMatcher("oa/v1/completions", TEXT_API_ROOT, OaiApiAdapters.convertTextGenerationRequest(testTextRequest, gson), JsonObject.class)));
+
+    		assertEquals("test\n", actualResponse.getOutput().getTextChunk());
+    		assertArrayEquals(new int[] {51791, 224}, actualResponse.getMatchedStopTokens());
+    		assertEquals(StandardFinishReasons.STOP_TOKEN.getReasonString(), actualResponse.getFinishReason());
+    		assertTrue(actualResponse.finishedForReason(StandardFinishReasons.STOP_TOKEN));
+    	}
+    }
 
 	@Test
 	void testFetchHiddenStates() throws IOException {

@@ -226,18 +226,34 @@ public class NAIAPI {
 			throw new IOException("Missing \"choices\" field in response JSON: "+resultBody);
 		}
 		
-		String output = rawResponse
+		JsonObject outputData = rawResponse
 				.getAsJsonArray("choices")
 				.get(0)
-				.getAsJsonObject()
-				.get("text")
-				.getAsString();
+				.getAsJsonObject();
+		String output = outputData.get("text").getAsString();
 		TextGenerationResponse response = new TextGenerationResponse();
 		TokenizedChunk outputChunk = new TokenizedChunk(payload.getModel().getTokenizerForModel(), "");
 		if (!output.isEmpty()) {
 			outputChunk.setTextChunk(output);
 		}
 		response.setOutput(outputChunk);
+		
+		if (outputData.has("finish_reason") && !outputData.get("finish_reason").isJsonNull()) {
+			response.setFinishReason(outputData.get("finish_reason").getAsString());
+		}
+		if (outputData.has("matched_stop") && !outputData.get("matched_stop").isJsonNull()) { // Why is the API like this??
+			if (outputData.get("matched_stop").getAsJsonPrimitive().isNumber()) {
+				response.setMatchedStopTokens(new int[] {outputData.get("matched_stop").getAsInt()});
+			} else {
+				String stopString = outputData.get("matched_stop").getAsString();
+				int[] stopTokens = payload.getModel().getTokenizerForModel().encode(stopString);
+				response.setMatchedStopTokens(stopTokens);
+				
+				if (outputChunk.textLength()>=stopString.length()) {
+					outputChunk.setTextChunk( outputChunk.getTextChunk().substring(0, outputChunk.textLength()-stopString.length()) );
+				}
+			}
+		}
 		
 		return response;
 	}
