@@ -8,7 +8,6 @@ import static aparmar.nai.utils.HelperConstants.PERSISTENT_KEY_PATTERN;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Arrays;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -246,11 +245,12 @@ public class NAIAPI {
 			if (outputData.get("matched_stop").getAsJsonPrimitive().isNumber()) {
 				response.setMatchedStopTokens(new int[] {outputData.get("matched_stop").getAsInt()});
 			} else {
-				int[] stopTokens = payload.getModel().getTokenizerForModel().encode(outputData.get("matched_stop").getAsString());
+				String stopString = outputData.get("matched_stop").getAsString();
+				int[] stopTokens = payload.getModel().getTokenizerForModel().encode(stopString);
 				response.setMatchedStopTokens(stopTokens);
 				
-				if (outputChunk.tokenLength()>=stopTokens.length) {
-					outputChunk.setTokens( Arrays.copyOfRange(outputChunk.getTokens(),0,outputChunk.tokenLength()-stopTokens.length) );
+				if (outputChunk.textLength()>=stopString.length()) {
+					outputChunk.setTextChunk( outputChunk.getTextChunk().substring(0, outputChunk.textLength()-stopString.length()) );
 				}
 			}
 		}
