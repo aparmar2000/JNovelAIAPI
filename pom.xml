@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>aparmar</groupId>
 	<artifactId>JNovelAIAPI</artifactId>
-	<version>5.4.1</version>
+	<version>5.4.2</version>
 
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>A moderately functional library facilitating easier usage of
@@ -26,6 +26,7 @@
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -46,6 +47,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.1.2</version>
 				<configuration>
+					<argLine>${argLine} -Dfile.encoding=${project.build.sourceEncoding}</argLine>
 					<excludedGroups>tts</excludedGroups>
 					<includes>
 						<include>**/IntegrationTest*.java</include>
