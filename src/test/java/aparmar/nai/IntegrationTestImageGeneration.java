@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -13,12 +15,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import aparmar.nai.data.request.Base64Image;
 import aparmar.nai.data.request.ImageVibeEncodeRequest;
 import aparmar.nai.data.request.V4VibeData;
 import aparmar.nai.data.request.imagen.DirectorReferenceParameter;
+import aparmar.nai.data.request.imagen.DirectorReferenceParameter.DirectorReferenceCaption;
 import aparmar.nai.data.request.imagen.DirectorReferenceParameters;
 import aparmar.nai.data.request.imagen.Image2ImageParameters;
 import aparmar.nai.data.request.imagen.ImageControlNetParameters;
@@ -26,6 +30,7 @@ import aparmar.nai.data.request.imagen.ImageControlNetParameters.ControlnetModel
 import aparmar.nai.data.request.imagen.ImageGenerationRequest;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenAction;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
+import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenerationRequestBuilder;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ModeTag;
 import aparmar.nai.data.request.imagen.ImageInpaintParameters;
 import aparmar.nai.data.request.imagen.ImageParameters;
@@ -399,31 +404,51 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 		});
 	}
 	
+	static Stream<Arguments> preciseReferenceTestParameterFactory() {
+		return ImageGenTestHelpers.getDirectorReferenceModels()
+				.flatMap( m-> Arrays.stream(DirectorReferenceCaption.values()).map( r -> Arguments.of(m,r) ) );
+	}
+	
 	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
-	@Test
-	void testCharacterReferenceImageGeneration() throws AssertionError, Exception {
+	@ParameterizedTest
+	@MethodSource("aparmar.nai.IntegrationTestImageGeneration#preciseReferenceTestParameterFactory")
+	void testPreciseReferenceImageGeneration(ImageGenModel imageGenModel, DirectorReferenceCaption referenceType) throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
 			BufferedImage conditionImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.jpg"));
 			
-			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
+			ImageGenerationRequestBuilder testGenerationRequestBuilder = ImageGenerationRequest.builder()
 					.input("portrait of a woman")
-					.action(ImageGenAction.GENERATE)
-					.model(ImageGenModel.V4_5_FULL)
-					.parameters(new ImageParameters(
-							1,
-							512,512,
-							23,5,0,
-							ImageParameters.ImageGenSampler.K_EULER_ANCESTRAL,
-							false, false, false, 
-							ImageParameters.SamplingSchedule.KARRAS, 
-							true, ImageGenerationRequest.QualityTagsLocation.DEFAULT, 
-							1, ImageGenerationRequest.V4_5_FULL_HUMAN_FOCUS_UC, 1,
-							1))
+					.model(imageGenModel)
 					.modeTag(ModeTag.ANIME)
 					.extraParameter(DirectorReferenceParameters.builder()
-							.directorReference(DirectorReferenceParameter.characterAndStyleReference(new Base64Image(conditionImage)))
-							.build())
-					.build();
+							.directorReference(DirectorReferenceParameter.directorReference(referenceType, new Base64Image(conditionImage)))
+							.build());
+			ImageParameters.ImageParametersBuilder<?, ?> testGenerationParametersBuilder;
+			if (imageGenModel.isInpaintingModel()) {
+				BufferedImage baseImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.jpg"));
+				BufferedImage maskImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_mask.png"));
+				
+				testGenerationRequestBuilder = testGenerationRequestBuilder.action(ImageGenAction.INFILL);
+				testGenerationParametersBuilder = ImageInpaintParameters.builder()
+						.image(new Base64Image(baseImage, 512, 512, false))
+						.mask(new Base64Image(maskImage, 512, 512, true));
+			} else {
+				testGenerationRequestBuilder = testGenerationRequestBuilder.action(ImageGenAction.GENERATE);
+				testGenerationParametersBuilder = ImageParameters.builder();
+			}
+			testGenerationRequestBuilder = testGenerationRequestBuilder.parameters(
+					testGenerationParametersBuilder
+						.seed(1)
+						.width(512)
+						.height(512)
+						.steps(23)
+						.scale(5)
+						.sampler(ImageParameters.ImageGenSampler.K_EULER_ANCESTRAL)
+						.ucPreset(1)
+						.undesiredContent(ImageGenerationRequest.V4_5_FULL_HUMAN_FOCUS_UC)
+						.qualityToggle(true)
+						.build());
+			ImageGenerationRequest testGenerationRequest = testGenerationRequestBuilder.build();
 			ImageSetWrapper result = apiInstance.generateImage(testGenerationRequest);
 			
 			assertNotNull(result);
@@ -434,7 +459,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 			assertEquals(512, resultImage.getRenderedImage().getWidth());
 
 			if (!"True".equals(System.getenv("saveTestImages"))) { return; }
-			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"character_reference_test.png"));
+			result.writeImageToFile(0, new File(String.format("%sreference_test_%s_%s.png", TestConstants.TEST_IMAGE_FOLDER, imageGenModel, referenceType)));
 		});
 	}
 

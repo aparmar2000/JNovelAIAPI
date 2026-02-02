@@ -447,6 +447,63 @@ class UnitTestNAIAPI {
     		assertEquals(StandardFinishReasons.STOP_TOKEN.getReasonString(), actualResponse.getFinishReason());
     		assertTrue(actualResponse.finishedForReason(StandardFinishReasons.STOP_TOKEN));
     	}
+    	@Test
+    	void testGenerateOaiErrorResponse() throws IOException {
+    		String testPresetName = TextParameterPresets.getAssociatedPresets(TextGenModel.GLM_4_6)[0];
+    		TextGenerationParameters testPreset = TextParameterPresets.getPresetByExtendedName(testPresetName);
+    		TextGenerationRequest testTextRequest = TextGenerationRequest.builder()
+    				.model(TextGenModel.GLM_4_6)
+    				.input("This is an API call!\n")
+    				.parameters(testPreset.toBuilder()
+    						.useString(true)
+    						.build())
+    				.build();
+    		
+    		JsonObject mockResponseJson = new JsonObject();
+    		
+    		final String testErrorString = "!test error!";
+    		mockResponseJson.addProperty("error", testErrorString);
+    		mockResponseJson(mockResponseJson, JsonObject.class);
+    		
+    		IOException actualException = assertThrows(IOException.class, ()->apiInstance.generateText(testTextRequest));
+    		assertTrue(actualException.getMessage().contains(testErrorString), "Exception message did not contain test error message.");
+    	}
+    	
+    	@Test
+    	void testGenerateOaiMalformedResponseNoChoices() throws IOException {
+    		String testPresetName = TextParameterPresets.getAssociatedPresets(TextGenModel.GLM_4_6)[0];
+    		TextGenerationParameters testPreset = TextParameterPresets.getPresetByExtendedName(testPresetName);
+    		TextGenerationRequest testTextRequest = TextGenerationRequest.builder()
+    				.model(TextGenModel.GLM_4_6)
+    				.input("This is an API call!\n")
+    				.parameters(testPreset.toBuilder()
+    						.useString(true)
+    						.build())
+    				.build();
+    		
+    		JsonObject mockResponseJson = new JsonObject();
+    		
+    		mockResponseJson(mockResponseJson, JsonObject.class);
+    		
+    		assertThrows(IOException.class, ()->apiInstance.generateText(testTextRequest));
+    	}
+    	
+    	@Test
+    	void testGenerateOaiMalformedResponseEmpty() throws IOException {
+    		String testPresetName = TextParameterPresets.getAssociatedPresets(TextGenModel.GLM_4_6)[0];
+    		TextGenerationParameters testPreset = TextParameterPresets.getPresetByExtendedName(testPresetName);
+    		TextGenerationRequest testTextRequest = TextGenerationRequest.builder()
+    				.model(TextGenModel.GLM_4_6)
+    				.input("This is an API call!\n")
+    				.parameters(testPreset.toBuilder()
+    						.useString(true)
+    						.build())
+    				.build();
+    		
+    		mockResponseJson(null, JsonObject.class);
+    		
+    		assertThrows(IOException.class, ()->apiInstance.generateText(testTextRequest));
+    	}
     }
 
 	@Test
