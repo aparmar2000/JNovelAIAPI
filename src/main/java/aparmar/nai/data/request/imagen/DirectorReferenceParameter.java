@@ -28,7 +28,9 @@ public class DirectorReferenceParameter {
 		@SerializedName("character")
 		CHARACTER_NOT_STYLE(aspectMatchingScalingPreprocessor(Base64Image.ScalingMode.PAD_BLACK, new int[] {1024, 1536}, new int[] {1536, 1024}, new int[] {1472, 1472} )),
 		@SerializedName("character&style")
-		CHARACTER_AND_STYLE(aspectMatchingScalingPreprocessor(Base64Image.ScalingMode.PAD_BLACK, new int[] {1024, 1536}, new int[] {1536, 1024}, new int[] {1472, 1472} ));
+		CHARACTER_AND_STYLE(aspectMatchingScalingPreprocessor(Base64Image.ScalingMode.PAD_BLACK, new int[] {1024, 1536}, new int[] {1536, 1024}, new int[] {1472, 1472} )),
+		@SerializedName("style")
+		STYLE_NOT_CHARACTER(aspectMatchingScalingPreprocessor(Base64Image.ScalingMode.PAD_BLACK, new int[] {1024, 1536}, new int[] {1536, 1024}, new int[] {1472, 1472} ));
 		
 		private final Function<BufferedImage, Base64Image> imagePreprocessor;
 		
@@ -81,6 +83,7 @@ public class DirectorReferenceParameter {
 		switch (getDescription().getCaption().getBaseCaption()) {
 		case CHARACTER_AND_STYLE:
 		case CHARACTER_NOT_STYLE:
+		case STYLE_NOT_CHARACTER:
 			return 5;
 		default:
 			return 0;
@@ -138,9 +141,18 @@ public class DirectorReferenceParameter {
 		}
 	}
 	
-	public static DirectorReferenceParameterBuilder characterAndStyleReferenceBuilder() {
+	public static DirectorReferenceParameterBuilder directorReferenceBuilder(@NonNull DirectorReferenceCaption referenceType) {
 		return DirectorReferenceParameter.builder()
-				.description(new DirectorReferenceDescription(DirectorReferenceCaption.CHARACTER_AND_STYLE, false));
+				.description(new DirectorReferenceDescription(referenceType, false));
+	}
+	public static DirectorReferenceParameter directorReference(@NonNull DirectorReferenceCaption referenceType, @NonNull Base64Image referenceImage) {
+		return directorReferenceBuilder(referenceType)
+				.referenceImage(referenceImage)
+				.build();
+	}
+	
+	public static DirectorReferenceParameterBuilder characterAndStyleReferenceBuilder() {
+		return directorReferenceBuilder(DirectorReferenceCaption.CHARACTER_AND_STYLE);
 	}
 	public static DirectorReferenceParameter characterAndStyleReference(@NonNull Base64Image referenceImage) {
 		return characterAndStyleReferenceBuilder()
@@ -148,12 +160,35 @@ public class DirectorReferenceParameter {
 				.build();
 	}
 	
+	/**
+	 * @deprecated since 5.5.0, use {@link DirectorReferenceParameter#characterReferenceBuilder()} instead.
+	 */
+	@Deprecated
 	public static DirectorReferenceParameterBuilder characterNotStyleReferenceBuilder() {
-		return DirectorReferenceParameter.builder()
-				.description(new DirectorReferenceDescription(DirectorReferenceCaption.CHARACTER_NOT_STYLE, false));
+		return directorReferenceBuilder(DirectorReferenceCaption.CHARACTER_NOT_STYLE);
 	}
+	/**
+	 * @deprecated since 5.5.0, use {@link DirectorReferenceParameter#characterReference()} instead.
+	 */
+	@Deprecated
 	public static DirectorReferenceParameter characterNotStyleReference(@NonNull Base64Image referenceImage) {
 		return characterNotStyleReferenceBuilder()
+				.referenceImage(referenceImage)
+				.build();
+	}
+	
+	public static DirectorReferenceParameterBuilder characterReferenceBuilder() {
+		return characterNotStyleReferenceBuilder();
+	}
+	public static DirectorReferenceParameter characterReference(@NonNull Base64Image referenceImage) {
+		return characterNotStyleReference(referenceImage);
+	}
+	
+	public static DirectorReferenceParameterBuilder styleReferenceBuilder() {
+		return directorReferenceBuilder(DirectorReferenceCaption.STYLE_NOT_CHARACTER);
+	}
+	public static DirectorReferenceParameter styleReference(@NonNull Base64Image referenceImage) {
+		return styleReferenceBuilder()
 				.referenceImage(referenceImage)
 				.build();
 	}

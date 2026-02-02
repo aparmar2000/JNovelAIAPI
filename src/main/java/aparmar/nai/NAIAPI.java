@@ -218,7 +218,13 @@ public class NAIAPI {
 			try { return t.string(); } catch (IOException e) { return e.getLocalizedMessage(); }
 		});
 		
-		JsonObject rawResponse = gson.fromJson(resultBody, JsonObject.class);
+		JsonObject rawResponse = null;
+		try {
+			rawResponse = gson.fromJson(resultBody, JsonObject.class);
+		} catch (JsonSyntaxException e) { }
+		if (rawResponse == null) {
+			throw new IOException("Empty/unparsable response from NAI: \""+resultBody+"\"");
+		}
 		if (rawResponse.has("error")) {
 			throw new IOException("Error from NAI: "+rawResponse.get("error").getAsString());
 		}

@@ -3,6 +3,7 @@ package aparmar.nai;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
+import aparmar.nai.data.request.imagen.DirectorReferenceParameters;
 import aparmar.nai.data.request.imagen.Image2ImageParameters;
 import aparmar.nai.data.request.imagen.ImageControlNetParameters;
 import aparmar.nai.data.request.imagen.ImageVibeTransferParameters;
@@ -43,6 +44,9 @@ public class ImageGenTestHelpers {
 	static Stream<ImageGenModel> getMultiCharacterModels() {
 		return getNonInpaintingModels().filter(m->m.doesModelSupportExtraParameterType(V4MultiCharacterParameters.class));
 	}
+	static Stream<ImageGenModel> getDirectorReferenceModels() {
+		return getNonDeprecatedModels().filter(m->m.doesModelSupportExtraParameterType(DirectorReferenceParameters.class));
+	}
 	
 	static Stream<ImageGenModel> getNonImg2ImgModels() {
 		return getNonInpaintingModels().filter(m->!m.doesModelSupportExtraParameterType(Image2ImageParameters.class));
@@ -55,6 +59,9 @@ public class ImageGenTestHelpers {
 	}
 	static Stream<ImageGenModel> getNonMultiCharacterModels() {
 		return getNonInpaintingModels().filter(m->!m.doesModelSupportExtraParameterType(V4MultiCharacterParameters.class));
+	}
+	static Stream<ImageGenModel> getNonDirectorReferenceModels() {
+		return getNonDeprecatedModels().filter(m->!m.doesModelSupportExtraParameterType(DirectorReferenceParameters.class));
 	}
 	
 	
