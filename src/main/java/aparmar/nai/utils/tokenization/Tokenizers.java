@@ -68,6 +68,7 @@ public enum Tokenizers implements INaiTokenizer {
 		case ERATO:
 			return LLAMA_3;
 		case GLM_4_6:
+		case XIALONG:
 			return GLM_4_6;
 		
 		default:

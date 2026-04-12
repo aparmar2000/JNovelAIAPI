@@ -16,7 +16,7 @@ import aparmar.nai.utils.tokenization.TokenizedChunk;
 class IntegrationTestTextGeneration extends AbstractFeatureIntegrationTest {
 
 	@ParameterizedTest
-	@EnumSource(value = TextGenModel.class, names = {"SIGURD","EUTERPE","KRAKE","CLIO","KAYRA","ERATO","GLM_4_6"})
+	@EnumSource(value = TextGenModel.class, names = {"SIGURD","EUTERPE","KRAKE","CLIO","KAYRA","ERATO","GLM_4_6","XIALONG"})
 	void testMinimalTextGeneration(TextGenModel textGenModel) throws AssertionError, Exception {
 		String[] associatedPresets = TextParameterPresets.getAssociatedPresets(textGenModel);
 		TextGenerationParameters testPreset = associatedPresets.length>0 ? 
@@ -35,6 +35,13 @@ class IntegrationTestTextGeneration extends AbstractFeatureIntegrationTest {
 		if (textGenModel == TextGenModel.KRAKE) {
 			testPreset = testPreset.toBuilder()
 					.repetitionPenaltySlope(1)
+					.build();
+		}
+		
+		// Xialong requires > 0 top p
+		if (textGenModel == TextGenModel.XIALONG) {
+			testPreset = testPreset.toBuilder()
+					.topP(0.9)
 					.build();
 		}
 

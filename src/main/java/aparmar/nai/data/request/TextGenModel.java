@@ -284,7 +284,10 @@ public enum TextGenModel {
 			TextGenPrefix.GLM_4_6_DEFAULT,
 			TextGenPrefix.GLM_4_6_OPENING,
 			TextGenPrefix.GLM_4_6_TEXT_ADVENTURE_DEFAULT,
-			TextGenPrefix.GLM_4_6_TEXT_ADVENTURE_OPENING}, new PresetModulePrefixes[]{});
+			TextGenPrefix.GLM_4_6_TEXT_ADVENTURE_OPENING}, new PresetModulePrefixes[]{}),
+	@SerializedName("xialong-v1")
+	XIALONG(false, false, HelperConstants.TEXT_API_ROOT, true, new TextGenPrefix[] {
+			TextGenPrefix.XIALONG_DEFAULT}, new PresetModulePrefixes[]{});
 
 	private final boolean supportsCustomModules, supportsHiddenStates;
 	private final String endpoint;
