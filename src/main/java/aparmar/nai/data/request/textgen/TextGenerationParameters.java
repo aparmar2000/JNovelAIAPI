@@ -1,5 +1,6 @@
 package aparmar.nai.data.request.textgen;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,7 +13,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Data
 @NoArgsConstructor
@@ -54,7 +57,7 @@ public class TextGenerationParameters { // TODO: Add more validation
 	
 	@SerializedName("logit_bias_exp")
 	private List<LogitBias> logitBiases = new LinkedList<LogitBias>();
-	private int[] order; // TODO: Make this an object with custom serialization & validation?
+	private List<SamplingStep> order;
 	@SerializedName("repetition_penalty_whitelist")
 	private int[] repetitionPenaltyWhitelist;
 
@@ -162,6 +165,82 @@ public class TextGenerationParameters { // TODO: Add more validation
 		private boolean unbiasOnceGenerated;
 	}
 	
+	@RequiredArgsConstructor
+	public static enum SamplerStepId {
+		@SerializedName("temperature")
+		TEMPERATURE(0),
+		@SerializedName("top_k")
+		TOP_K(1),
+		@SerializedName("top_p")
+		NUCLEUS(2),
+		@SerializedName("tfs")
+		TAIL_FREE(3),
+		@SerializedName("top_a")
+		TOP_A(4),
+		@SerializedName("typical_p")
+		TYPICAL(5),
+		/** @deprecated No longer supported by the API. */
+		@Deprecated
+		@SerializedName("cfg")
+		CFG(6),
+		/** @deprecated No longer supported by the API. */
+		@Deprecated
+		@SerializedName("top_g")
+		TOP_G(7),
+		@SerializedName("mirostat")
+		MIROSTAT(8),
+		@SerializedName("math1")
+		UNIFIED(9),
+		@SerializedName("min_p")
+		MIN_P(10);
+		
+		@Getter
+		private final int id;
+		
+		public static SamplerStepId fromId(int pId) {
+			return Arrays.stream(values())
+					.filter(s->s.getId()==pId)
+					.findAny()
+					.orElse(null);
+		}
+	}
+
+	@Data
+	@NoArgsConstructor
+	@AllArgsConstructor
+	@Builder(toBuilder = true)
+	public static class SamplingStep {	
+		@SerializedName("id")	
+		private SamplerStepId sampler;
+		private boolean enabled;
+		
+		public static int[] toIdArray(List<SamplingStep> samplingSteps) {
+			if (samplingSteps == null || samplingSteps.isEmpty()) {
+				return new int[0];
+			}
+			return samplingSteps.stream()
+					.filter(SamplingStep::isEnabled)
+					.map(SamplingStep::getSampler)
+					.mapToInt(SamplerStepId::getId)
+					.toArray();
+		}
+		public static List<SamplingStep> fromIdArray(int[] ids) {
+			List<SamplingStep> result = new ArrayList<SamplingStep>();
+			
+			if (ids != null) {
+				for (int id : ids) {
+					SamplerStepId nSampler = SamplerStepId.fromId(id);
+					if (nSampler == null) {
+						throw new IllegalArgumentException("Sampler id "+id+" out of bounds!");
+					}
+					result.add(new SamplingStep(nSampler, true));
+				}
+			}
+			
+			return result;
+		}
+	}
+	
 	public void setMaxLength(int newMaxLength) {
 		if (newMaxLength<=0 || newMaxLength>2048) {
 			throw new IllegalArgumentException("Max length must be within 1-2048, was "+this.maxLength);
@@ -196,9 +275,27 @@ public class TextGenerationParameters { // TODO: Add more validation
 			this.modulePrefix = newPrefix;
 		}
 	}
+	
+	/** @deprecated since 5.6.0, use {@link TextGenerationParameters#getOrderSteps()} instead. */
+	@Deprecated
+	public int[] getOrder() {
+		return SamplingStep.toIdArray(getOrderSteps());
+	}
+	public List<SamplingStep> getOrderSteps() {
+		return order;
+	}
+
+	/** @deprecated since 5.6.0, use {@link TextGenerationParameters#setOrderSteps()} instead. */
+	@Deprecated
+	public void setOrder(int[] newOrder) {
+		setOrderSteps(SamplingStep.fromIdArray(newOrder));
+	}
+	public void setOrderSteps(List<SamplingStep> newOrder) {
+		order = new ArrayList<>(newOrder);
+	}
 
 	@Builder(toBuilder = true)
-	public TextGenerationParameters(List<int[]> stopSequences, List<int[]> badWordIds, List<LogitBias> logitBiases, int[] order,
+	public TextGenerationParameters(List<int[]> stopSequences, List<int[]> badWordIds, List<LogitBias> logitBiases, List<SamplingStep> order,
 			int[] repetitionPenaltyWhitelist, double temperature, int maxLength, int minLength, int numLogprobs, boolean useString,
 			boolean useCache, boolean earlyStopping, boolean nextWord, boolean getHiddenStates,
 			boolean outputNonzeroProbs, boolean generateUntilSentence, int beamNumber, int beamGroupNumber,
@@ -212,7 +309,7 @@ public class TextGenerationParameters { // TODO: Add more validation
 		this.stopSequences = stopSequences==null?new LinkedList<int[]>():stopSequences;
 		this.badWordIds = badWordIds==null?new LinkedList<int[]>():badWordIds;
 		this.logitBiases = logitBiases==null?new LinkedList<LogitBias>():logitBiases;
-		this.order = order;
+		this.order = order==null?new ArrayList<SamplingStep>():order;
 		this.repetitionPenaltyWhitelist = repetitionPenaltyWhitelist;
 		setTemperature(temperature);
 		setMaxLength(maxLength);
@@ -256,5 +353,20 @@ public class TextGenerationParameters { // TODO: Add more validation
 		this.mirostatTau = mirostatTau;
 		this.mirostatLr = mirostatLr;
 		setModulePrefix(modulePrefix);
+	}
+	/** @deprecated since 5.6.0, supply {@code order} as a {@code List<SamplingStep>} instead. */
+	@Deprecated
+	public TextGenerationParameters(List<int[]> stopSequences, List<int[]> badWordIds, List<LogitBias> logitBiases, int[] order,
+			int[] repetitionPenaltyWhitelist, double temperature, int maxLength, int minLength, int numLogprobs, boolean useString,
+			boolean useCache, boolean earlyStopping, boolean nextWord, boolean getHiddenStates,
+			boolean outputNonzeroProbs, boolean generateUntilSentence, int beamNumber, int beamGroupNumber,
+			double cfgAlpha, int topK, double topA, double topP, double topG, double typicalP, double minP,
+			double tailFreeSampling, double unifiedLinear, double unifiedQuad, double unifiedConf,
+			double repetitionPenalty, int repetitionPenaltyRange, double repetitionPenaltySlope, 
+			double repetitionPenaltyFrequency, double repetitionPenaltyPresence,
+			TextGenerationParameters.PhraseRepPenSetting phraseRepetitionPenalty, int padTokenId, int bosTokenId, int eosTokenId,
+			double lengthPenalty, double diversityPenalty, int noRepeatNgramSize, int encoderNoRepeatNgramSize,
+			int numReturnSequences, double maxTime, double mirostatTau, double mirostatLr, String modulePrefix) {
+		this(stopSequences, badWordIds, logitBiases, SamplingStep.fromIdArray(order), repetitionPenaltyWhitelist, temperature, maxLength, minLength, numLogprobs, useString, useCache, earlyStopping, nextWord, getHiddenStates, outputNonzeroProbs, generateUntilSentence, beamNumber, beamGroupNumber, cfgAlpha, topK, topA, topP, topG, typicalP, minP, tailFreeSampling, unifiedLinear, unifiedQuad, unifiedConf, repetitionPenalty, repetitionPenaltyRange, repetitionPenaltySlope, repetitionPenaltyFrequency, repetitionPenaltyPresence, phraseRepetitionPenalty, padTokenId, bosTokenId, eosTokenId, lengthPenalty, diversityPenalty, noRepeatNgramSize, encoderNoRepeatNgramSize, numReturnSequences, maxTime, mirostatTau, mirostatLr, modulePrefix);
 	}
 }

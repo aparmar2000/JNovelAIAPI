@@ -1,0 +1,72 @@
+{
+  "presetVersion": 3,
+  "name": "Long Press",
+  "id": "d4fa8b95-c3c6-44ff-8e9f-86ae5c09129a",
+  "remoteId": "",
+  "parameters": {
+    "textGenerationSettingsVersion": 8,
+    "temperature": 1.155,
+    "max_length": 150,
+    "min_length": 1,
+    "top_k": 25,
+    "top_p": 1,
+    "top_a": 0.265,
+    "typical_p": 0.985,
+    "tail_free_sampling": 0.88,
+    "repetition_penalty": 1.65,
+    "repetition_penalty_range": 8192,
+    "repetition_penalty_slope": 1.5,
+    "repetition_penalty_frequency": 0.0085,
+    "repetition_penalty_presence": 0.0125,
+    "repetition_penalty_default_whitelist": true,
+    "cfg_scale": 1,
+    "cfg_uc": "",
+    "phrase_rep_pen": "very_light",
+    "top_g": 0,
+    "mirostat_tau": 0,
+    "mirostat_lr": 1,
+    "math1_temp": 1,
+    "math1_quad": 0,
+    "math1_quad_entropy_scale": 0,
+    "min_p": 0,
+    "order": [
+      {
+        "id": "cfg",
+        "enabled": false
+      },
+      {
+        "id": "temperature",
+        "enabled": true
+      },
+      {
+        "id": "top_a",
+        "enabled": true
+      },
+      {
+        "id": "top_k",
+        "enabled": true
+      },
+      {
+        "id": "typical_p",
+        "enabled": true
+      },
+      {
+        "id": "tfs",
+        "enabled": true
+      },
+      {
+        "id": "top_p",
+        "enabled": false
+      },
+      {
+        "id": "top_g",
+        "enabled": false
+      },
+      {
+        "id": "mirostat",
+        "enabled": false
+      }
+    ]
+  },
+  "model": "clio-v1"
+}

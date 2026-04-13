@@ -1,0 +1,72 @@
+{
+  "presetVersion": 3,
+  "name": "Blue Adder",
+  "id": "e60a3c3c-1db9-4f61-b0c2-47fc37148c3d",
+  "remoteId": "",
+  "parameters": {
+    "textGenerationSettingsVersion": 8,
+    "temperature": 1.01,
+    "max_length": 150,
+    "min_length": 1,
+    "top_k": 0,
+    "top_p": 0.7,
+    "top_a": 0.06,
+    "typical_p": 0.996,
+    "tail_free_sampling": 0.991,
+    "repetition_penalty": 1.02325,
+    "repetition_penalty_range": 496,
+    "repetition_penalty_slope": 0.72,
+    "repetition_penalty_frequency": 0,
+    "repetition_penalty_presence": 0,
+    "repetition_penalty_default_whitelist": false,
+    "cfg_scale": 1,
+    "cfg_uc": "",
+    "phrase_rep_pen": "off",
+    "top_g": 0,
+    "mirostat_tau": 0,
+    "mirostat_lr": 1,
+    "math1_temp": 1,
+    "math1_quad": 0,
+    "math1_quad_entropy_scale": 0,
+    "min_p": 0,
+    "order": [
+      {
+        "id": "cfg",
+        "enabled": false
+      },
+      {
+        "id": "typical_p",
+        "enabled": true
+      },
+      {
+        "id": "tfs",
+        "enabled": true
+      },
+      {
+        "id": "temperature",
+        "enabled": true
+      },
+      {
+        "id": "top_a",
+        "enabled": true
+      },
+      {
+        "id": "top_p",
+        "enabled": false
+      },
+      {
+        "id": "top_k",
+        "enabled": false
+      },
+      {
+        "id": "top_g",
+        "enabled": false
+      },
+      {
+        "id": "mirostat",
+        "enabled": false
+      }
+    ]
+  },
+  "model": "krake-v2"
+}

@@ -1,0 +1,72 @@
+{
+  "presetVersion": 3,
+  "name": "Talker C",
+  "id": "5711366f-3ac0-47f0-ad05-fbd5685c69df",
+  "remoteId": "",
+  "parameters": {
+    "textGenerationSettingsVersion": 8,
+    "temperature": 1.5,
+    "max_length": 150,
+    "min_length": 1,
+    "top_k": 10,
+    "top_p": 0.75,
+    "top_a": 0.08,
+    "typical_p": 0.975,
+    "tail_free_sampling": 0.967,
+    "repetition_penalty": 2.25,
+    "repetition_penalty_range": 8192,
+    "repetition_penalty_slope": 0.09,
+    "repetition_penalty_frequency": 0,
+    "repetition_penalty_presence": 0.005,
+    "repetition_penalty_default_whitelist": true,
+    "cfg_scale": 1,
+    "cfg_uc": "",
+    "phrase_rep_pen": "very_light",
+    "top_g": 0,
+    "mirostat_tau": 0,
+    "mirostat_lr": 1,
+    "math1_temp": 1,
+    "math1_quad": 0,
+    "math1_quad_entropy_scale": 0,
+    "min_p": 0,
+    "order": [
+      {
+        "id": "cfg",
+        "enabled": false
+      },
+      {
+        "id": "top_k",
+        "enabled": true
+      },
+      {
+        "id": "typical_p",
+        "enabled": true
+      },
+      {
+        "id": "temperature",
+        "enabled": true
+      },
+      {
+        "id": "top_p",
+        "enabled": true
+      },
+      {
+        "id": "tfs",
+        "enabled": true
+      },
+      {
+        "id": "top_a",
+        "enabled": true
+      },
+      {
+        "id": "top_g",
+        "enabled": false
+      },
+      {
+        "id": "mirostat",
+        "enabled": false
+      }
+    ]
+  },
+  "model": "clio-v1"
+}

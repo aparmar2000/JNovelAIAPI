@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -125,9 +124,7 @@ public abstract class V4VibeDataFile<T extends V4VibeDataFile<T>> extends DataFi
 	}
 	@Override
 	public void saveToStream(OutputStream outputStream) throws IOException {
-		try (OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream)) {			
-			gson.toJson(saveToJson(new JsonObject()), outputStreamWriter);
-		}
+		JsonSerializableDataFile.saveToStreamViaJson(this, outputStream);
 	}
 
 	protected abstract T loadInnerFromJson(JsonObject rootElement) throws IOException;
@@ -144,9 +141,7 @@ public abstract class V4VibeDataFile<T extends V4VibeDataFile<T>> extends DataFi
 	}
 	@Override
 	public T loadFromStream(InputStream inputStream) throws IOException {
-		try (InputStreamReader reader = new InputStreamReader(inputStream)) {			
-			return loadFromJson(gson.fromJson(reader, JsonObject.class));
-		}
+		return JsonSerializableDataFile.loadFromStreamViaJson(this, inputStream);
 	}
 	
 

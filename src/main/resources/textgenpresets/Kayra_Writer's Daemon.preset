@@ -1,0 +1,80 @@
+{
+  "presetVersion": 3,
+  "name": "Writer's Daemon",
+  "id": "7013d9f8-ecbd-4263-a077-32ee693ab8dd",
+  "remoteId": "",
+  "parameters": {
+    "textGenerationSettingsVersion": 8,
+    "temperature": 1.5,
+    "max_length": 250,
+    "min_length": 1,
+    "top_k": 70,
+    "top_p": 0.95,
+    "top_a": 0.02,
+    "typical_p": 0.95,
+    "tail_free_sampling": 0.95,
+    "repetition_penalty": 1.625,
+    "repetition_penalty_range": 2016,
+    "repetition_penalty_slope": 0,
+    "repetition_penalty_frequency": 0,
+    "repetition_penalty_presence": 0,
+    "repetition_penalty_default_whitelist": true,
+    "cfg_scale": 1,
+    "cfg_uc": "",
+    "phrase_rep_pen": "very_aggressive",
+    "top_g": 0,
+    "mirostat_tau": 5,
+    "mirostat_lr": 0.25,
+    "math1_temp": 1,
+    "math1_quad": 0,
+    "math1_quad_entropy_scale": 0,
+    "min_p": 0,
+    "order": [
+      {
+        "id": "cfg",
+        "enabled": false
+      },
+      {
+        "id": "mirostat",
+        "enabled": true
+      },
+      {
+        "id": "top_k",
+        "enabled": false
+      },
+      {
+        "id": "temperature",
+        "enabled": true
+      },
+      {
+        "id": "typical_p",
+        "enabled": true
+      },
+      {
+        "id": "tfs",
+        "enabled": true
+      },
+      {
+        "id": "top_p",
+        "enabled": true
+      },
+      {
+        "id": "top_a",
+        "enabled": true
+      },
+      {
+        "id": "top_g",
+        "enabled": false
+      },
+      {
+        "id": "math1",
+        "enabled": false
+      },
+      {
+        "id": "min_p",
+        "enabled": false
+      }
+    ]
+  },
+  "model": "kayra-v1"
+}
