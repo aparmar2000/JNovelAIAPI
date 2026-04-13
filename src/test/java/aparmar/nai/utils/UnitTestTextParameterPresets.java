@@ -14,29 +14,34 @@ class UnitTestTextParameterPresets {
 
 	@Test
 	void testGetPresetNames() {
-		String[] sortedPresetNames = TextParameterPresets.getPresetNames();
+		String[] sortedPresetNames = TextParameterPresets.getPresetExtendedNames();
 		Arrays.sort(sortedPresetNames);
 		
 		assertArrayEquals(
-				new String[] {"CLIO - Blended Coffee","CLIO - Edgewise","CLIO - Edgewise CFG","CLIO - Flat-Out","CLIO - Fresh Coffee","CLIO - Long Press","CLIO - Talker C","CLIO - Vingt-Un","EUTERPE - Ace of Spades","EUTERPE - All-Nighter","EUTERPE - Basic Coherence","EUTERPE - Fandango","EUTERPE - Genesis","EUTERPE - Low Rider","EUTERPE - Moonlit Chronicler","EUTERPE - Morpho","EUTERPE - Ouroboros","EUTERPE - Pro Writer","GLM_4_6 - Default","KAYRA - Asper","KAYRA - Blended Coffee","KAYRA - Blook","KAYRA - Carefree","KAYRA - Fresh Coffee","KAYRA - Green Active Writer","KAYRA - Plotfish","KAYRA - Stelenes","KAYRA - Tesseract","KAYRA - Writer's Daemon","KRAKE - 20BC+","KRAKE - Blue Adder","KRAKE - Blue Lighter","KRAKE - Calibrated","KRAKE - Calypso","KRAKE - Iris","KRAKE - Krait","KRAKE - Redjack","KRAKE - Reverie","KRAKE - Top Gun Beta","SIGURD - Best Guess","SIGURD - Coherent Creativity","SIGURD - Emperor Moth","SIGURD - Luna Moth","SIGURD - Pleasing Results","SIGURD - Sphinx Moth","SIGURD - Storywriter"}, 
+				new String[] {"CLIO - Edgewise", "CLIO - Fresh Coffee", "CLIO - Long Press", "CLIO - Talker C", "CLIO - Vingt-Un", "ERATO - Dragonfruit", "ERATO - Golden Arrow", "ERATO - Wilder", "ERATO - Zany Scribe", "ERATO - 小説家", "EUTERPE - Ace of Spades", "EUTERPE - All-Nighter", "EUTERPE - Basic Coherence", "EUTERPE - Fandango", "EUTERPE - Genesis", "EUTERPE - Low Rider", "EUTERPE - Moonlit Chronicler", "EUTERPE - Morpho", "EUTERPE - Ouroboros", "EUTERPE - Pro Writer", "GLM_4_6 - Default", "KAYRA - Asper", "KAYRA - Carefree", "KAYRA - Fresh Coffee", "KAYRA - Stelenes", "KAYRA - Writer's Daemon", "KRAKE - 20BC+", "KRAKE - Blue Adder", "KRAKE - Blue Lighter", "KRAKE - Calibrated", "KRAKE - Calypso", "KRAKE - Iris", "KRAKE - Krait", "KRAKE - Redjack", "KRAKE - Reverie", "KRAKE - Top Gun Beta", "SIGURD - Best Guess", "SIGURD - Coherent Creativity", "SIGURD - Emperor Moth", "SIGURD - Genji Default", "SIGURD - Luna Moth", "SIGURD - Pleasing Results", "SIGURD - Sphinx Moth", "SIGURD - Storywriter", "SIGURD - Storywriter (Snek)", "XIALONG - Default"}, 
 				sortedPresetNames);
 	}
 
 	@Test
 	void testGetPresetByExtendedName() {
-		assertNotNull(TextParameterPresets.getPresetByExtendedName("KAYRA - Carefree"));
+		assertNotNull(TextParameterPresets.getPresetFileByExtendedName("KAYRA - Carefree"));
+		assertNotNull(TextParameterPresets.getPresetParametersByExtendedName("KAYRA - Carefree"));
 	}
 
 	@Test
 	void testGetPresetByNameAndModel() {
-		assertNotNull(TextParameterPresets.getPresetByNameAndModel(TextGenModel.KRAKE, "Blue Lighter"));
+		assertNotNull(TextParameterPresets.getPresetFileByNameAndModel(TextGenModel.KRAKE, "Blue Lighter"));
+		assertNotNull(TextParameterPresets.getPresetParametersByNameAndModel(TextGenModel.KRAKE, "Blue Lighter"));
 	}
 
 	@Test
 	void testGetAssociatedPresets() {
+		String[] sortedPresetNames = TextParameterPresets.getAssociatedPresetExtendedNames(TextGenModel.KAYRA);
+		Arrays.sort(sortedPresetNames);
+		
 		assertArrayEquals(
-				new String[] {"KAYRA - Carefree","KAYRA - Stelenes","KAYRA - Fresh Coffee","KAYRA - Asper","KAYRA - Writer's Daemon","KAYRA - Blook","KAYRA - Tesseract","KAYRA - Blended Coffee","KAYRA - Plotfish","KAYRA - Green Active Writer"}, 
-				TextParameterPresets.getAssociatedPresets(TextGenModel.KAYRA));
+				new String[] {"KAYRA - Asper", "KAYRA - Carefree", "KAYRA - Fresh Coffee", "KAYRA - Stelenes", "KAYRA - Writer's Daemon"}, 
+				sortedPresetNames);
 	}
 
 	@Test

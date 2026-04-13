@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -17,6 +18,8 @@ import aparmar.nai.TestHelpers;
 import aparmar.nai.data.request.textgen.TextGenerationParameters;
 import aparmar.nai.data.request.textgen.TextGenerationParameters.LogitBias;
 import aparmar.nai.data.request.textgen.TextGenerationParameters.PhraseRepPenSetting;
+import aparmar.nai.data.request.textgen.TextGenerationParameters.SamplerStepId;
+import aparmar.nai.data.request.textgen.TextGenerationParameters.SamplingStep;
 
 class UnitTestTextGenerationParameters {
 
@@ -35,7 +38,7 @@ class UnitTestTextGenerationParameters {
 				.badWordIds(Stream.of(new int[] {2}).collect(Collectors.toList()))
 				.logitBiases(Stream.of(new LogitBias[] {LogitBias.builder().build()}).collect(Collectors.toList()))
 				.numLogprobs(10)
-				.order(new int[] {1,2,3})
+				.order(Collections.singletonList(new SamplingStep(SamplerStepId.TEMPERATURE, true)))
 				.repetitionPenaltyWhitelist(new int[] {5})
 				.useString(true)
 				.useCache(true)

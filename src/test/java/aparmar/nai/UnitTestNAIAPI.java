@@ -323,8 +323,7 @@ class UnitTestNAIAPI {
 
 	@Test
 	void testGenerateText() throws IOException {
-		String testPresetName = TextParameterPresets.getAssociatedPresets(TextGenModel.CLIO)[0];
-		TextGenerationParameters testPreset = TextParameterPresets.getPresetByExtendedName(testPresetName);
+		TextGenerationParameters testPreset = TextParameterPresets.getAssociatedPresetParameters(TextGenModel.CLIO)[0];
 		TextGenerationRequest testTextRequest = TextGenerationRequest.builder()
 				.model(TextGenModel.CLIO)
 				.input("This is an API call!\n")
@@ -351,8 +350,7 @@ class UnitTestNAIAPI {
     class OaiTextGenTests {
     	@Test
     	void testGenerateOaiTextPlain() throws IOException {
-    		String testPresetName = TextParameterPresets.getAssociatedPresets(TextGenModel.GLM_4_6)[0];
-    		TextGenerationParameters testPreset = TextParameterPresets.getPresetByExtendedName(testPresetName);
+    		TextGenerationParameters testPreset = TextParameterPresets.getAssociatedPresetParameters(TextGenModel.GLM_4_6)[0];
     		TextGenerationRequest testTextRequest = TextGenerationRequest.builder()
     				.model(TextGenModel.GLM_4_6)
     				.input("This is an API call!\n")
@@ -382,8 +380,7 @@ class UnitTestNAIAPI {
     	
     	@Test
     	void testGenerateOaiTextSingleTokenStopSequence() throws IOException {
-    		String testPresetName = TextParameterPresets.getAssociatedPresets(TextGenModel.GLM_4_6)[0];
-    		TextGenerationParameters testPreset = TextParameterPresets.getPresetByExtendedName(testPresetName);
+    		TextGenerationParameters testPreset = TextParameterPresets.getAssociatedPresetParameters(TextGenModel.GLM_4_6)[0];
     		TextGenerationRequest testTextRequest = TextGenerationRequest.builder()
     				.model(TextGenModel.GLM_4_6)
     				.input("This is an API call!\n")
@@ -416,8 +413,7 @@ class UnitTestNAIAPI {
     	
     	@Test
     	void testGenerateOaiTextMultiTokenStopSequence() throws IOException {
-    		String testPresetName = TextParameterPresets.getAssociatedPresets(TextGenModel.GLM_4_6)[0];
-    		TextGenerationParameters testPreset = TextParameterPresets.getPresetByExtendedName(testPresetName);
+    		TextGenerationParameters testPreset = TextParameterPresets.getAssociatedPresetParameters(TextGenModel.GLM_4_6)[0];
     		TextGenerationRequest testTextRequest = TextGenerationRequest.builder()
     				.model(TextGenModel.GLM_4_6)
     				.input("This is an API call!\n")
@@ -449,8 +445,7 @@ class UnitTestNAIAPI {
     	}
     	@Test
     	void testGenerateOaiErrorResponse() throws IOException {
-    		String testPresetName = TextParameterPresets.getAssociatedPresets(TextGenModel.GLM_4_6)[0];
-    		TextGenerationParameters testPreset = TextParameterPresets.getPresetByExtendedName(testPresetName);
+    		TextGenerationParameters testPreset = TextParameterPresets.getAssociatedPresetParameters(TextGenModel.GLM_4_6)[0];
     		TextGenerationRequest testTextRequest = TextGenerationRequest.builder()
     				.model(TextGenModel.GLM_4_6)
     				.input("This is an API call!\n")
@@ -471,8 +466,7 @@ class UnitTestNAIAPI {
     	
     	@Test
     	void testGenerateOaiMalformedResponseNoChoices() throws IOException {
-    		String testPresetName = TextParameterPresets.getAssociatedPresets(TextGenModel.GLM_4_6)[0];
-    		TextGenerationParameters testPreset = TextParameterPresets.getPresetByExtendedName(testPresetName);
+    		TextGenerationParameters testPreset = TextParameterPresets.getAssociatedPresetParameters(TextGenModel.GLM_4_6)[0];
     		TextGenerationRequest testTextRequest = TextGenerationRequest.builder()
     				.model(TextGenModel.GLM_4_6)
     				.input("This is an API call!\n")
@@ -490,8 +484,7 @@ class UnitTestNAIAPI {
     	
     	@Test
     	void testGenerateOaiMalformedResponseEmpty() throws IOException {
-    		String testPresetName = TextParameterPresets.getAssociatedPresets(TextGenModel.GLM_4_6)[0];
-    		TextGenerationParameters testPreset = TextParameterPresets.getPresetByExtendedName(testPresetName);
+    		TextGenerationParameters testPreset = TextParameterPresets.getAssociatedPresetParameters(TextGenModel.GLM_4_6)[0];
     		TextGenerationRequest testTextRequest = TextGenerationRequest.builder()
     				.model(TextGenModel.GLM_4_6)
     				.input("This is an API call!\n")
@@ -509,9 +502,8 @@ class UnitTestNAIAPI {
 	@Test
 	void testFetchHiddenStates() throws IOException {
 		Random rand = new Random();
-		
-		String testPresetName = TextParameterPresets.getAssociatedPresets(TextGenModel.EUTERPE)[0];
-		TextGenerationParameters testPreset = TextParameterPresets.getPresetByExtendedName(testPresetName);
+
+		TextGenerationParameters testPreset = TextParameterPresets.getAssociatedPresetParameters(TextGenModel.EUTERPE)[0];
 		TextGenerationRequest testTextRequest = TextGenerationRequest.builder()
 				.model(TextGenModel.EUTERPE)
 				.input("This is an API call!\n")
