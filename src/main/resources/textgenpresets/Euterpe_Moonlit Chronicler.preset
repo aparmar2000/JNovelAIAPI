@@ -1,0 +1,72 @@
+{
+  "presetVersion": 3,
+  "name": "Moonlit Chronicler",
+  "id": "6e71021f-1d3d-4bf1-8d10-1fa7293bf042",
+  "remoteId": "",
+  "parameters": {
+    "textGenerationSettingsVersion": 8,
+    "temperature": 1.25,
+    "max_length": 150,
+    "min_length": 1,
+    "top_k": 300,
+    "top_p": 1,
+    "top_a": 0.782,
+    "typical_p": 0.95,
+    "tail_free_sampling": 0.802,
+    "repetition_penalty": 2.075,
+    "repetition_penalty_range": 512,
+    "repetition_penalty_slope": 0.36,
+    "repetition_penalty_frequency": 0,
+    "repetition_penalty_presence": 0,
+    "repetition_penalty_default_whitelist": false,
+    "cfg_scale": 1,
+    "cfg_uc": "",
+    "phrase_rep_pen": "off",
+    "top_g": 0,
+    "mirostat_tau": 0,
+    "mirostat_lr": 1,
+    "math1_temp": 1,
+    "math1_quad": 0,
+    "math1_quad_entropy_scale": 0,
+    "min_p": 0,
+    "order": [
+      {
+        "id": "cfg",
+        "enabled": false
+      },
+      {
+        "id": "top_k",
+        "enabled": true
+      },
+      {
+        "id": "typical_p",
+        "enabled": true
+      },
+      {
+        "id": "top_a",
+        "enabled": true
+      },
+      {
+        "id": "tfs",
+        "enabled": true
+      },
+      {
+        "id": "temperature",
+        "enabled": true
+      },
+      {
+        "id": "top_p",
+        "enabled": false
+      },
+      {
+        "id": "top_g",
+        "enabled": false
+      },
+      {
+        "id": "mirostat",
+        "enabled": false
+      }
+    ]
+  },
+  "model": "euterpe-v2"
+}

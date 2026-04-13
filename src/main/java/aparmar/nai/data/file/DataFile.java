@@ -22,6 +22,7 @@ import lombok.val;
 @EqualsAndHashCode
 @ToString
 public abstract class DataFile<T extends DataFile<? extends T>> {
+	@Getter
 	protected static transient final Gson gson = GsonProvider.buildGsonInstance();
 	
 	@Getter
