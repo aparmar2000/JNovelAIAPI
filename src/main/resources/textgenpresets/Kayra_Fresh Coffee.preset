@@ -1,0 +1,80 @@
+{
+  "presetVersion": 3,
+  "name": "Fresh Coffee",
+  "id": "273d1884-feeb-432e-9d90-fd7c133be9ea",
+  "remoteId": "",
+  "parameters": {
+    "textGenerationSettingsVersion": 8,
+    "temperature": 1,
+    "max_length": 250,
+    "min_length": 1,
+    "top_k": 25,
+    "top_p": 1,
+    "top_a": 1,
+    "typical_p": 1,
+    "tail_free_sampling": 0.925,
+    "repetition_penalty": 1.9,
+    "repetition_penalty_range": 768,
+    "repetition_penalty_slope": 1,
+    "repetition_penalty_frequency": 0.0025,
+    "repetition_penalty_presence": 0.001,
+    "repetition_penalty_default_whitelist": false,
+    "cfg_scale": 1,
+    "cfg_uc": "",
+    "phrase_rep_pen": "off",
+    "top_g": 0,
+    "mirostat_tau": 0,
+    "mirostat_lr": 1,
+    "math1_temp": 1,
+    "math1_quad": 0,
+    "math1_quad_entropy_scale": 0,
+    "min_p": 0,
+    "order": [
+      {
+        "id": "cfg",
+        "enabled": true
+      },
+      {
+        "id": "temperature",
+        "enabled": true
+      },
+      {
+        "id": "top_k",
+        "enabled": true
+      },
+      {
+        "id": "top_p",
+        "enabled": true
+      },
+      {
+        "id": "tfs",
+        "enabled": true
+      },
+      {
+        "id": "top_a",
+        "enabled": false
+      },
+      {
+        "id": "typical_p",
+        "enabled": false
+      },
+      {
+        "id": "top_g",
+        "enabled": false
+      },
+      {
+        "id": "mirostat",
+        "enabled": false
+      },
+      {
+        "id": "math1",
+        "enabled": false
+      },
+      {
+        "id": "min_p",
+        "enabled": false
+      }
+    ]
+  },
+  "model": "kayra-v1"
+}
