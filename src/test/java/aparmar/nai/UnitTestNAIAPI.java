@@ -220,7 +220,7 @@ class UnitTestNAIAPI {
 		mockResponseJson(expectedUserInfo, UserInfo.class);
 
 		UserInfo actualUserInfo = apiInstance.fetchUserInformation();
-		verify(mockHttpClient).newCall(argThat(requestMatcher("user/information", GENERAL_API_ROOT)));
+		verify(mockHttpClient).newCall(argThat(requestMatcher("user/information", IMAGE_API_ROOT)));
 		assertEquals(expectedUserInfo, actualUserInfo);
 	}
 
@@ -230,7 +230,7 @@ class UnitTestNAIAPI {
 		mockResponseJson(expectedUserPriority, UserPriority.class);
 
 		UserPriority actualUserPriority = apiInstance.fetchUserPriority();
-		verify(mockHttpClient).newCall(argThat(requestMatcher("user/priority", GENERAL_API_ROOT)));
+		verify(mockHttpClient).newCall(argThat(requestMatcher("user/priority", IMAGE_API_ROOT)));
 		assertEquals(expectedUserPriority, actualUserPriority);
 	}
 
@@ -245,7 +245,7 @@ class UnitTestNAIAPI {
 		mockResponseJson(expectedUserSub, UserSubscription.class);
 
 		UserSubscription actualUserSub = apiInstance.fetchUserSubscription();
-		verify(mockHttpClient).newCall(argThat(requestMatcher("user/subscription", GENERAL_API_ROOT)));
+		verify(mockHttpClient).newCall(argThat(requestMatcher("user/subscription", IMAGE_API_ROOT)));
 		assertEquals(expectedUserSub, actualUserSub);
 	}
 
@@ -279,7 +279,7 @@ class UnitTestNAIAPI {
 		mockResponseJson(expectedUserData, UserData.class);
 
 		UserData actualUserData = apiInstance.fetchUserData();
-		verify(mockHttpClient).newCall(argThat(requestMatcher("user/data", GENERAL_API_ROOT)));
+		verify(mockHttpClient).newCall(argThat(requestMatcher("user/data", IMAGE_API_ROOT)));
 		assertEquals(expectedUserData, actualUserData);
 	}
 
