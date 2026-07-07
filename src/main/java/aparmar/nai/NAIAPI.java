@@ -101,15 +101,15 @@ public class NAIAPI {
 	// --- GET Endpoints
 	
 	public UserInfo fetchUserInformation() throws IOException {
-		return fetchFromNovelAI("user/information", GENERAL_API_ROOT, UserInfo.class);
+		return fetchFromNovelAI("user/information", IMAGE_API_ROOT, UserInfo.class);
 	}
 	
 	public UserPriority fetchUserPriority() throws IOException {
-		return fetchFromNovelAI("user/priority", GENERAL_API_ROOT, UserPriority.class);
+		return fetchFromNovelAI("user/priority", IMAGE_API_ROOT, UserPriority.class);
 	}
 	
 	public UserSubscription fetchUserSubscription() throws IOException {
-		return fetchFromNovelAI("user/subscription", GENERAL_API_ROOT, UserSubscription.class);
+		return fetchFromNovelAI("user/subscription", IMAGE_API_ROOT, UserSubscription.class);
 	}
 	
 	public UserKeystore fetchUserKeystore() throws IOException {
@@ -117,7 +117,7 @@ public class NAIAPI {
 	}
 	
 	public UserData fetchUserData() throws IOException {
-		return fetchFromNovelAI("user/data", GENERAL_API_ROOT, UserData.class);
+		return fetchFromNovelAI("user/data", IMAGE_API_ROOT, UserData.class);
 	}
 	
 	// === Generation Endpoints ===
