@@ -56,6 +56,7 @@ import aparmar.nai.data.response.TooManyRequestsException;
 import aparmar.nai.data.response.UserData;
 import aparmar.nai.data.response.UserInfo;
 import aparmar.nai.data.response.UserKeystore;
+import aparmar.nai.data.response.UserOsanoId;
 import aparmar.nai.data.response.UserPriority;
 import aparmar.nai.data.response.UserSubscription;
 import aparmar.nai.data.response.UserSubscription.SubscriptionTier;
@@ -281,6 +282,17 @@ class UnitTestNAIAPI {
 		UserData actualUserData = apiInstance.fetchUserData();
 		verify(mockHttpClient).newCall(argThat(requestMatcher("user/data", IMAGE_API_ROOT)));
 		assertEquals(expectedUserData, actualUserData);
+	}
+
+	@SuppressWarnings("deprecation")
+	@Test
+	void testFetchUserOsanoId() throws IOException {
+		UserOsanoId expectedOsanoId = new UserOsanoId("4vxu3LyTNTcoQXdCLQMvZF9Spi-vxfmTJVrj8P7hoLM");
+		mockResponseJson(expectedOsanoId, UserOsanoId.class);
+
+		UserOsanoId actualOsanoId = apiInstance.fetchUserOsanoId();
+		verify(mockHttpClient).newCall(argThat(requestMatcher("user/osano-external-id", GENERAL_API_ROOT)));
+		assertEquals(expectedOsanoId, actualOsanoId);
 	}
 
 	@Test

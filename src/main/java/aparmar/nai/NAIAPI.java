@@ -37,6 +37,7 @@ import aparmar.nai.data.response.TooManyRequestsException;
 import aparmar.nai.data.response.UserData;
 import aparmar.nai.data.response.UserInfo;
 import aparmar.nai.data.response.UserKeystore;
+import aparmar.nai.data.response.UserOsanoId;
 import aparmar.nai.data.response.UserPriority;
 import aparmar.nai.data.response.UserSubscription;
 import aparmar.nai.utils.BuilderAssemblyFunction;
@@ -118,6 +119,15 @@ public class NAIAPI {
 	
 	public UserData fetchUserData() throws IOException {
 		return fetchFromNovelAI("user/data", IMAGE_API_ROOT, UserData.class);
+	}
+	
+	/**
+	 * Implemented for reference completeness and future-proofing.<br/>
+	 * Will always fail because this endpoint is currently forbidden for access via persistent token. 
+	 */
+	@Deprecated
+	public UserOsanoId fetchUserOsanoId() throws IOException {
+		return fetchFromNovelAI("user/osano-external-id", GENERAL_API_ROOT, UserOsanoId.class);
 	}
 	
 	// === Generation Endpoints ===
