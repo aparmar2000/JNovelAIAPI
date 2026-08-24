@@ -1,22 +1,10 @@
 package aparmar.nai;
 
-import static aparmar.nai.utils.HelperConstants.AUTH_HEADER;
-import static aparmar.nai.utils.HelperConstants.GENERAL_API_ROOT;
-import static aparmar.nai.utils.HelperConstants.IMAGE_API_ROOT;
-import static aparmar.nai.utils.HelperConstants.MEDIA_TYPE_AUDIO;
-import static aparmar.nai.utils.HelperConstants.MEDIA_TYPE_JSON;
-import static aparmar.nai.utils.HelperConstants.TEXT_API_ROOT;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static aparmar.nai.utils.HelperConstants.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.lang.reflect.Field;

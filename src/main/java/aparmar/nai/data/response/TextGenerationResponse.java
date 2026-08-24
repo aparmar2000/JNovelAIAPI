@@ -10,12 +10,12 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 
+import aparmar.nai.utils.tokenization.TokenizedChunk;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import aparmar.nai.utils.tokenization.TokenizedChunk;
 
 @Data
 public class TextGenerationResponse {

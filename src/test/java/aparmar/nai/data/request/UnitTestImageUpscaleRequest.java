@@ -5,8 +5,8 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.junit.jupiter.api.Test;
 
-import aparmar.nai.data.request.ImageUpscaleRequest.UpscaleFactor;
 import aparmar.nai.TestHelpers;
+import aparmar.nai.data.request.ImageUpscaleRequest.UpscaleFactor;
 
 class UnitTestImageUpscaleRequest {
 

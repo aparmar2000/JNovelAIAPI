@@ -1,10 +1,6 @@
 package aparmar.nai.data.request;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -30,25 +26,16 @@ import com.google.gson.JsonSerializationContext;
 
 import aparmar.nai.TestHelpers;
 import aparmar.nai.data.request.V4VibeData.VibeEncodingType;
-import aparmar.nai.data.request.imagen.AbstractExtraImageParameters;
-import aparmar.nai.data.request.imagen.DirectorReferenceParameter;
-import aparmar.nai.data.request.imagen.DirectorReferenceParameters;
-import aparmar.nai.data.request.imagen.Image2ImageParameters;
-import aparmar.nai.data.request.imagen.ImageControlNetParameters;
+import aparmar.nai.data.request.imagen.*;
 import aparmar.nai.data.request.imagen.ImageControlNetParameters.ControlnetModel;
-import aparmar.nai.data.request.imagen.ImageGenerationRequest;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenAction;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ModeTag;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.QualityTagsLocation;
-import aparmar.nai.data.request.imagen.ImageInpaintParameters;
-import aparmar.nai.data.request.imagen.ImageParameters;
 import aparmar.nai.data.request.imagen.ImageParameters.ImageFormat;
 import aparmar.nai.data.request.imagen.ImageParameters.ImageGenSampler;
 import aparmar.nai.data.request.imagen.ImageParameters.ImageParametersBuilder;
 import aparmar.nai.data.request.imagen.ImageParameters.SamplingSchedule;
-import aparmar.nai.data.request.imagen.ImageVibeTransferParameters;
-import aparmar.nai.data.request.imagen.V4ImageVibeTransferParameters;
 import aparmar.nai.data.response.UserSubscription;
 import aparmar.nai.data.response.UserSubscription.InternalSubscriptionPerks;
 import aparmar.nai.data.response.UserSubscription.SubscriptionTier;
