@@ -43,6 +43,7 @@ import aparmar.nai.data.request.imagen.ImageGenerationRequest.ModeTag;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.QualityTagsLocation;
 import aparmar.nai.data.request.imagen.ImageInpaintParameters;
 import aparmar.nai.data.request.imagen.ImageParameters;
+import aparmar.nai.data.request.imagen.ImageParameters.ImageFormat;
 import aparmar.nai.data.request.imagen.ImageParameters.ImageGenSampler;
 import aparmar.nai.data.request.imagen.ImageParameters.ImageParametersBuilder;
 import aparmar.nai.data.request.imagen.ImageParameters.SamplingSchedule;
@@ -99,7 +100,13 @@ class UnitTestImageGenerationRequest {
 					.ucPreset(15)
 					.undesiredContent("uc")
 					.ucScale(2)
+					.imageFormat(ImageFormat.WEBP)
 					.imgCount(15)
+					.colorCorrect(true)
+					.straightAlpha(true)
+					.transparentBackgroundHint(true)
+					.varietyPlus(true)
+					.preferBrownian(false)
 					.build();
 			TestHelpers.autoTestDataAndToBuilderAnnotation(ImageParameters.class, testInstance1, testInstance2);
 		}
@@ -126,7 +133,13 @@ class UnitTestImageGenerationRequest {
 					.ucPreset(15)
 					.undesiredContent("uc")
 					.ucScale(2)
+					.imageFormat(ImageFormat.WEBP)
 					.imgCount(15)
+					.colorCorrect(true)
+					.straightAlpha(true)
+					.transparentBackgroundHint(true)
+					.varietyPlus(true)
+					.preferBrownian(false)
 					
 					.overlayOriginalImage(true)
 					.image(new Base64Image())

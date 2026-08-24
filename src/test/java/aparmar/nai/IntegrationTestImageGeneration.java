@@ -11,7 +11,6 @@ import java.util.stream.Stream;
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -337,9 +336,11 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 					.extraParameter(V4MultiCharacterParameters.builder()
 							.characterPrompt(CharacterPrompt.builder()
 									.prompt("A tall woman with dark hair.")
+									.centerXY(0.3f, 0.3f)
 									.build())
 							.characterPrompt(CharacterPrompt.builder()
 									.prompt("A short woman with blonde hair.")
+									.centerXY(0.7f, 0.5f)
 									.build())
 							.build())
 					.build();
@@ -358,14 +359,15 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 	}
 
 	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
-	@Test
-	void testV4VibeTransferImageGeneration() throws AssertionError, Exception {
+	@ParameterizedTest
+	@MethodSource("aparmar.nai.ImageGenTestHelpers#getV4VibeTransferModels")
+	void testV4VibeTransferImageGeneration(ImageGenModel imageGenModel) throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
 			BufferedImage conditionImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.jpg"));
 
 			ImageVibeEncodeRequest testVibeEncodingRequest = ImageVibeEncodeRequest.builder()
 					.image(new Base64Image(conditionImage))
-					.model(ImageGenModel.ANIME_V4_CURATED)
+					.model(imageGenModel)
 					.build();
 			V4VibeData vibeData = apiInstance.encodeImageVibe(testVibeEncodingRequest);
 			assertNotNull(vibeData);
@@ -373,7 +375,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 			ImageGenerationRequest testGenerationRequest = ImageGenerationRequest.builder()
 					.input("portrait of a woman")
 					.action(ImageGenAction.GENERATE)
-					.model(ImageGenModel.ANIME_V4_CURATED)
+					.model(imageGenModel)
 					.parameters(new ImageParameters(
 							1,
 							512,512,
