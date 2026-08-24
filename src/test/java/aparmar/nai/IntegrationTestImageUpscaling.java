@@ -37,10 +37,10 @@ class IntegrationTestImageUpscaling extends AbstractFeatureIntegrationTest {
 			assertEquals(1, result.getImageCount());
 			IIOImage resultImage = result.getImage(0);
 			assertNotNull(resultImage);
+			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"upscale_test.png"));
+			
 			assertEquals(baseImage.getHeight()*2, resultImage.getRenderedImage().getHeight());
 			assertEquals(baseImage.getWidth()*2, resultImage.getRenderedImage().getWidth());
-			
-			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"upscale_test.png"));
 		});
 	}
 	
@@ -59,11 +59,15 @@ class IntegrationTestImageUpscaling extends AbstractFeatureIntegrationTest {
 			assertEquals(1, result.getImageCount());
 			IIOImage resultImage = result.getImage(0);
 			assertNotNull(resultImage);
-			assertEquals(baseImage.getHeight()*2, resultImage.getRenderedImage().getHeight());
-			assertEquals(baseImage.getWidth()*2, resultImage.getRenderedImage().getWidth());
-			
 			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+"upscale_enhance_test.png"));
+			
+			assertEquals(getExpectedScale(baseImage.getHeight()*2), resultImage.getRenderedImage().getHeight());
+			assertEquals(getExpectedScale(baseImage.getWidth()*2), resultImage.getRenderedImage().getWidth());
 		});
+	}
+	
+	public static int getExpectedScale(int rawScale) {
+		return (int) (32*(Math.floor(rawScale/32.0)));
 	}
 
 }

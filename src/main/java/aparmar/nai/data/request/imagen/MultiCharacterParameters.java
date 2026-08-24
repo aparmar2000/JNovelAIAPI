@@ -58,5 +58,11 @@ public class MultiCharacterParameters extends AbstractExtraImageParameters {
 			
 			return wrapper;
 		}
+		
+		public static class CharacterPromptBuilder {
+			public CharacterPromptBuilder centerXY(float centerX, float centerY) {
+				return centerX(centerX).centerY(centerY);
+			}
+		}
 	}
 }
