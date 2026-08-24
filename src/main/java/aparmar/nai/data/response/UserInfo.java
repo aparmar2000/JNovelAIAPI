@@ -13,7 +13,13 @@ import lombok.ToString;
 @ToString
 public class UserInfo {
 	private boolean emailVerified, emailVerificationLetterSent;
+	private boolean hasPlaintextEmail;
+	private String plaintextEmail;
+	private boolean allowMarketingEmails;
 	private boolean trialActivated;
 	private int trialActionsLeft;
+	private int trialImagesLeft;
 	private long accountCreatedAt;
+	private String banStatus;
+	private String banMessage;
 }

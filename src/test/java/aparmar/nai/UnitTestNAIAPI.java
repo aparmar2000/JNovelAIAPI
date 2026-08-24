@@ -217,7 +217,7 @@ class UnitTestNAIAPI {
 
 	@Test
 	void testFetchUserInformation() throws IOException {
-		UserInfo expectedUserInfo = new UserInfo(false, true, false, 69, 0);
+		UserInfo expectedUserInfo = new UserInfo(false, true, false, "", false, false, 69, 23, 0, "", "");
 		mockResponseJson(expectedUserInfo, UserInfo.class);
 
 		UserInfo actualUserInfo = apiInstance.fetchUserInformation();
@@ -273,7 +273,7 @@ class UnitTestNAIAPI {
 
 		UserKeystore expectedUserKeystore = new UserKeystore("keysss");
 
-		UserInfo expectedUserInfo = new UserInfo(false, true, false, 69, 0);
+		UserInfo expectedUserInfo = new UserInfo(false, true, false, "", false, false, 69, 23, 0, "", "");
 		
 		UserData expectedUserData = 
 				new UserData(expectedUserPriority, expectedUserSub, expectedUserKeystore, "Settings", expectedUserInfo);
