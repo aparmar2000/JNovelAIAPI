@@ -60,6 +60,7 @@ import aparmar.nai.data.response.UserOsanoId;
 import aparmar.nai.data.response.UserPriority;
 import aparmar.nai.data.response.UserSubscription;
 import aparmar.nai.data.response.UserSubscription.SubscriptionTier;
+import aparmar.nai.utils.GsonProvider;
 import aparmar.nai.utils.OaiApiAdapters;
 import aparmar.nai.utils.TextParameterPresets;
 import aparmar.nai.utils.tokenization.TokenizedChunk;
@@ -72,7 +73,7 @@ import okhttp3.ResponseBody;
 import okio.Buffer;
 
 class UnitTestNAIAPI {
-	private Gson gson = new Gson();
+	private Gson gson = GsonProvider.buildGsonInstance();
 
 	private NAIAPI apiInstance;
 
@@ -237,12 +238,14 @@ class UnitTestNAIAPI {
 
 	@Test
 	void testFetchUserSubscription() throws IOException {
-		UserSubscription.SubscriptionPerks expectedSubPerks = 
-				new UserSubscription.SubscriptionPerks(69, 999, 8192, true, true, true, true, null, 888);
+		UserSubscription.InternalSubscriptionPerks expectedSubPerks = 
+				new UserSubscription.InternalSubscriptionPerks(69, 999, 8192, true, 888);
 		UserSubscription.SubscriptionTrainingSteps expectedSubSteps = 
 				new UserSubscription.SubscriptionTrainingSteps(888, 999);
+		UserSubscription.UsageLimitStatus usageLimitStatus = 
+				new UserSubscription.UsageLimitStatus(false, 98, 251);
 		UserSubscription expectedUserSub = 
-				new UserSubscription(SubscriptionTier.SCROLL, true, 9999, expectedSubPerks, JsonNull.INSTANCE, expectedSubSteps, 0);
+				new UserSubscription(SubscriptionTier.SCROLL, true, 9999, expectedSubPerks, "Dummy", JsonNull.INSTANCE, false, expectedSubSteps, 0, false, usageLimitStatus);
 		mockResponseJson(expectedUserSub, UserSubscription.class);
 
 		UserSubscription actualUserSub = apiInstance.fetchUserSubscription();
@@ -264,12 +267,14 @@ class UnitTestNAIAPI {
 	void testFetchUserData() throws IOException {
 		UserPriority expectedUserPriority = new UserPriority(69, 888, 12);
 
-		UserSubscription.SubscriptionPerks expectedSubPerks = 
-				new UserSubscription.SubscriptionPerks(69, 999, 8192, true, true, true, true, null, 888);
+		UserSubscription.InternalSubscriptionPerks expectedSubPerks = 
+				new UserSubscription.InternalSubscriptionPerks(69, 999, 8192, true, 888);
 		UserSubscription.SubscriptionTrainingSteps expectedSubSteps = 
 				new UserSubscription.SubscriptionTrainingSteps(888, 999);
+		UserSubscription.UsageLimitStatus usageLimitStatus = 
+				new UserSubscription.UsageLimitStatus(false, 98, 251);
 		UserSubscription expectedUserSub = 
-				new UserSubscription(SubscriptionTier.SCROLL, true, 9999, expectedSubPerks, JsonNull.INSTANCE, expectedSubSteps, 1);
+				new UserSubscription(SubscriptionTier.SCROLL, true, 9999, expectedSubPerks, "Dummy", JsonNull.INSTANCE, false, expectedSubSteps, 0, false, usageLimitStatus);
 
 		UserKeystore expectedUserKeystore = new UserKeystore("keysss");
 

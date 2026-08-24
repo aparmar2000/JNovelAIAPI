@@ -49,8 +49,7 @@ import aparmar.nai.data.request.imagen.ImageParameters.SamplingSchedule;
 import aparmar.nai.data.request.imagen.ImageVibeTransferParameters;
 import aparmar.nai.data.request.imagen.V4ImageVibeTransferParameters;
 import aparmar.nai.data.response.UserSubscription;
-import aparmar.nai.data.response.UserSubscription.ImageGenerationLimit;
-import aparmar.nai.data.response.UserSubscription.SubscriptionPerks;
+import aparmar.nai.data.response.UserSubscription.InternalSubscriptionPerks;
 import aparmar.nai.data.response.UserSubscription.SubscriptionTier;
 import aparmar.nai.utils.HardDeprecationException;
 import aparmar.nai.utils.InternalResourceLoader;
@@ -508,30 +507,38 @@ class UnitTestImageGenerationRequest {
 				.action(ImageGenAction.GENERATE)
 				.parameters(ImageParameters.builder()
 						.imgCount(10)
-						.width(100)
-						.height(100)
+						.width(2048)
+						.height(1024)
 						.steps(50)
 						.build())
 				.build();
-		SubscriptionPerks testSubscriptionPerks = new SubscriptionPerks(-1, 10, 9999, true, true, true, false, null, 8192);
+		InternalSubscriptionPerks testSubscriptionPerks = new InternalSubscriptionPerks(-1, 10, 9999, true, 8192);
 		UserSubscription testUserSubscription = new UserSubscription(
-				SubscriptionTier.OPUS, 
+				SubscriptionTier.SCROLL, 
 				true, -1, 
 				testSubscriptionPerks, 
-				JsonNull.INSTANCE, 
+				"Dummy",
+				JsonNull.INSTANCE,
+				false,
 				null,
-				1);
+				1,
+				false,
+				null);
 		
 		assertFalse(testInstance.isFreeGeneration(testUserSubscription));
-		ImageGenerationLimit testImageGenerationLimit = new ImageGenerationLimit(1, 1000);
-		testSubscriptionPerks = new SubscriptionPerks(-1, 10, 9999, true, true, true, true, new ImageGenerationLimit[] {testImageGenerationLimit}, 8192);
+		
+		
 		testUserSubscription = new UserSubscription(
 				SubscriptionTier.OPUS, 
 				true, -1, 
 				testSubscriptionPerks, 
-				JsonNull.INSTANCE, 
+				"Dummy",
+				JsonNull.INSTANCE,
+				false,
 				null,
-				1);
+				1,
+				false,
+				null);
 
 		assertFalse(testInstance.isFreeGeneration(testUserSubscription));
 		testInstance.getParameters().setSteps(28);
@@ -540,7 +547,7 @@ class UnitTestImageGenerationRequest {
 		testInstance.getParameters().setImgCount(1);
 
 		assertFalse(testInstance.isFreeGeneration(testUserSubscription));
-		testInstance.getParameters().setWidth(10);
+		testInstance.getParameters().setWidth(1024);
 
 		assertTrue(testInstance.isFreeGeneration(testUserSubscription));
 	}
@@ -613,29 +620,37 @@ class UnitTestImageGenerationRequest {
 	void testImageGenerationCostEstimationWithOpus() {
 		ImageParameters testParameters = ImageParameters.builder()
 				.imgCount(10)
-				.width(100)
-				.height(100)
+				.width(2048)
+				.height(1024)
 				.steps(50)
 				.build();
-		SubscriptionPerks testSubscriptionPerks = new SubscriptionPerks(-1, 10, 9999, true, true, true, false, null, 8192);
+		InternalSubscriptionPerks testSubscriptionPerks = new InternalSubscriptionPerks(-1, 10, 9999, true, 8192);
 		UserSubscription testUserSubscription = new UserSubscription(
-				SubscriptionTier.OPUS, 
+				SubscriptionTier.SCROLL, 
 				true, -1, 
 				testSubscriptionPerks, 
-				JsonNull.INSTANCE, 
+				"Dummy",
+				JsonNull.INSTANCE,
+				false,
 				null,
-				1);
+				1,
+				false,
+				null);
 		
 		assertNotEquals(0, ImageGenModel.ANIME_V4_5_CURATED.estimateAnlasCostIncludingSubscription(testParameters, testUserSubscription));
-		ImageGenerationLimit testImageGenerationLimit = new ImageGenerationLimit(1, 1000);
-		testSubscriptionPerks = new SubscriptionPerks(-1, 10, 9999, true, true, true, true, new ImageGenerationLimit[] {testImageGenerationLimit}, 8192);
+		
+
 		testUserSubscription = new UserSubscription(
 				SubscriptionTier.OPUS, 
 				true, -1, 
 				testSubscriptionPerks, 
-				JsonNull.INSTANCE, 
+				"Dummy",
+				JsonNull.INSTANCE,
+				false,
 				null,
-				1);
+				1,
+				false,
+				null);
 
 		assertNotEquals(0, ImageGenModel.ANIME_V4_5_CURATED.estimateAnlasCostIncludingSubscription(testParameters, testUserSubscription));
 		testParameters.setSteps(28);
