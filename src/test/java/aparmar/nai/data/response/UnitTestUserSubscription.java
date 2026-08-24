@@ -1,6 +1,7 @@
 package aparmar.nai.data.response;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -8,9 +9,11 @@ import com.google.gson.JsonNull;
 
 import aparmar.nai.TestHelpers;
 import aparmar.nai.data.response.UserSubscription.ImageGenerationLimit;
+import aparmar.nai.data.response.UserSubscription.InternalSubscriptionPerks;
 import aparmar.nai.data.response.UserSubscription.SubscriptionPerks;
 import aparmar.nai.data.response.UserSubscription.SubscriptionTier;
 import aparmar.nai.data.response.UserSubscription.SubscriptionTrainingSteps;
+import aparmar.nai.data.response.UserSubscription.UsageLimitStatus;
 
 class UnitTestUserSubscription {
 
@@ -21,27 +24,57 @@ class UnitTestUserSubscription {
 				SubscriptionTier.TABLET,
 				true,
 				1000000,
-				new SubscriptionPerks(),
+				new InternalSubscriptionPerks(),
+				"Dummy",
 				JsonNull.INSTANCE,
+				true,
 				new SubscriptionTrainingSteps(),
-				1
+				1, 
+				true,
+				new UsageLimitStatus()
 				);
 		
 		TestHelpers.autoTestDataAndToBuilderAnnotation(UserSubscription.class, testInstance1, testInstance2);
 	}
 
 	@Test
-	void testSubscriptionPerksDataAnnotation() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		SubscriptionPerks testInstance1 = new SubscriptionPerks();
-		SubscriptionPerks testInstance2 = new SubscriptionPerks(
+	void testInternalSubscriptionPerksDataAnnotation() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		InternalSubscriptionPerks testInstance1 = new InternalSubscriptionPerks();
+		InternalSubscriptionPerks testInstance2 = new InternalSubscriptionPerks(
 				-1,
 				99,
 				8192,
 				true,
+				100000
+				);
+		
+		TestHelpers.autoTestDataAndToBuilderAnnotation(InternalSubscriptionPerks.class, testInstance1, testInstance2);
+	}
+
+	@Test
+	void testSubscriptionPerksDataAnnotation() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		SubscriptionPerks testInstance1 = new SubscriptionPerks(
+				null,
+				0,
+				0,
+				0,
+				false,
+				Optional.of(false),
+				Optional.of(false),
+				Optional.of(false),
+				Optional.of(new ImageGenerationLimit[0]),
+				0
+				);
+		SubscriptionPerks testInstance2 = new SubscriptionPerks(
+				SubscriptionTier.OPUS,
+				-1,
+				99,
+				8192,
 				true,
-				true,
-				true,
-				new ImageGenerationLimit[0], 
+				Optional.empty(),
+				Optional.empty(),
+				Optional.empty(),
+				Optional.empty(), 
 				100000
 				);
 		
@@ -68,6 +101,18 @@ class UnitTestUserSubscription {
 				);
 		
 		TestHelpers.autoTestDataAndToBuilderAnnotation(SubscriptionTrainingSteps.class, testInstance1, testInstance2);
+	}
+
+	@Test
+	void testUsageLimitStatusDataAnnotation() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		UsageLimitStatus testInstance1 = new UsageLimitStatus();
+		UsageLimitStatus testInstance2 = new UsageLimitStatus(
+				true,
+				-1,
+				14
+				);
+		
+		TestHelpers.autoTestDataAndToBuilderAnnotation(UsageLimitStatus.class, testInstance1, testInstance2);
 	}
 
 }

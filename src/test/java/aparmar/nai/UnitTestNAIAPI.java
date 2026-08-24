@@ -56,9 +56,11 @@ import aparmar.nai.data.response.TooManyRequestsException;
 import aparmar.nai.data.response.UserData;
 import aparmar.nai.data.response.UserInfo;
 import aparmar.nai.data.response.UserKeystore;
+import aparmar.nai.data.response.UserOsanoId;
 import aparmar.nai.data.response.UserPriority;
 import aparmar.nai.data.response.UserSubscription;
 import aparmar.nai.data.response.UserSubscription.SubscriptionTier;
+import aparmar.nai.utils.GsonProvider;
 import aparmar.nai.utils.OaiApiAdapters;
 import aparmar.nai.utils.TextParameterPresets;
 import aparmar.nai.utils.tokenization.TokenizedChunk;
@@ -71,7 +73,7 @@ import okhttp3.ResponseBody;
 import okio.Buffer;
 
 class UnitTestNAIAPI {
-	private Gson gson = new Gson();
+	private Gson gson = GsonProvider.buildGsonInstance();
 
 	private NAIAPI apiInstance;
 
@@ -216,7 +218,7 @@ class UnitTestNAIAPI {
 
 	@Test
 	void testFetchUserInformation() throws IOException {
-		UserInfo expectedUserInfo = new UserInfo(false, true, false, 69, 0);
+		UserInfo expectedUserInfo = new UserInfo(false, true, false, "", false, false, 69, 23, 0, "", "");
 		mockResponseJson(expectedUserInfo, UserInfo.class);
 
 		UserInfo actualUserInfo = apiInstance.fetchUserInformation();
@@ -236,12 +238,14 @@ class UnitTestNAIAPI {
 
 	@Test
 	void testFetchUserSubscription() throws IOException {
-		UserSubscription.SubscriptionPerks expectedSubPerks = 
-				new UserSubscription.SubscriptionPerks(69, 999, 8192, true, true, true, true, null, 888);
+		UserSubscription.InternalSubscriptionPerks expectedSubPerks = 
+				new UserSubscription.InternalSubscriptionPerks(69, 999, 8192, true, 888);
 		UserSubscription.SubscriptionTrainingSteps expectedSubSteps = 
 				new UserSubscription.SubscriptionTrainingSteps(888, 999);
+		UserSubscription.UsageLimitStatus usageLimitStatus = 
+				new UserSubscription.UsageLimitStatus(false, 98, 251);
 		UserSubscription expectedUserSub = 
-				new UserSubscription(SubscriptionTier.SCROLL, true, 9999, expectedSubPerks, JsonNull.INSTANCE, expectedSubSteps, 0);
+				new UserSubscription(SubscriptionTier.SCROLL, true, 9999, expectedSubPerks, "Dummy", JsonNull.INSTANCE, false, expectedSubSteps, 0, false, usageLimitStatus);
 		mockResponseJson(expectedUserSub, UserSubscription.class);
 
 		UserSubscription actualUserSub = apiInstance.fetchUserSubscription();
@@ -263,16 +267,18 @@ class UnitTestNAIAPI {
 	void testFetchUserData() throws IOException {
 		UserPriority expectedUserPriority = new UserPriority(69, 888, 12);
 
-		UserSubscription.SubscriptionPerks expectedSubPerks = 
-				new UserSubscription.SubscriptionPerks(69, 999, 8192, true, true, true, true, null, 888);
+		UserSubscription.InternalSubscriptionPerks expectedSubPerks = 
+				new UserSubscription.InternalSubscriptionPerks(69, 999, 8192, true, 888);
 		UserSubscription.SubscriptionTrainingSteps expectedSubSteps = 
 				new UserSubscription.SubscriptionTrainingSteps(888, 999);
+		UserSubscription.UsageLimitStatus usageLimitStatus = 
+				new UserSubscription.UsageLimitStatus(false, 98, 251);
 		UserSubscription expectedUserSub = 
-				new UserSubscription(SubscriptionTier.SCROLL, true, 9999, expectedSubPerks, JsonNull.INSTANCE, expectedSubSteps, 1);
+				new UserSubscription(SubscriptionTier.SCROLL, true, 9999, expectedSubPerks, "Dummy", JsonNull.INSTANCE, false, expectedSubSteps, 0, false, usageLimitStatus);
 
 		UserKeystore expectedUserKeystore = new UserKeystore("keysss");
 
-		UserInfo expectedUserInfo = new UserInfo(false, true, false, 69, 0);
+		UserInfo expectedUserInfo = new UserInfo(false, true, false, "", false, false, 69, 23, 0, "", "");
 		
 		UserData expectedUserData = 
 				new UserData(expectedUserPriority, expectedUserSub, expectedUserKeystore, "Settings", expectedUserInfo);
@@ -281,6 +287,17 @@ class UnitTestNAIAPI {
 		UserData actualUserData = apiInstance.fetchUserData();
 		verify(mockHttpClient).newCall(argThat(requestMatcher("user/data", IMAGE_API_ROOT)));
 		assertEquals(expectedUserData, actualUserData);
+	}
+
+	@SuppressWarnings("deprecation")
+	@Test
+	void testFetchUserOsanoId() throws IOException {
+		UserOsanoId expectedOsanoId = new UserOsanoId("4vxu3LyTNTcoQXdCLQMvZF9Spi-vxfmTJVrj8P7hoLM");
+		mockResponseJson(expectedOsanoId, UserOsanoId.class);
+
+		UserOsanoId actualOsanoId = apiInstance.fetchUserOsanoId();
+		verify(mockHttpClient).newCall(argThat(requestMatcher("user/osano-external-id", GENERAL_API_ROOT)));
+		assertEquals(expectedOsanoId, actualOsanoId);
 	}
 
 	@Test

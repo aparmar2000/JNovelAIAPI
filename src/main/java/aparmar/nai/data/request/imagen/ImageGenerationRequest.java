@@ -446,9 +446,9 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 	}
 
 	public static boolean isFreeGeneration(UserSubscription subscriptionData, ImageParameters parameters) {
-		if (!subscriptionData.getPerks().isUnlimitedImageGeneration()) { return false; }
+		if (!subscriptionData.getTier().isUnlimitedImageGeneration()) { return false; }
 		if (parameters.getSteps() > 28) { return false; }
-		return Arrays.stream(subscriptionData.getPerks().getUnlimitedImageGenerationLimits())
+		return Arrays.stream(subscriptionData.getTier().getUnlimitedImageGenerationLimits())
 			.filter(limit->limit.getMaxImages()>=parameters.getImgCount())
 			.anyMatch(limit->limit.getResolution()>=parameters.getWidth()*parameters.getHeight());
 	}
