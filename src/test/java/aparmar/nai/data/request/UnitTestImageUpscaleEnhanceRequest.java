@@ -57,5 +57,17 @@ class UnitTestImageUpscaleEnhanceRequest {
 		serialized = gson.toJsonTree(new ImageUpscaleEnhanceRequest(new Base64Image(), 0.44f, ImageGenModel.V5_FULL)).getAsJsonObject();
 		assertEquals(0.45, serialized.get("declared_blur_sigma").getAsDouble());
 	}
+	
+	@Test
+	void testImageUpscaleEnhanceRequestCostEstimation() {
+		ImageUpscaleEnhanceRequest testInst = new ImageUpscaleEnhanceRequest(new Base64Image(new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB)), 0.0f, ImageGenModel.V5_FULL);
+		assertEquals(1, testInst.estimateAnlasCost());
+		testInst = new ImageUpscaleEnhanceRequest(new Base64Image(new BufferedImage(1536, 2048, BufferedImage.TYPE_INT_RGB)), 0.0f, ImageGenModel.V5_FULL);
+		assertEquals(4, testInst.estimateAnlasCost());
+		testInst = new ImageUpscaleEnhanceRequest(new Base64Image(new BufferedImage(832, 1216, BufferedImage.TYPE_INT_RGB)), 0.0f, ImageGenModel.V5_FULL);
+		assertEquals(1, testInst.estimateAnlasCost());
+		testInst = new ImageUpscaleEnhanceRequest(new Base64Image(new BufferedImage(1024, 1536, BufferedImage.TYPE_INT_RGB)), 0.0f, ImageGenModel.V5_FULL);
+		assertEquals(2, testInst.estimateAnlasCost());
+	}
 
 }

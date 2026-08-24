@@ -73,4 +73,22 @@ public class ImageUpscaleEnhanceRequest implements JsonSerializer<ImageUpscaleEn
 			throw new IllegalArgumentException(String.format("An ImageUpscaleEnhanceRequest can only use a model that supports standalone upscaling - %s does not!", model.getClass()));
 		}
 	}
+
+	// Values experimentally derived, may not be entirely accurate
+	public int estimateAnlasCost() {
+		long imagePixels = image.getTargetWidth() * image.getTargetHeight();
+		if (imagePixels <= 1024*1024) {
+			return 1;
+		}
+		if (imagePixels <= 1024*1664) {
+			return 2;
+		}
+		if (imagePixels <= 1024*1664) {
+			return 2;
+		}
+		if (imagePixels <= 1024*2368) {
+			return 3;
+		}
+		return 4;
+	}
 }
