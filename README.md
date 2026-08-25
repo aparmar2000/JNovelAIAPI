@@ -1,4 +1,4 @@
-[![Release](https://img.shields.io/github/v/release/aparmar2000/XenForoPostScheduler?style=flat)](https://github.com/aparmar2000/XenForoPostScheduler/releases)
+[![Release](https://img.shields.io/github/v/release/aparmar2000/JNovelAIAPI?style=flat)](https://github.com/aparmar2000/JNovelAIAPI/releases)
 [![Java 17](https://img.shields.io/badge/Java-17%2B-ED8B00?style=flat&logo=openjdk&logoColor=white)](https://openjdk.org/)
 [![](https://jitpack.io/v/aparmar2000/JNovelAIAPI.svg)](https://jitpack.io/#aparmar2000/JNovelAIAPI)
 ![Coverage](badges/jacoco.svg)
