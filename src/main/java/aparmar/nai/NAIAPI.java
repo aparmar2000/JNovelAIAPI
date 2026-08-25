@@ -1,13 +1,11 @@
 package aparmar.nai;
 
-import static aparmar.nai.utils.HelperConstants.AUTH_HEADER;
-import static aparmar.nai.utils.HelperConstants.GENERAL_API_ROOT;
-import static aparmar.nai.utils.HelperConstants.IMAGE_API_ROOT;
-import static aparmar.nai.utils.HelperConstants.MEDIA_TYPE_JSON;
-import static aparmar.nai.utils.HelperConstants.PERSISTENT_KEY_PATTERN;
+import static aparmar.nai.utils.HelperConstants.*;
 
 import java.io.IOException;
 import java.time.Duration;
+
+import javax.annotation.Nullable;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -23,22 +21,13 @@ import aparmar.nai.data.request.ImageVibeEncodeRequest;
 import aparmar.nai.data.request.V4VibeData;
 import aparmar.nai.data.request.VoiceGenerationRequest;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest;
+import aparmar.nai.data.request.imagen.ImageUpscaleEnhanceRequest;
 import aparmar.nai.data.request.imgaug.ImageAugmentRemoveBackgroundRequest;
 import aparmar.nai.data.request.imgaug.ImageAugmentRequest;
 import aparmar.nai.data.request.imgaug.ImageAugmentRequestSingleResult;
 import aparmar.nai.data.request.textgen.TextGenerationRequest;
-import aparmar.nai.data.response.AudioWrapper;
-import aparmar.nai.data.response.ImageSetWrapper;
-import aparmar.nai.data.response.ImageSetWrapperRemoveBackground;
-import aparmar.nai.data.response.SingleImageWrapper;
-import aparmar.nai.data.response.TextGenerationResponse;
+import aparmar.nai.data.response.*;
 import aparmar.nai.data.response.TextGenerationResponse.LogProbStep;
-import aparmar.nai.data.response.TooManyRequestsException;
-import aparmar.nai.data.response.UserData;
-import aparmar.nai.data.response.UserInfo;
-import aparmar.nai.data.response.UserKeystore;
-import aparmar.nai.data.response.UserPriority;
-import aparmar.nai.data.response.UserSubscription;
 import aparmar.nai.utils.BuilderAssemblyFunction;
 import aparmar.nai.utils.GsonProvider;
 import aparmar.nai.utils.OaiApiAdapters;
@@ -48,6 +37,7 @@ import aparmar.nai.utils.ZipArchiveWrapper;
 import aparmar.nai.utils.ZipParseFunction;
 import aparmar.nai.utils.tokenization.TokenizedChunk;
 import okhttp3.HttpUrl;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -120,6 +110,15 @@ public class NAIAPI {
 		return fetchFromNovelAI("user/data", IMAGE_API_ROOT, UserData.class);
 	}
 	
+	/**
+	 * Implemented for reference completeness and future-proofing.<br/>
+	 * Will always fail because this endpoint is currently forbidden for access via persistent token. 
+	 */
+	@Deprecated
+	public UserOsanoId fetchUserOsanoId() throws IOException {
+		return fetchFromNovelAI("user/osano-external-id", GENERAL_API_ROOT, UserOsanoId.class);
+	}
+	
 	// === Generation Endpoints ===
 	
 	// --- GET Endpoints
@@ -132,43 +131,49 @@ public class NAIAPI {
 	// --- POST Endpoints
 	
 	public ImageSetWrapper generateImage(ImageGenerationRequest payload) throws IOException {
-		ZipArchiveWrapper resultBody = postToNovelAI("ai/generate-image", IMAGE_API_ROOT, payload, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
+		ZipArchiveWrapper resultBody = postToNovelAI("ai/generate-image", IMAGE_API_ROOT, payload, MEDIA_TYPE_ZIP, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
 		
 		return new ImageSetWrapper(resultBody);
 	}
 	
 	public ImageSetWrapper annotateImage(ImageAnnotateRequest payload) throws IOException {
-		ZipArchiveWrapper resultBody = postToNovelAI("ai/annotate-image", GENERAL_API_ROOT, payload, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
+		ZipArchiveWrapper resultBody = postToNovelAI("ai/annotate-image", GENERAL_API_ROOT, payload, MEDIA_TYPE_ZIP, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
 		
 		return new ImageSetWrapper(resultBody);
 	}
 	
 	public ImageSetWrapper upscaleImage(ImageUpscaleRequest payload) throws IOException {
-		ZipArchiveWrapper resultBody = postToNovelAI("ai/upscale", GENERAL_API_ROOT, payload, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
+		ZipArchiveWrapper resultBody = postToNovelAI("ai/upscale", GENERAL_API_ROOT, payload, MEDIA_TYPE_ZIP, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
+		
+		return new ImageSetWrapper(resultBody);
+	}
+	
+	public ImageSetWrapper upscaleEnhanceImage(ImageUpscaleEnhanceRequest payload) throws IOException {
+		ZipArchiveWrapper resultBody = postToNovelAI("ai/upscale", IMAGE_API_ROOT, payload, MEDIA_TYPE_ZIP, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
 		
 		return new ImageSetWrapper(resultBody);
 	}
 	
 	public ImageSetWrapper augmentImageGeneric(ImageAugmentRequest payload) throws IOException {
-		ZipArchiveWrapper resultBody = postToNovelAI("ai/augment-image", IMAGE_API_ROOT, payload, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
+		ZipArchiveWrapper resultBody = postToNovelAI("ai/augment-image", IMAGE_API_ROOT, payload, MEDIA_TYPE_ZIP, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
 		
 		return new ImageSetWrapper(resultBody);
 	}
 	
 	public SingleImageWrapper augmentImageSingleResult(ImageAugmentRequestSingleResult payload) throws IOException {
-		ZipArchiveWrapper resultBody = postToNovelAI("ai/augment-image", IMAGE_API_ROOT, payload, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
+		ZipArchiveWrapper resultBody = postToNovelAI("ai/augment-image", IMAGE_API_ROOT, payload, MEDIA_TYPE_ZIP, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
 		
 		return new SingleImageWrapper(resultBody);
 	}
 	
 	public ImageSetWrapperRemoveBackground augmentImageRemoveBackground(ImageAugmentRemoveBackgroundRequest payload) throws IOException {
-		ZipArchiveWrapper resultBody = postToNovelAI("ai/augment-image", IMAGE_API_ROOT, payload, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
+		ZipArchiveWrapper resultBody = postToNovelAI("ai/augment-image", IMAGE_API_ROOT, payload, MEDIA_TYPE_ZIP, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
 		
 		return new ImageSetWrapperRemoveBackground(resultBody);
 	}
 	
 	public V4VibeData encodeImageVibe(ImageVibeEncodeRequest payload) throws IOException {
-		byte[] resultBody = postToNovelAI("ai/encode-vibe", IMAGE_API_ROOT, payload, byte[].class, ResponseBody::bytes);
+		byte[] resultBody = postToNovelAI("ai/encode-vibe", IMAGE_API_ROOT, payload, null, byte[].class, ResponseBody::bytes);
 		
 		return new V4VibeData(payload.getInformationExtracted(), payload.getImage().generateSha256(), V4VibeData.VibeEncodingType.getEncodingTypeForModel(payload.getModel()), resultBody);
 	}
@@ -184,7 +189,7 @@ public class NAIAPI {
 	}
 	
 	private TextGenerationResponse generateTextNaiApi(TextGenerationRequest payload) throws IOException {
-		String resultBody = postToNovelAI("ai/generate", payload.getModel().getEndpoint(), payload, String.class, t -> {
+		String resultBody = postToNovelAI("ai/generate", payload.getModel().getEndpoint(), payload, null, String.class, t -> {
 			try { return t.string(); } catch (IOException e) { return e.getLocalizedMessage(); }
 		});
 		
@@ -214,7 +219,7 @@ public class NAIAPI {
 	
 	private TextGenerationResponse generateTextOaiApi(TextGenerationRequest payload) throws IOException {
 		JsonObject jsonOaiPayload = OaiApiAdapters.convertTextGenerationRequest(payload, gson);
-		String resultBody = postToNovelAI("oa/v1/completions", payload.getModel().getEndpoint(), jsonOaiPayload, String.class, t -> {
+		String resultBody = postToNovelAI("oa/v1/completions", payload.getModel().getEndpoint(), jsonOaiPayload, null, String.class, t -> {
 			try { return t.string(); } catch (IOException e) { return e.getLocalizedMessage(); }
 		});
 		
@@ -271,7 +276,7 @@ public class NAIAPI {
 		payload = payload.toBuilder().build();
 		payload.getParameters().setGetHiddenStates(true);
 		
-		String resultBody = postToNovelAI("ai/generate", GENERAL_API_ROOT, payload, String.class, t -> {
+		String resultBody = postToNovelAI("ai/generate", GENERAL_API_ROOT, payload, null, String.class, t -> {
 			try { return t.string(); } catch (IOException e) { return e.getLocalizedMessage(); }
 		});
 		
@@ -328,17 +333,21 @@ public class NAIAPI {
 	}
 
 
-	private <T> T postToNovelAI(String endpoint, String host, Object payload, Class<T> targetClass, ResultParseFunction<T> deserializer) throws IOException, JsonSyntaxException, JsonIOException {
-		return postToNovelAI(appendEndpointToUrl(endpoint), host, payload, targetClass, deserializer);
+	private <T> T postToNovelAI(String endpoint, String host, Object payload, @Nullable MediaType acceptType, Class<T> targetClass, ResultParseFunction<T> deserializer) throws IOException, JsonSyntaxException, JsonIOException {
+		return postToNovelAI(appendEndpointToUrl(endpoint), host, payload, acceptType, targetClass, deserializer);
 	}
-	private <T> T postToNovelAI(BuilderAssemblyFunction urlModifiers, String host, Object payload, Class<T> targetClass, ResultParseFunction<T> deserializer) throws IOException, JsonSyntaxException, JsonIOException {
-		Request request = new Request.Builder()
+	private <T> T postToNovelAI(BuilderAssemblyFunction urlModifiers, String host, Object payload, @Nullable MediaType acceptType, Class<T> targetClass, ResultParseFunction<T> deserializer) throws IOException, JsonSyntaxException, JsonIOException {
+		Request.Builder requestBuilder = new Request.Builder()
 				.url(urlModifiers.apply(
 						new HttpUrl.Builder()
 							.scheme("https")
 							.host(host))
 						.build())
-				.addHeader(AUTH_HEADER, accessToken)
+				.addHeader(AUTH_HEADER, accessToken);
+		if (acceptType != null) {
+			requestBuilder = requestBuilder.addHeader(ACCEPT_HEADER, acceptType.toString());
+		}
+		Request request = requestBuilder
 				.post(RequestBody.create(gson.toJson(payload), MEDIA_TYPE_JSON))
 				.build();
 		return executeAndParseRequest(deserializer, request);

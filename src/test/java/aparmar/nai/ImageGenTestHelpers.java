@@ -6,9 +6,10 @@ import java.util.stream.Stream;
 import aparmar.nai.data.request.imagen.DirectorReferenceParameters;
 import aparmar.nai.data.request.imagen.Image2ImageParameters;
 import aparmar.nai.data.request.imagen.ImageControlNetParameters;
-import aparmar.nai.data.request.imagen.ImageVibeTransferParameters;
-import aparmar.nai.data.request.imagen.V4MultiCharacterParameters;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
+import aparmar.nai.data.request.imagen.ImageVibeTransferParameters;
+import aparmar.nai.data.request.imagen.V4ImageVibeTransferParameters;
+import aparmar.nai.data.request.imagen.V4MultiCharacterParameters;
 import aparmar.nai.utils.AnnotationUtils;
 
 public class ImageGenTestHelpers {
@@ -40,6 +41,9 @@ public class ImageGenTestHelpers {
 	}
 	static Stream<ImageGenModel> getVibeTransferInpaintingModels() {
 		return getInpaintingModels().filter(m->m.doesModelSupportExtraParameterType(ImageVibeTransferParameters.class));
+	}
+	static Stream<ImageGenModel> getV4VibeTransferModels() {
+		return getNonInpaintingModels().filter(m->m.doesModelSupportExtraParameterType(V4ImageVibeTransferParameters.class));
 	}
 	static Stream<ImageGenModel> getMultiCharacterModels() {
 		return getNonInpaintingModels().filter(m->m.doesModelSupportExtraParameterType(V4MultiCharacterParameters.class));

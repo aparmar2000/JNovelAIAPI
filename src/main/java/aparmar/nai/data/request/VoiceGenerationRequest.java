@@ -3,12 +3,12 @@ package aparmar.nai.data.request;
 import java.util.HashMap;
 import java.util.Map;
 
+import aparmar.nai.data.response.AudioWrapper.AudioWrapperFormat;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import aparmar.nai.data.response.AudioWrapper.AudioWrapperFormat;
 
 @Getter
 @EqualsAndHashCode

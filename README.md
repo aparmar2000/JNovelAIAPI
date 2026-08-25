@@ -1,4 +1,8 @@
-[![](https://jitpack.io/v/aparmar2000/JNovelAIAPI.svg)](https://jitpack.io/#aparmar2000/JNovelAIAPI) ![Coverage](badges/jacoco.svg)
+[![Release](https://img.shields.io/github/v/release/aparmar2000/XenForoPostScheduler?style=flat)](https://github.com/aparmar2000/XenForoPostScheduler/releases)
+[![Java 17](https://img.shields.io/badge/Java-17%2B-ED8B00?style=flat&logo=openjdk&logoColor=white)](https://openjdk.org/)
+[![](https://jitpack.io/v/aparmar2000/JNovelAIAPI.svg)](https://jitpack.io/#aparmar2000/JNovelAIAPI)
+![Coverage](badges/jacoco.svg)
+[![License: LGPL-2.1](https://img.shields.io/github/license/aparmar2000/JNovelAIAPI)](https://opensource.org/license/lgpl-2-1)
 # JNovelAIAPI
 
 This is a decently-functional Java library that facilitates usage of the NovelAI official API. It handles _most_ things for you automatically, such as rate-limiting (one request per second), parsing responses, tokenizing, etc.

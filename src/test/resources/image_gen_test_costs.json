@@ -180,5 +180,89 @@
         "dynSmeaEnabled": false,
         "sampler": "ddim",
         "expectedCost": 32
-    }
+    },
+	{
+	    "model": "nai-diffusion-4-5-full",
+	    "width": 1024, 
+	    "height": 1024,
+	    "steps": 26,
+	    "ucScale": 1.0,
+	    "img2ImgStrength": 0,
+	    "smeaEnabled": false,
+	    "dynSmeaEnabled": false,
+	    "sampler": "k_euler_ancestral",
+	    "expectedCost": 19
+	},
+	{
+	    "model": "nai-diffusion-4-5-full",
+	    "width": 1920, 
+	    "height": 1088,
+	    "steps": 26,
+	    "ucScale": 1.0,
+	    "img2ImgStrength": 0,
+	    "smeaEnabled": false,
+	    "dynSmeaEnabled": false,
+	    "sampler": "k_euler_ancestral",
+	    "expectedCost": 38
+	},
+	{
+	    "model": "nai-diffusion-5-full",
+	    "width": 1024, 
+	    "height": 1024,
+	    "steps": 23,
+	    "ucScale": 1.0,
+	    "img2ImgStrength": 0,
+	    "smeaEnabled": false,
+	    "dynSmeaEnabled": false,
+	    "sampler": "k_euler_ancestral",
+	    "expectedCost": 26
+	},
+	{
+	    "model": "nai-diffusion-5-full",
+	    "width": 1920, 
+	    "height": 1088,
+	    "steps": 23,
+	    "ucScale": 1.0,
+	    "img2ImgStrength": 0,
+	    "smeaEnabled": false,
+	    "dynSmeaEnabled": false,
+	    "sampler": "k_euler_ancestral",
+	    "expectedCost": 51
+	},
+	{
+	    "model": "nai-diffusion-5-full",
+	    "width": 1024, 
+	    "height": 1536,
+	    "steps": 23,
+	    "ucScale": 1.0,
+	    "img2ImgStrength": 0,
+	    "smeaEnabled": false,
+	    "dynSmeaEnabled": false,
+	    "sampler": "k_euler_ancestral",
+	    "expectedCost": 39
+	},
+	{
+	    "model": "nai-diffusion-5-full",
+	    "width": 1024, 
+	    "height": 1024,
+	    "steps": 50,
+	    "ucScale": 1.0,
+	    "img2ImgStrength": 0,
+	    "smeaEnabled": false,
+	    "dynSmeaEnabled": false,
+	    "sampler": "k_euler_ancestral",
+	    "expectedCost": 51
+	},
+	{
+	    "model": "nai-diffusion-5-full",
+	    "width": 1024, 
+	    "height": 1024,
+	    "steps": 15,
+	    "ucScale": 1.0,
+	    "img2ImgStrength": 0,
+	    "smeaEnabled": false,
+	    "dynSmeaEnabled": false,
+	    "sampler": "k_euler_ancestral",
+	    "expectedCost": 20
+	}
 ]
