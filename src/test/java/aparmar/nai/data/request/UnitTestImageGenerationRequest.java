@@ -12,9 +12,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -23,13 +25,13 @@ import com.google.gson.Gson;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
 import aparmar.nai.TestHelpers;
 import aparmar.nai.data.request.V4VibeData.VibeEncodingType;
 import aparmar.nai.data.request.imagen.*;
 import aparmar.nai.data.request.imagen.ImageControlNetParameters.ControlnetModel;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenAction;
-import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ModeTag;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.QualityTagsLocation;
 import aparmar.nai.data.request.imagen.ImageParameters.ImageFormat;
@@ -41,6 +43,7 @@ import aparmar.nai.data.response.UserSubscription.InternalSubscriptionPerks;
 import aparmar.nai.data.response.UserSubscription.SubscriptionTier;
 import aparmar.nai.utils.HardDeprecationException;
 import aparmar.nai.utils.InternalResourceLoader;
+import aparmar.nai.utils.serialization.ImageGenerationRequestSerializer;
 import lombok.Data;
 
 class UnitTestImageGenerationRequest {
@@ -189,6 +192,7 @@ class UnitTestImageGenerationRequest {
     }
 
 	@ParameterizedTest
+	@EnabledIf(value="aparmar.nai.ImageGenTestHelpers#hasHardDeprecatedModels", disabledReason="No hard deprecated models currently present.")
 	@MethodSource("aparmar.nai.ImageGenTestHelpers#getHardDeprecatedModels")
 	void testRemovedModelRejected(ImageGenModel testModel) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		assertThrows(HardDeprecationException.class, ()->ImageGenerationRequest.builder()
@@ -333,7 +337,7 @@ class UnitTestImageGenerationRequest {
     	@ParameterizedTest
     	@MethodSource("aparmar.nai.ImageGenTestHelpers#getNonDeprecatedModels")
 		void testModeTagIsAddedCorrectly(ImageGenModel testModel) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-			ImageGenerationRequest serializationInstance = new ImageGenerationRequest();
+    		JsonSerializer<ImageGenerationRequest> serializationInstance = new ImageGenerationRequestSerializer();
 			JsonSerializationContext mockJsonSerializationContext = mock(JsonSerializationContext.class);
 			when(mockJsonSerializationContext.serialize(any(), any()))
 				.then(a->{
@@ -377,17 +381,23 @@ class UnitTestImageGenerationRequest {
     @Nested
     @DisplayName("serialization works properly")
     class SerializationTests {
-		@Test
-		void testImageGenerationRequestBaseSerialization() {
-			ImageGenerationRequest serializationInstance = new ImageGenerationRequest();
-			JsonSerializationContext mockJsonSerializationContext = mock(JsonSerializationContext.class);
+    	private JsonSerializer<ImageGenerationRequest> serializationInstance;
+    	private JsonSerializationContext mockJsonSerializationContext;
+    	
+    	@BeforeEach
+    	void setUp() {
+    		serializationInstance = new ImageGenerationRequestSerializer();
+			mockJsonSerializationContext = mock(JsonSerializationContext.class);
 			when(mockJsonSerializationContext.serialize(any(), any()))
 				.then(a->{
 					JsonObject mockObj = new JsonObject();
 					mockObj.addProperty(a.getArgument(0).getClass().getSimpleName(),a.getArgument(0).toString());
 					return mockObj;
 				});
-			
+    	}
+    	
+		@Test
+		void testImageGenerationRequestBaseSerialization() {			
 			ImageGenerationRequest testInstance = ImageGenerationRequest.builder()
 					.input("input")
 					.model(ImageGenModel.ANIME_V4_5_CURATED)
@@ -406,16 +416,7 @@ class UnitTestImageGenerationRequest {
 		}
 		
 		@Test
-		void testImageGenerationRequestPromptSerialization() {
-			ImageGenerationRequest serializationInstance = new ImageGenerationRequest();
-			JsonSerializationContext mockJsonSerializationContext = mock(JsonSerializationContext.class);
-			when(mockJsonSerializationContext.serialize(any(), any()))
-				.then(a->{
-					JsonObject mockObj = new JsonObject();
-					mockObj.addProperty(a.getArgument(0).getClass().getSimpleName(),a.getArgument(0).toString());
-					return mockObj;
-				});
-			
+		void testImageGenerationRequestPromptSerialization() {			
 			ImageGenerationRequest testInstance = ImageGenerationRequest.builder()
 					.input("input. Text: test")
 					.model(ImageGenModel.ANIME_V4_5_CURATED)
@@ -470,16 +471,7 @@ class UnitTestImageGenerationRequest {
 		}
 		
 		@Test
-		void testImageGenerationRequestExtraParameterSerialization() {
-			ImageGenerationRequest serializationInstance = new ImageGenerationRequest();
-			JsonSerializationContext mockJsonSerializationContext = mock(JsonSerializationContext.class);
-			when(mockJsonSerializationContext.serialize(any(), any()))
-				.then(a->{
-					JsonObject mockObj = new JsonObject();
-					mockObj.addProperty(a.getArgument(0).getClass().getSimpleName(),a.getArgument(0).toString());
-					return mockObj;
-				});
-			
+		void testImageGenerationRequestExtraParameterSerialization() {			
 			ImageGenerationRequest testInstance = ImageGenerationRequest.builder()
 					.input("input")
 					.model(ImageGenModel.ANIME_V4_5_CURATED)

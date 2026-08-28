@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.annotations.SerializedName;
 
-import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
+import aparmar.nai.data.request.imagen.ImageGenModel;
 import lombok.NonNull;
 import lombok.Value;
 

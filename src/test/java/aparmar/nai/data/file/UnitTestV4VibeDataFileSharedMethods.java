@@ -14,7 +14,7 @@ import com.google.gson.JsonObject;
 import aparmar.nai.TestHelpers;
 import aparmar.nai.data.file.V4VibeDataFile.ImportInfo;
 import aparmar.nai.data.file.V4VibeWithImageDataFile.EmbeddingData;
-import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
+import aparmar.nai.data.request.imagen.ImageGenModel;
 
 public abstract class UnitTestV4VibeDataFileSharedMethods<T extends V4VibeDataFile<T>> extends UnitTestDataFileSharedMethods<T> {
 

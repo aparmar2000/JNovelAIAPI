@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import aparmar.nai.data.file.V4VibeDataFile.ImportInfo;
 import aparmar.nai.data.request.V4VibeData;
 import aparmar.nai.data.request.V4VibeData.VibeEncodingType;
-import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
+import aparmar.nai.data.request.imagen.ImageGenModel;
 
 class UnitTestV4VibeEncodingOnlyDataFile extends UnitTestV4VibeDataFileSharedMethods<V4VibeEncodingOnlyDataFile> {
 

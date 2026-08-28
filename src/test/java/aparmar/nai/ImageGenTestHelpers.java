@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 import aparmar.nai.data.request.imagen.DirectorReferenceParameters;
 import aparmar.nai.data.request.imagen.Image2ImageParameters;
 import aparmar.nai.data.request.imagen.ImageControlNetParameters;
-import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
+import aparmar.nai.data.request.imagen.ImageGenModel;
 import aparmar.nai.data.request.imagen.ImageVibeTransferParameters;
 import aparmar.nai.data.request.imagen.V4ImageVibeTransferParameters;
 import aparmar.nai.data.request.imagen.V4MultiCharacterParameters;
@@ -71,5 +71,8 @@ public class ImageGenTestHelpers {
 	
 	static boolean hasControlNetModels() {
 		return getControlNetModels().count() > 0;
+	}
+	static boolean hasHardDeprecatedModels() {
+		return getHardDeprecatedModels().count() > 0;
 	}
 }

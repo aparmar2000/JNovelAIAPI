@@ -11,7 +11,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import aparmar.nai.TestHelpers;
-import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
+import aparmar.nai.data.request.imagen.ImageGenModel;
 import aparmar.nai.data.request.imagen.ImageUpscaleEnhanceRequest;
 import aparmar.nai.utils.GsonProvider;
 
