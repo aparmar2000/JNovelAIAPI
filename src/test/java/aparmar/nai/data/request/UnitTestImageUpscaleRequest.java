@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import aparmar.nai.TestHelpers;
 import aparmar.nai.data.request.ImageUpscaleRequest.UpscaleFactor;
 
+@SuppressWarnings("deprecation")
 class UnitTestImageUpscaleRequest {
 
 	@Test

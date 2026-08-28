@@ -18,9 +18,9 @@ class IntegrationTestTextGeneration extends AbstractFeatureIntegrationTest {
 	@ParameterizedTest
 	@EnumSource(value = TextGenModel.class, names = {"SIGURD","EUTERPE","KRAKE","CLIO","KAYRA","ERATO","GLM_4_6","XIALONG"})
 	void testMinimalTextGeneration(TextGenModel textGenModel) throws AssertionError, Exception {
-		String[] associatedPresets = TextParameterPresets.getAssociatedPresets(textGenModel);
+		String[] associatedPresets = TextParameterPresets.getAssociatedPresetExtendedNames(textGenModel);
 		TextGenerationParameters testPreset = associatedPresets.length>0 ? 
-				TextParameterPresets.getPresetByExtendedName(associatedPresets[0])
+				TextParameterPresets.getPresetParametersByExtendedName(associatedPresets[0])
 					.toBuilder()
 					.maxLength(30)
 					.build() : 
