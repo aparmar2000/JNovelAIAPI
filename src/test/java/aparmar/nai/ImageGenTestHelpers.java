@@ -72,4 +72,7 @@ public class ImageGenTestHelpers {
 	static boolean hasControlNetModels() {
 		return getControlNetModels().count() > 0;
 	}
+	static boolean hasHardDeprecatedModels() {
+		return getHardDeprecatedModels().count() > 0;
+	}
 }

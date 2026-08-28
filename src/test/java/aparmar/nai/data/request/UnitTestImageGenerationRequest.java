@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -191,6 +192,7 @@ class UnitTestImageGenerationRequest {
     }
 
 	@ParameterizedTest
+	@EnabledIf(value="aparmar.nai.ImageGenTestHelpers#hasHardDeprecatedModels", disabledReason="No hard deprecated models currently present.")
 	@MethodSource("aparmar.nai.ImageGenTestHelpers#getHardDeprecatedModels")
 	void testRemovedModelRejected(ImageGenModel testModel) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		assertThrows(HardDeprecationException.class, ()->ImageGenerationRequest.builder()
