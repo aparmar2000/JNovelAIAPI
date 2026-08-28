@@ -100,6 +100,7 @@ public class UserSubscription {
 		private int contextTokens;
 		
 		/**
+		 * @deprecated since 5.7.0<br/>
 		 * Legacy constructor - you probably shouldn't have been constructing instances of this class, but if you were this constructor should maintain expected behavior.
 		 * <br/>
 		 * If you're writing new code, carefully consider why you're constructing an instance of this class.
