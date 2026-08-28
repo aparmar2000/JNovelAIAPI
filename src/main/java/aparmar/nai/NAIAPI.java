@@ -16,7 +16,6 @@ import com.google.gson.JsonSyntaxException;
 
 import aparmar.nai.data.request.IQueryStringPayload;
 import aparmar.nai.data.request.ImageAnnotateRequest;
-import aparmar.nai.data.request.ImageUpscaleRequest;
 import aparmar.nai.data.request.ImageVibeEncodeRequest;
 import aparmar.nai.data.request.V4VibeData;
 import aparmar.nai.data.request.VoiceGenerationRequest;
@@ -30,6 +29,8 @@ import aparmar.nai.data.response.*;
 import aparmar.nai.data.response.TextGenerationResponse.LogProbStep;
 import aparmar.nai.utils.BuilderAssemblyFunction;
 import aparmar.nai.utils.GsonProvider;
+import aparmar.nai.utils.HardDeprecated;
+import aparmar.nai.utils.HardDeprecationException;
 import aparmar.nai.utils.OaiApiAdapters;
 import aparmar.nai.utils.RateLimitInterceptor;
 import aparmar.nai.utils.ResultParseFunction;
@@ -141,11 +142,14 @@ public class NAIAPI {
 		
 		return new ImageSetWrapper(resultBody);
 	}
-	
-	public ImageSetWrapper upscaleImage(ImageUpscaleRequest payload) throws IOException {
-		ZipArchiveWrapper resultBody = postToNovelAI("ai/upscale", GENERAL_API_ROOT, payload, MEDIA_TYPE_ZIP, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
-		
-		return new ImageSetWrapper(resultBody);
+
+	/**
+	 * @deprecated The legacy upscaler has been discontinued by NovelAI. Use {@link #upscaleEnhanceImage(payload) upscaleEnhanceImage()} instead.</br>
+	 * This method will be removed in the future.
+	 */
+	@HardDeprecated
+	public ImageSetWrapper upscaleImage(aparmar.nai.data.request.ImageUpscaleRequest payload) throws IOException {
+		throw new HardDeprecationException("The legacy upscaler has been discontinued by NovelAI.");
 	}
 	
 	public ImageSetWrapper upscaleEnhanceImage(ImageUpscaleEnhanceRequest payload) throws IOException {

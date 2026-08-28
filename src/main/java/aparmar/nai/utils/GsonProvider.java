@@ -18,6 +18,7 @@ import aparmar.nai.data.request.textgen.TextGenerationParameters.SamplingStep;
 import aparmar.nai.data.response.TextGenerationResponse.LogProb;
 import aparmar.nai.utils.serialization.SamplingStepDeserializer;
 
+@SuppressWarnings("deprecation")
 public class GsonProvider {
 	public static Gson buildGsonInstance() {
 		GsonBuilder gsonBuilder = new GsonBuilder();
