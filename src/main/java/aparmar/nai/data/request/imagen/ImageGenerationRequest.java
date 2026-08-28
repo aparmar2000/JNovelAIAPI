@@ -1,21 +1,14 @@
 package aparmar.nai.data.request.imagen;
 
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
 
 import aparmar.nai.data.response.UserSubscription;
@@ -26,8 +19,6 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import lombok.val;
-import lombok.var;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -35,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class ImageGenerationRequest implements JsonSerializer<ImageGenerationRequest> {
+public class ImageGenerationRequest {
 	public static final String ANIME_V2_HEAVY_UC = "nsfw, lowres, bad, text, error, missing, extra, fewer, cropped, jpeg artifacts, worst quality, bad quality, watermark, displeasing, unfinished, chromatic aberration, scan, scan artifacts";
 	public static final String ANIME_V2_LIGHT_UC = "nsfw, lowres, jpeg artifacts, worst quality, watermark, blurry, very displeasing";
 	
@@ -79,7 +70,6 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 	public static final String V5_FULL_FURRY_FOCUS_UC = "nsfw, {worst quality}, distracting watermark, unfinished, bad quality, {widescreen}, upscale, {sequence}, {{grandfathered content}}, blurred foreground, chromatic aberration, sketch, everyone, [sketch background], simple, [flat colors], ych (character), outline, multiple scenes, [[horror (theme)]], comic";
 	public static final String V5_FULL_HUMAN_FOCUS_UC = "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page, @_@, mismatched pupils, glowing eyes, bad anatomy";
 	
-	protected static final Pattern TEXT_PROMPT_START_PATTERN = Pattern.compile("[.,]?\\s*text:(?!:)", Pattern.CASE_INSENSITIVE);
 	public enum QualityTagsLocation {
 		DEFAULT,
 		PREPEND,
@@ -148,67 +138,6 @@ public class ImageGenerationRequest implements JsonSerializer<ImageGenerationReq
 	@Builder.Default
  	private Map<Class<? extends AbstractExtraImageParameters>, AbstractExtraImageParameters> extraParameters = new HashMap<>();
 	private ModeTag modeTag;
-	
-	@Override
-	public JsonElement serialize(ImageGenerationRequest src, Type typeOfSrc, JsonSerializationContext context) {
-		JsonObject wrapper = new JsonObject();
-		
-		String alteredInput = src.getInput();
-		if (src.getParameters().isQualityToggle()) {
-			QualityTagsPreset selectedPreset = src.getParameters().getQualityPreset();
-			if (selectedPreset == QualityTagsPreset.DEFAULT || selectedPreset == null) {
-				selectedPreset = src.getModel().getQualityTagsPreset();
-			}
-			
-			String qualityTagString = selectedPreset.getTags();
-			QualityTagsLocation qualityInsertLocation = src.getParameters().getQualityInsertLocation();
-			if (qualityInsertLocation == QualityTagsLocation.DEFAULT) {
-				qualityInsertLocation = selectedPreset.getDefaultLocation();
-			}
-			
-			switch (qualityInsertLocation) {
-			case DEFAULT:
-			case PREPEND:
-				alteredInput = qualityTagString+", "+alteredInput;
-				break;
-			case APPEND:
-				alteredInput = alteredInput+", "+qualityTagString;
-				break;
-			case APPEND_MOVE_TEXT_PROMPT:
-				val textPromptMatcher = TEXT_PROMPT_START_PATTERN.matcher(alteredInput);
-				var textPrompt = "";
-				if (textPromptMatcher.find()) {
-					textPrompt = alteredInput.substring(textPromptMatcher.end());
-					alteredInput = alteredInput.substring(0, textPromptMatcher.start());
-				}
-				textPrompt = textPrompt.trim();
-				alteredInput = alteredInput+", "+qualityTagString;
-				if (!textPrompt.isEmpty()) {
-					alteredInput = alteredInput + ". Text: " + textPrompt;
-				}
-				break;
-			}
-		}
-		if (src.getModeTag() != null) {
-			alteredInput = src.getModeTag().addTag(alteredInput);
-		}
-		
-		wrapper.addProperty("input", alteredInput);
-		wrapper.add("model", context.serialize(src.getModel(), ImageGenModel.class));
-		wrapper.add("action", context.serialize(src.getAction(), ImageGenAction.class));
-		JsonObject mergedParameters = context.serialize(src.getParameters(), src.getParameters().getClass()).getAsJsonObject();
-		src.getExtraParameters().entrySet().stream()
-			.map(e->context.serialize(e.getValue(), e.getKey()))
-			.map(o->o.getAsJsonObject().entrySet())
-			.flatMap(Set::stream)
-			.forEach(m->mergedParameters.add(m.getKey(), m.getValue()));
-		wrapper.add("parameters", mergedParameters);
-		
-		if (src.getModel().hasJsonAdapterFunc()) {
-			src.getModel().adaptJson(src, wrapper, context);
-		}
-		return wrapper;
-	}
 
 	public static boolean isFreeGeneration(UserSubscription subscriptionData, ImageParameters parameters, AbstractExtraImageParameters... extraImageParameters) {
 		return isFreeGeneration(subscriptionData, parameters, Arrays.asList(extraImageParameters));
