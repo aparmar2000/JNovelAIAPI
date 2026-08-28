@@ -8,7 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import org.junit.jupiter.api.Test;
 
 import aparmar.nai.TestHelpers;
-import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
+import aparmar.nai.data.request.imagen.ImageGenModel;
 import lombok.val;
 
 class UnitTestImageVibeEncodeRequest {

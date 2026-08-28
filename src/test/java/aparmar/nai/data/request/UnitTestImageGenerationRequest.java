@@ -29,7 +29,6 @@ import aparmar.nai.data.request.V4VibeData.VibeEncodingType;
 import aparmar.nai.data.request.imagen.*;
 import aparmar.nai.data.request.imagen.ImageControlNetParameters.ControlnetModel;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenAction;
-import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.ModeTag;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest.QualityTagsLocation;
 import aparmar.nai.data.request.imagen.ImageParameters.ImageFormat;

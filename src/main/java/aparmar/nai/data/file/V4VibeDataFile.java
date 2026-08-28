@@ -17,7 +17,7 @@ import com.google.gson.annotations.SerializedName;
 
 import aparmar.nai.data.request.V4VibeData;
 import aparmar.nai.data.request.V4VibeData.VibeEncodingType;
-import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
+import aparmar.nai.data.request.imagen.ImageGenModel;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
