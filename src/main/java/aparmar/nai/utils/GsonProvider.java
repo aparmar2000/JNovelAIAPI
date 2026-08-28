@@ -16,8 +16,10 @@ import aparmar.nai.data.request.imagen.V4MultiCharacterParameters;
 import aparmar.nai.data.request.imgaug.ImageAugmentRequest.DefryFactor;
 import aparmar.nai.data.request.textgen.TextGenerationParameters.SamplingStep;
 import aparmar.nai.data.response.TextGenerationResponse.LogProb;
+import aparmar.nai.utils.serialization.ImageGenerationRequestSerializer;
 import aparmar.nai.utils.serialization.SamplingStepDeserializer;
 
+@SuppressWarnings("deprecation")
 public class GsonProvider {
 	public static Gson buildGsonInstance() {
 		GsonBuilder gsonBuilder = new GsonBuilder();
@@ -29,7 +31,7 @@ public class GsonProvider {
 		gsonBuilder.registerTypeAdapter(ImageUpscaleRequest.class, new ImageUpscaleRequest());
 		gsonBuilder.registerTypeAdapter(ImageUpscaleEnhanceRequest.class, new ImageUpscaleEnhanceRequest());
 		gsonBuilder.registerTypeAdapter(ImageAnnotateRequest.class, ImageAnnotateRequest.SERIALIZER_INSTANCE);
-		gsonBuilder.registerTypeAdapter(ImageGenerationRequest.class, new ImageGenerationRequest());
+		gsonBuilder.registerTypeAdapter(ImageGenerationRequest.class, new ImageGenerationRequestSerializer());
 		gsonBuilder.registerTypeAdapter(ImageVibeTransferParameters.class, new ImageVibeTransferParameters());
 		gsonBuilder.registerTypeAdapter(DefryFactor.class, DefryFactor.ZERO);
 		gsonBuilder.registerTypeAdapter(CharacterPrompt.class, new CharacterPrompt());

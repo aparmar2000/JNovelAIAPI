@@ -11,7 +11,6 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
 
 import aparmar.nai.data.request.Base64Image;
-import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;

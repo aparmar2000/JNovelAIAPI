@@ -17,11 +17,6 @@ public class HelperConstants {
 	public static final String PERSISTENT_KEY_REGEX = "^(?:Bearer )?pst-[A-Za-z0-9]{64}$";
 	public static final Pattern PERSISTENT_KEY_PATTERN = Pattern.compile(PERSISTENT_KEY_REGEX);
 
-	/**
-	 * @deprecated since 5.6.0, no longer used. Why were you referencing this, anyway?
-	 */
-	@Deprecated
-	public static final String PRESET_FILENAME = "presetGenerationParameters.txt";
 	public static final String TEXTGEN_PRESET_FOLDER = "/textgenpresets";
 	
 	public static final String DINKUS = "***";

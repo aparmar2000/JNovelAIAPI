@@ -3,7 +3,7 @@ package aparmar.nai.data.request;
 import com.google.gson.annotations.SerializedName;
 
 import aparmar.nai.data.request.V4VibeData.VibeEncodingType;
-import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
+import aparmar.nai.data.request.imagen.ImageGenModel;
 import aparmar.nai.utils.AnnotationUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

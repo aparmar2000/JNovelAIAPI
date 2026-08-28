@@ -21,7 +21,7 @@ import aparmar.nai.data.request.Base64Image;
 import aparmar.nai.data.request.ImageVibeEncodeRequest;
 import aparmar.nai.data.request.V4VibeData;
 import aparmar.nai.data.request.V4VibeData.VibeEncodingType;
-import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
+import aparmar.nai.data.request.imagen.ImageGenModel;
 import aparmar.nai.utils.ByteArrayEncodings;
 import lombok.*;
 

@@ -12,12 +12,19 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
 
+import aparmar.nai.utils.HardDeprecated;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * @deprecated The legacy upscaler has been discontinued by NovelAI. 
+ * Use {@link aparmar.nai.data.request.imagen.ImageUpscaleEnhanceRequest ImageUpscaleEnhanceRequest} and {@link aparmar.nai.NAIAPI#upscaleEnhanceImage(payload) upscaleEnhanceImage()} instead.</br>
+ * This class will be removed in the future.
+ */
+@HardDeprecated
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

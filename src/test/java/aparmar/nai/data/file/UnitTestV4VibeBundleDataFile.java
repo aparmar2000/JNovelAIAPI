@@ -5,7 +5,7 @@ import java.util.Collections;
 
 import aparmar.nai.data.file.V4VibeDataFile.ImportInfo;
 import aparmar.nai.data.request.V4VibeData.VibeEncodingType;
-import aparmar.nai.data.request.imagen.ImageGenerationRequest.ImageGenModel;
+import aparmar.nai.data.request.imagen.ImageGenModel;
 import lombok.val;
 
 public class UnitTestV4VibeBundleDataFile extends UnitTestNestedDataFileSharedMethods<V4VibeBundleDataFile<V4VibeEncodingOnlyDataFile>, V4VibeEncodingOnlyDataFile> {

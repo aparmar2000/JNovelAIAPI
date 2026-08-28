@@ -15,8 +15,8 @@ class IntegrationTestFetchHiddenState extends AbstractFeatureIntegrationTest {
 	@Test
 	void testMinimalFetchHiddenState() throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
-			String testPresetName = TextParameterPresets.getAssociatedPresets(TextGenModel.EUTERPE)[0];
-			TextGenerationParameters testPreset = TextParameterPresets.getPresetByExtendedName(testPresetName);
+			String testPresetName = TextParameterPresets.getAssociatedPresetExtendedNames(TextGenModel.EUTERPE)[0];
+			TextGenerationParameters testPreset = TextParameterPresets.getPresetParametersByExtendedName(testPresetName);
 			TextGenerationRequest testRequest = TextGenerationRequest.builder()
 					.model(TextGenModel.EUTERPE)
 					.input("This is an API call!\n")
