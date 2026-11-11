@@ -24,8 +24,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.11.0</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>11</source>
+					<target>11</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -148,6 +148,11 @@
 			<groupId>ai.djl.huggingface</groupId>
 			<artifactId>tokenizers</artifactId>
 			<version>0.34.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.boofcv</groupId>
+			<artifactId>boofcv-core</artifactId>
+			<version>1.6.0</version>
 		</dependency>
 	</dependencies>
 </project>
