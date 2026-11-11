@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.annotations.SerializedName;
 
 import aparmar.nai.data.request.textgen.TextGenPrefix;
+import aparmar.nai.utils.HardDeprecated;
 import aparmar.nai.utils.HelperConstants;
 import aparmar.nai.utils.tokenization.Tokenizers;
 import lombok.Getter;
@@ -30,10 +31,16 @@ public enum TextGenModel {
 
 	@SerializedName("2.7B")
 	CALLIOPE,
+	@Deprecated
+	@HardDeprecated
 	@SerializedName("genji-python-6b")
 	SNEK,
+	@Deprecated
+	@HardDeprecated
 	@SerializedName("genji-jp-6b")
 	GENJI_OLD,
+	@Deprecated
+	@HardDeprecated
 	@SerializedName("genji-jp-6b-v2")
 	GENJI,
 	@SerializedName("sigurd-2.9b-v1")
@@ -188,6 +195,8 @@ public enum TextGenModel {
 			PresetModulePrefixes.INSPIRATION_ROMANCE_OF_THE_THREE_KINGDOMS,
 			PresetModulePrefixes.INSPIRATION_THRONEWARS,
 			PresetModulePrefixes.INSPIRATION_WITCH_AT_LEVEL_CAP}),
+	@Deprecated
+	@HardDeprecated
 	@SerializedName("krake-v2")
 	KRAKE(false, true, HelperConstants.GENERAL_API_ROOT, false, new TextGenPrefix[] {TextGenPrefix.KRAKE_DEFAULT}, new PresetModulePrefixes[]{ 
 			PresetModulePrefixes.TEXT_ADVENTURE,
