@@ -58,7 +58,6 @@ public abstract class DualImageFixedDownsampler implements IFixedSizeDownsampler
 
 			int numBands = rgbRegion.getNumBands();
 			boolean hasAlpha = (numBands == 4);
-			int labOffset = hasAlpha ? 1 : 0;
 
 			// Special-casing for 1x1 sub-regions
 			if (totalPixels == 1) {
@@ -68,10 +67,10 @@ public abstract class DualImageFixedDownsampler implements IFixedSizeDownsampler
 				return;
 			}
 
-			GrayF32 bandAlpha = hasAlpha ? oklabRegion.getBand(0) : null;
-			GrayF32 bandL = oklabRegion.getBand(labOffset);
-			GrayF32 bandA = oklabRegion.getBand(labOffset + 1);
-			GrayF32 bandB = oklabRegion.getBand(labOffset + 2);
+			GrayF32 bandL = oklabRegion.getBand(0);
+			GrayF32 bandA = oklabRegion.getBand(1);
+			GrayF32 bandB = oklabRegion.getBand(2);
+			GrayF32 bandAlpha = hasAlpha ? oklabRegion.getBand(3) : null;
 
 			// Collect samples (ignoring transparent pixels when alpha exists)
 			double[] labL = new double[totalPixels];
@@ -99,8 +98,8 @@ public abstract class DualImageFixedDownsampler implements IFixedSizeDownsampler
 				}
 			}
 			labL = Arrays.copyOf(labL, validCount);
-			labA = Arrays.copyOf(labL, validCount);
-			labB = Arrays.copyOf(labL, validCount);
+			labA = Arrays.copyOf(labA, validCount);
+			labB = Arrays.copyOf(labB, validCount);
 
 			// If the cell is mostly transparent (or completely empty), write transparent pixel
 			if (hasAlpha && (opaqueCount <= totalPixels / 2)) {
