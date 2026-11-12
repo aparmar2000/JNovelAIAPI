@@ -106,7 +106,7 @@ public class PixelSnapImageFilter implements IImageFilter {
 
 	@Override
 	public Planar<GrayF32> applyPlanar(Planar<GrayF32> rgba) {
-		Planar<GrayF32> oklab = rgbToOklab(rgba);
+		Planar<GrayF32> oklab = rgbToOklab(rgba, null);
 		GrayF32 horizontalStrip = convolve1D(oklab, edgeKernel.getEdgeKernel(), true, BASELINE_SUB_SCALAR);
 		GrayF32 verticalStrip = convolve1D(oklab, edgeKernel.getEdgeKernel(), false, BASELINE_SUB_SCALAR);
 		

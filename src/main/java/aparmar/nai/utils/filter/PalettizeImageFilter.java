@@ -25,13 +25,13 @@ public abstract class PalettizeImageFilter implements IImageFilter {
 	public Planar<GrayF32> applyPlanar(Planar<GrayF32> rgba) {
 		Planar<GrayF32> workingPlanar = rgba;
 		if (useOklabColorSpace) {
-			workingPlanar = rgbToOklab(workingPlanar);
+			workingPlanar = rgbToOklab(workingPlanar, null);
 		}
 
 		workingPlanar = applyPalettization(workingPlanar);
 
 		if (useOklabColorSpace) {
-			workingPlanar = oklabtoRgb(workingPlanar);
+			workingPlanar = oklabtoRgb(workingPlanar, workingPlanar);
 		}
 		return workingPlanar;
 	}
