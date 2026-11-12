@@ -2,13 +2,18 @@ package aparmar.nai.utils.filter;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import org.jetbrains.annotations.NotNull;
 
 import com.google.common.math.Quantiles;
+import com.google.common.primitives.Floats;
+import com.google.common.primitives.Ints;
 
 import boofcv.abst.distort.FDistort;
 import boofcv.alg.filter.convolve.GConvolveImageOps;
@@ -43,6 +48,9 @@ public class PixelSnapImageFilter implements IImageFilter {
 	
 	protected static final float BASELINE_SUB_SCALAR = 0.7f;
 	
+	protected static final float DEFAULT_MIN_STRIDE_FACTOR = 0.65f;
+	protected static final float DEFAULT_MAX_STRIDE_FACTOR = 1.45f;
+	protected static final float DEFAULT_PENALTY_FACTOR = 1.5f;
 	
 	@RequiredArgsConstructor
 	@Getter(value = AccessLevel.PROTECTED)
@@ -60,7 +68,7 @@ public class PixelSnapImageFilter implements IImageFilter {
 	@Getter(value = AccessLevel.PROTECTED)
 	@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 	public static enum PixelRatioEstimationMode implements StrideEstimator {
-		AUTOCORRELATION(s -> estimateStrideAutocorrelation(s, 2, 32)),
+		AUTOCORRELATION(s -> estimateStrideAutocorrelation(s, 3, 32)),
 		PEAK_MEDIAN(s -> estimateStrideLocalMaxima(s, PeakStatistic.MEDIAN)),
 		PEAK_MODE(s -> estimateStrideLocalMaxima(s, PeakStatistic.MODE)),
 		PEAK_MEAN(s -> estimateStrideLocalMaxima(s, PeakStatistic.MEAN));
@@ -78,7 +86,7 @@ public class PixelSnapImageFilter implements IImageFilter {
 	private EdgeKernel edgeKernel = EdgeKernel.MEDIUM;
 	@NotNull
 	@Builder.Default
-	private PixelRatioEstimationMode pixelRatioEstimationMode = PixelRatioEstimationMode.PEAK_MEDIAN;
+	private PixelRatioEstimationMode pixelRatioEstimationMode = PixelRatioEstimationMode.AUTOCORRELATION;
 	@Builder.Default
 	private boolean performRefinement = true;
 
@@ -86,29 +94,37 @@ public class PixelSnapImageFilter implements IImageFilter {
 	public BufferedImage apply(BufferedImage inImage) {
 		Planar<GrayF32> rgb = ConvertBufferedImage.convertFromPlanar(inImage, null, true, GrayF32.class);
 		Planar<GrayF32> oklab = rgbToOklab(rgb);
-		GrayF32 horizontalStrip = convolve1D(oklab, edgeKernel.getEdgeKernel(), true);
-		GrayF32 verticalStrip = convolve1D(oklab, edgeKernel.getEdgeKernel(), false);
+		GrayF32 horizontalStrip = convolve1D(oklab, edgeKernel.getEdgeKernel(), true, BASELINE_SUB_SCALAR);
+		GrayF32 verticalStrip = convolve1D(oklab, edgeKernel.getEdgeKernel(), false, BASELINE_SUB_SCALAR);
 		
 		float horizontalStrideEst = pixelRatioEstimationMode.estimate(horizontalStrip);
 		float verticalStrideEst = pixelRatioEstimationMode.estimate(verticalStrip);
+
+		int[] horizontalCuts = solveGridCuts(horizontalStrip, horizontalStrideEst);
+		int[] verticalCuts = solveGridCuts(verticalStrip, verticalStrideEst);
 		
-		int outWidth = (int) (oklab.width/horizontalStrideEst);
-		int outHeight = (int) (oklab.height/verticalStrideEst);
-		Affine2D_F64 transformation = new Affine2D_F64(horizontalStrideEst, 0, 0, verticalStrideEst, 0.5, 0.5);
+		System.out.println("---");
+		System.out.println(horizontalStrideEst);
+		System.out.println(verticalStrideEst);
+		System.out.println(horizontalCuts.length + "; " + Arrays.toString(horizontalCuts));
+		System.out.println(verticalCuts.length + "; " + Arrays.toString(verticalCuts));
+		Planar<GrayF32> downsampledRgb = downsampleByCuts(rgb, horizontalCuts, verticalCuts, new DualImageFixedDownsampler.MedoidDualRgbLabDownsampler(oklab));
 		
-		Planar<GrayF32> rgbOut = rgb.createNew(outWidth, outHeight);
+		Affine2D_F64 transformation = new Affine2D_F64(1, 0, 0, 1, 0.5, 0.5);
+		
+		Planar<GrayF32> rgbOut = downsampledRgb.createSameShape();
 		FDistort distorter = new FDistort(ImageType.SB_F32);
-		distorter.input(rgb);
+		distorter.input(downsampledRgb);
 		distorter.output(rgbOut);
 		distorter.interp(InterpolationType.BILINEAR);
 		distorter.affine(transformation.invert(null));
 		distorter.borderExt();
 		distorter.apply();
 		
-		return ConvertBufferedImage.convertTo_F32(rgbOut, null, true);
+		return ConvertBufferedImage.convertTo_F32(downsampledRgb, null, true);
 	}
 	
-	protected static GrayF32 convolve1D(Planar<GrayF32> in, Kernel1D_F32 kernel, boolean horizontal) {
+	protected static GrayF32 convolve1D(Planar<GrayF32> in, Kernel1D_F32 kernel, boolean horizontal, float baselineSubScalar) {
 		Planar<GrayF32> convolved = in.createSameShape();
 		if (horizontal) {
 			GConvolveImageOps.horizontal(kernel, in, convolved, BorderType.EXTENDED);
@@ -131,7 +147,7 @@ public class PixelSnapImageFilter implements IImageFilter {
 		Kernel1D_F32 avgKernel = makeAveragingKernel(Math.max(5, gradientStrip.width / 20));
 		GConvolveImageOps.horizontal(avgKernel, gradientStrip, gradientStripWindowedAverage, BorderType.EXTENDED);
 		
-		PixelMath.multiply(gradientStripWindowedAverage, BASELINE_SUB_SCALAR, gradientStripWindowedAverage);
+		PixelMath.multiply(gradientStripWindowedAverage, baselineSubScalar, gradientStripWindowedAverage);
 		PixelMath.subtract(gradientStrip, gradientStripWindowedAverage, gradientStrip);
 		PixelMath.boundImage(gradientStrip, 0, Float.MAX_VALUE);
 		
@@ -203,14 +219,18 @@ public class PixelSnapImageFilter implements IImageFilter {
 
         return (float) bestLag;
     }
+	
 	protected static enum PeakStatistic { MEAN, MODE, MEDIAN; }
 	protected static float estimateStrideLocalMaxima(GrayF32 image, PeakStatistic peakStatistic) {
+		double threshold = Quantiles.percentiles().index(5).compute(Floats.asList(image.data));
+		
 		List<Integer> peakDistances = new ArrayList<>(image.width);
 		int lastMaximaIdx = -1;
-		for (int i = 0; i < image.width-1; i++) {
+		for (int i = 1; i < image.width-1; i++) {
+			float prevVal = image.data[i-1];
 			float val = image.data[i];
 			float nextVal = image.data[i+1];
-			if (nextVal < val) {
+			if (val > prevVal && val >= nextVal && val > threshold) {
 				if (lastMaximaIdx >= 0) {
 					peakDistances.add(i - lastMaximaIdx);
 				}
@@ -234,6 +254,71 @@ public class PixelSnapImageFilter implements IImageFilter {
 					.orElse(1);
 		}
 		return 1;
+	}
+	
+	protected static int[] solveGridCuts(GrayF32 profileStrip, float strideEst) {
+		return solveGridCuts(profileStrip, strideEst, 0.65f, 1.45f, 1.5f);
+	}
+	protected static int[] solveGridCuts(GrayF32 profileStrip, float strideEst, float minStrideFactor, float maxStrideFactor, float penaltyFac) {
+		int n = profileStrip.width;
+		
+		GrayF32 pNorm = profileStrip.createSameShape();
+		PixelMath.divide(profileStrip, (float) (Quantiles.percentiles().index(95).compute(Floats.asList(profileStrip.data)) + 1e-6), pNorm);
+		int minStep = Math.max(2, (int)(strideEst * minStrideFactor));
+		int maxStep = (int) Math.ceil(strideEst * maxStrideFactor);
+		double penaltyWeight = penaltyFac / Math.pow(strideEst, 2);
+		
+		float[] scores = new float[n];
+		Arrays.fill(scores, Float.NEGATIVE_INFINITY);
+		int[] parent = new int[n];
+		Arrays.fill(parent, -1);
+		for (int i=0; i<minStep; i++) {
+			scores[i] = pNorm.data[i];
+		}
+		
+		// Perform actual search
+		for (int i=minStep; i<n; i++) {
+			int stepRangeMin = Math.max(0, i - maxStep);
+			int stepRangeMax = i - minStep;
+			
+			double bestScore = Double.NEGATIVE_INFINITY;
+			int bestScoreIdx = -1;
+			for (int s=stepRangeMin; s<stepRangeMax; s++) {
+				int stepOffs = i - s;
+				double score = scores[s] - penaltyWeight * Math.pow((stepOffs - strideEst), 2);
+				
+				if (score > bestScore) {
+					bestScore = score;
+					bestScoreIdx = s;
+				}
+			}
+			
+			scores[i] = (float) (pNorm.data[i] + bestScore);
+			parent[i] = bestScoreIdx;
+		}
+		
+		// Backtrack to rebuild optimal sequence
+		int backtrackIdx = IntStream.range(n - minStep, n)
+				.reduce((a,b)->scores[a] > scores[b] ? a : b)
+				.orElse(n - 1);
+		List<Integer> cuts = new ArrayList<>();
+		while (backtrackIdx >= 0) {
+			cuts.add(backtrackIdx);
+			backtrackIdx = parent[backtrackIdx];
+		}
+		Collections.sort(cuts);
+		
+		// Final sequence cleanup
+		if (cuts.get(0) > strideEst * minStrideFactor) {
+			cuts.add(0, 0);
+		}
+		if ((n - 1) - cuts.get(cuts.size()-1) > strideEst * minStrideFactor) {
+			cuts.add(n);
+		} else {
+			cuts.set(cuts.size()-1, n);
+		}
+		
+		return Ints.toArray(cuts);
 	}
 	
 	protected static Kernel1D_F32 makeSmallKernel() {
