@@ -1,32 +1,23 @@
 package aparmar.nai.utils.filter;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.commons.math3.ml.clustering.CentroidCluster;
 import org.apache.commons.math3.ml.clustering.Clusterable;
-import org.apache.commons.math3.ml.clustering.KMeansPlusPlusClusterer;
-import org.apache.commons.math3.ml.distance.EuclideanDistance;
 
-import boofcv.concurrency.BoofConcurrency;
 import boofcv.struct.image.GrayF32;
 import boofcv.struct.image.Planar;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Value;
+import lombok.experimental.SuperBuilder;
 
 import static aparmar.nai.utils.filter.ImageFilterUtils.*;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class PalettizeImageFilter implements IImageFilter {
-	@Builder.Default
-	protected float earlyMergeThreshold = 0.002f;
+@SuperBuilder
+public abstract class PalettizeImageFilter implements IImageFilter {
 	@Builder.Default
 	protected boolean useOklabColorSpace = true;
 
@@ -36,30 +27,23 @@ public class PalettizeImageFilter implements IImageFilter {
 		if (useOklabColorSpace) {
 			workingPlanar = rgbToOklab(workingPlanar);
 		}
-		
-		workingPlanar = palettizeKMeans(workingPlanar, 8);
+
+		workingPlanar = applyPalettization(workingPlanar);
 
 		if (useOklabColorSpace) {
 			workingPlanar = oklabtoRgb(workingPlanar);
 		}
 		return workingPlanar;
 	}
-	
-	protected Planar<GrayF32> palettizeKMeans(Planar<GrayF32> colorPlanar, int colorCount) {
-		List<ColorPoint> colors = extractColors(colorPlanar);
-		KMeansPlusPlusClusterer<ColorPoint> clusterer = new KMeansPlusPlusClusterer<>(colorCount, 100, new EuclideanDistance());
-		List<CentroidCluster<ColorPoint>> clusterResult = clusterer.cluster(colors);
-		
-		return quantizeColors(colorPlanar, clusterResult.stream().map(c->new ColorPoint(c.getCenter())).collect(Collectors.toList()));
-	}
-	
 
-    public static class ColorPoint implements Clusterable {
-        private final double[] color;
+	protected abstract Planar<GrayF32> applyPalettization(Planar<GrayF32> colorPlanar);
 
-        public ColorPoint(float c1, float c2, float c3) {
-        	color = new double[] {c1, c2, c3};
-        }
+	public static class ColorPoint implements Clusterable {
+		protected final double[] color;
+
+		public ColorPoint(double c1, double c2, double c3) {
+			color = new double[] { c1, c2, c3 };
+		}
 
 		public ColorPoint(Clusterable clusterable) {
 			color = clusterable.getPoint();
@@ -69,54 +53,35 @@ public class PalettizeImageFilter implements IImageFilter {
 		public double[] getPoint() {
 			return color;
 		}
-    }
-    
-	protected List<ColorPoint> extractColors(Planar<GrayF32> colorPlanar) {
-		GrayF32 C1 = colorPlanar.getBand(0);
-		GrayF32 C2 = colorPlanar.getBand(1);
-		GrayF32 C3 = colorPlanar.getBand(2);
+	}
 
-		List<ColorPoint> colorPointList = new ArrayList<>(colorPlanar.width * colorPlanar.height);
-		for(int row = 0; row < colorPlanar.height; row++) {
-			int index = C1.startIndex + row * C1.stride;
+	@Value
+	protected static class QuantizedColor {
+		double quantMult;
+		long[] color;
 
-			for (int col = 0; col < colorPlanar.width; col++, index++) {
-				colorPointList.add(new ColorPoint(C1.data[index], C2.data[index], C3.data[index]));
-			}
+		public float[] getUnquantColor() {
+			return new float[] {
+					(float) (color[0] * quantMult),
+					(float) (color[1] * quantMult),
+					(float) (color[2] * quantMult)
+			};
 		}
-		
-		return colorPointList;
-	}
-    
-	protected Planar<GrayF32> quantizeColors(Planar<GrayF32> colorPlanar, Collection<ColorPoint> colorPoints) {
-		GrayF32 C1 = colorPlanar.getBand(0);
-		GrayF32 C2 = colorPlanar.getBand(1);
-		GrayF32 C3 = colorPlanar.getBand(2);
-		
-		EuclideanDistance distance = new EuclideanDistance();
-		BoofConcurrency.loopFor(0, colorPlanar.height, row -> {
-			int index = C1.startIndex + row * C1.stride;
 
-			for (int col = 0; col < colorPlanar.width; col++, index++) {
-				ColorPoint initial = new ColorPoint(C1.data[index], C2.data[index], C3.data[index]);
-				
-				ColorPoint selected = null;
-				double bestDist = Double.POSITIVE_INFINITY;
-				for (ColorPoint paletteColor : colorPoints) {
-					double dist = distance.compute(initial.color, paletteColor.color);
-					if (dist < bestDist) {
-						bestDist = dist;
-						selected = paletteColor;
-					}
-				}
-				
-				C1.data[index] = (float)selected.color[0];
-				C2.data[index] = (float)selected.color[1];
-				C3.data[index] = (float)selected.color[2];
-			}
-		});
-		
-		return colorPlanar;
-	}
+		public double[] getUnquantColorDouble() {
+			return new double[] {
+					color[0] * quantMult,
+					color[1] * quantMult,
+					color[2] * quantMult
+			};
+		}
 
+		public static QuantizedColor fromColor(float c1, float c2, float c3, double quant) {
+			return new QuantizedColor(quant, new long[] {
+					Math.round(c1 / quant),
+					Math.round(c2 / quant),
+					Math.round(c3 / quant)
+			});
+		}
+	}
 }
