@@ -13,8 +13,12 @@ import org.jetbrains.annotations.NotNull;
 import aparmar.nai.utils.filter.PixelGridAlignSnapImageFilter.DownsamplerFactory;
 import aparmar.nai.utils.filter.PixelGridAlignSnapImageFilter.PeakStatistic;
 import aparmar.nai.utils.filter.PixelGridAlignSnapImageFilter.StrideEstimator;
+import boofcv.abst.distort.FDistort;
+import boofcv.alg.interpolate.InterpolationType;
+import boofcv.factory.interpolate.FactoryInterpolation;
 import boofcv.struct.convolve.Kernel1D_F32;
 import boofcv.struct.image.GrayF32;
+import boofcv.struct.image.ImageType;
 import boofcv.struct.image.Planar;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -140,6 +144,9 @@ public class PixelSnapImageFilter implements IImageFilter {
 	@Builder.Default
 	private PalettizeTarget palettizeTarget = PalettizeTarget.auto();
 	
+	@Builder.Default
+	private boolean autoUpscale = false;
+	
 	public static PixelSnapImageFilter.PixelSnapImageFilterBuilder naiLike() {
 		return PixelSnapImageFilter.builder()
 				.edgeKernel(EdgeKernel.MEDIUM)
@@ -147,7 +154,8 @@ public class PixelSnapImageFilter implements IImageFilter {
 				.downsamplerMode(DownsamplerMode.CHANNEL_MEDIAN)
 				.performRefinement(true)
 				.palettizeMode(PalettizeMode.K_MEANS)
-				.palettizeTarget(PalettizeTarget.auto());
+				.palettizeTarget(PalettizeTarget.auto())
+				.autoUpscale(false);
 	}
 
 	protected static final int MAX_AUTO_COLOR_COUNT = 256;
@@ -155,6 +163,7 @@ public class PixelSnapImageFilter implements IImageFilter {
 	@Override
 	public Planar<GrayF32> applyPlanar(Planar<GrayF32> rgbaIn) {
 		Planar<GrayF32> workingBuffer = rgbaIn;
+		long inputPixels = (long)rgbaIn.width * rgbaIn.height;
 		
 		// -- Grid Alignment
 		PixelGridAlignSnapImageFilter gridFilter = new PixelGridAlignSnapImageFilter();
@@ -187,6 +196,32 @@ public class PixelSnapImageFilter implements IImageFilter {
 		}
 		
 		workingBuffer = palettizeFilter.applyPlanar(workingBuffer);
+		
+		// Upscale
+		if (autoUpscale) {
+			int bestScalar = 1;
+			long bestScalarDiff = Long.MAX_VALUE;
+			for (int s=1;s<10;s++) {
+				long scaledPixels = ((long)workingBuffer.width * s) * (workingBuffer.height * s);
+				long scalarDiff = Math.abs(inputPixels - scaledPixels);
+				if (scalarDiff < bestScalarDiff) {
+					bestScalarDiff = scalarDiff;
+					bestScalar = s;
+				}
+			}
+			
+			if (bestScalar > 1) {
+				Planar<GrayF32> small = workingBuffer;
+				workingBuffer = workingBuffer.createNew(workingBuffer.width * bestScalar, workingBuffer.height * bestScalar);
+				
+				FDistort distorter = new FDistort(ImageType.SB_F32);
+				distorter.input(small);
+				distorter.output(workingBuffer);
+				distorter.interp(InterpolationType.NEAREST_NEIGHBOR);
+				distorter.scaleExt();
+				distorter.apply();
+			}
+		}
 		
 		return workingBuffer;
 	}
