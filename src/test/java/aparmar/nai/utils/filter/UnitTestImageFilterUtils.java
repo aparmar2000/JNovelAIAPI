@@ -1,6 +1,7 @@
 package aparmar.nai.utils.filter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -38,5 +39,27 @@ class UnitTestImageFilterUtils {
 		assertEquals(255f, oklabCopy.getBand(0).get(0, 0), 0.5f);
 		assertEquals(128f, oklabCopy.getBand(1).get(0, 0), 0.5f);
 		assertEquals(64f, oklabCopy.getBand(2).get(0, 0), 0.5f);
+	}
+
+	@Test
+	void testOklabToRgbClampsOutOfGamutValues() {
+		Planar<GrayF32> oklab = new Planar<>(GrayF32.class, 2, 1, 3);
+		// Out-of-gamut cyan/teal (would produce negative linear R)
+		oklab.getBand(0).set(0, 0, 0.75f);
+		oklab.getBand(1).set(0, 0, -0.25f);
+		oklab.getBand(2).set(0, 0, 0.05f);
+		// Out-of-gamut bright color (would produce > 1.0 linear RGB)
+		oklab.getBand(0).set(1, 0, 1.1f);
+		oklab.getBand(1).set(1, 0, 0.3f);
+		oklab.getBand(2).set(1, 0, 0.3f);
+
+		Planar<GrayF32> rgb = ImageFilterUtils.oklabtoRgb(oklab, null);
+		for (int x = 0; x < 2; x++) {
+			for (int b = 0; b < 3; b++) {
+				float val = rgb.getBand(b).get(x, 0);
+				assertTrue(val >= 0f && val <= 255f,
+						"Expected clamped sRGB in [0, 255] at x=" + x + ", band=" + b + ", got " + val);
+			}
+		}
 	}
 }
