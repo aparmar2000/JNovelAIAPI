@@ -135,11 +135,6 @@ public class PixelSnapImageFilter implements IImageFilter {
 			}
 		}
 		
-		System.out.println("---");
-		System.out.println(horizontalStrideEst);
-		System.out.println(verticalStrideEst);
-		System.out.println(horizontalCuts.length + "; " + Arrays.toString(horizontalCuts));
-		System.out.println(verticalCuts.length + "; " + Arrays.toString(verticalCuts));
 		Planar<GrayF32> downsampledRgb = downsampleByCuts(rgb, horizontalCuts, verticalCuts, downsamplerMode.apply(oklab));
 		
 		return ConvertBufferedImage.convertTo_F32(downsampledRgb, null, true);
