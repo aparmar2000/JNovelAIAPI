@@ -1,6 +1,5 @@
 package aparmar.nai.utils.filter;
 
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,7 +19,6 @@ import boofcv.alg.filter.convolve.GConvolveImageOps;
 import boofcv.alg.misc.GPixelMath;
 import boofcv.alg.misc.PixelMath;
 import boofcv.core.image.ConvertImage;
-import boofcv.io.image.ConvertBufferedImage;
 import boofcv.struct.border.BorderType;
 import boofcv.struct.convolve.Kernel1D_F32;
 import boofcv.struct.image.GrayF32;
@@ -107,9 +105,8 @@ public class PixelSnapImageFilter implements IImageFilter {
 	private boolean performRefinement = true;
 
 	@Override
-	public BufferedImage apply(BufferedImage inImage) {
-		Planar<GrayF32> rgb = ConvertBufferedImage.convertFromPlanar(inImage, null, true, GrayF32.class);
-		Planar<GrayF32> oklab = rgbToOklab(rgb);
+	public Planar<GrayF32> applyPlanar(Planar<GrayF32> rgba) {
+		Planar<GrayF32> oklab = rgbToOklab(rgba);
 		GrayF32 horizontalStrip = convolve1D(oklab, edgeKernel.getEdgeKernel(), true, BASELINE_SUB_SCALAR);
 		GrayF32 verticalStrip = convolve1D(oklab, edgeKernel.getEdgeKernel(), false, BASELINE_SUB_SCALAR);
 		
@@ -135,9 +132,9 @@ public class PixelSnapImageFilter implements IImageFilter {
 			}
 		}
 		
-		Planar<GrayF32> downsampledRgb = downsampleByCuts(rgb, horizontalCuts, verticalCuts, downsamplerMode.apply(oklab));
+		Planar<GrayF32> downsampledRgb = downsampleByCuts(rgba, horizontalCuts, verticalCuts, downsamplerMode.apply(oklab));
 		
-		return ConvertBufferedImage.convertTo_F32(downsampledRgb, null, true);
+		return downsampledRgb;
 	}
 	
 	protected static double computeMeanCellVariance(Planar<GrayF32> oklab, int[] horizontalCuts, int[] verticalCuts) {
