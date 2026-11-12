@@ -258,7 +258,7 @@ abstract class AbstractUnitTestPalettizeImageFilter<T extends PalettizeImageFilt
 	@Test
 	void testRealSampleImage() throws Exception {
 		BufferedImage baseImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_pixel_snap.png"));
-		BufferedImage snapped = new PixelSnapImageFilter().applyBuffered(baseImage);
+		BufferedImage snapped = new PixelGridAlignSnapImageFilter().applyBuffered(baseImage);
 
 		BufferedImage quantized = createFilter(true).applyBuffered(snapped);
 
