@@ -39,6 +39,8 @@ public class ImageSetWrapper {
 	
 	public int getImageCount() { return zipArchive.getEntryCount(); }
 	
+	public String getImageName(int idx) { return zipArchive.getEntry(idx).getName(); }
+	
 	public IIOImage getImage(int idx) throws IOException {
 		IIOImage image = iioImageCache[idx];
 		
