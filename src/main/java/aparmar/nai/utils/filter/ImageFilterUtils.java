@@ -38,6 +38,41 @@ public class ImageFilterUtils {
 		
 		return kernel;
 	}
+	
+	public static Planar<GrayF32> downsampleByCuts(Planar<GrayF32> in, int[] horizontalCuts, int[] verticalCuts, IFixedSizeDownsampler downsampler) {
+		return downsampleByCuts(in, horizontalCuts, verticalCuts, downsampler, 0.2f);
+	}
+	public static Planar<GrayF32> downsampleByCuts(Planar<GrayF32> in, int[] horizontalCuts, int[] verticalCuts, IFixedSizeDownsampler downsampler, float marginRatio) {
+		int width = horizontalCuts.length - 1;
+		int height = verticalCuts.length - 1;
+		Planar<GrayF32> out = in.createNew(width, height);
+
+		BoofConcurrency.loopFor(0, height, row -> {
+			int outIndex = out.startIndex + row * out.stride;
+			
+			int yRawStart = verticalCuts[row];
+			int yRawEnd = verticalCuts[row+1];
+			int yMargin = (int) ((yRawEnd - yRawStart) * marginRatio);
+			
+			float yWidthAfterMargin = (yRawEnd - yRawStart - 2 * yMargin);
+			int yAdjStart = yWidthAfterMargin >= 1 ? yRawStart + yMargin : yRawStart;
+			int yAdjEnd = yWidthAfterMargin >= 1 ? yRawEnd - yMargin : yRawEnd;
+
+			for (int col = 0; col < width; col++, outIndex++) {
+				int xRawStart = horizontalCuts[col];
+				int xRawEnd = horizontalCuts[col+1];
+				int xMargin = (int) ((xRawEnd - xRawStart) * marginRatio);
+				
+				float xWidthAfterMargin = (xRawEnd - xRawStart - 2 * xMargin);
+				int xAdjStart = xWidthAfterMargin >= 1 ? xRawStart + xMargin : xRawStart;
+				int xAdjEnd = xWidthAfterMargin >= 1 ? xRawEnd - xMargin : xRawEnd;
+				
+				downsampler.downsampleTo(in, xAdjStart, yAdjStart, xAdjEnd, yAdjEnd, out, outIndex);
+			}
+		});
+		
+		return out;
+	}
 
 	public static final float DEFAULT_ALPHA_CLIP_THRESHOLD = 0.00001f;
 	/**
