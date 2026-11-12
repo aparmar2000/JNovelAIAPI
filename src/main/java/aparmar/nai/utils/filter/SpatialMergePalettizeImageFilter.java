@@ -96,7 +96,7 @@ public class SpatialMergePalettizeImageFilter extends PalettizeImageFilter
 	}
 	
 	public static BiPredicate<Integer, Float> similarityThresholdPredicate(float similarityLimit) {
-		return (count, similarity) -> similarity < similarityLimit;
+		return (count, similarity) -> similarity > similarityLimit;
 	}
 	/**
 	 * Note: This quantization algorithm is not very good with low color counts.

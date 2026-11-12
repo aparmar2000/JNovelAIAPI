@@ -287,9 +287,13 @@ public class ImageFilterUtils {
 				if (hasAlpha) {
 					alpha.data[indexRgb] = srcAlpha.data[indexOkLab] * 255f;
 				}
-				R.data[indexRgb] = (float) (255.0 * ColorXyz.gamma(+4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s));
-				G.data[indexRgb] = (float) (255.0 * ColorXyz.gamma(-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s));
-				B.data[indexRgb] = (float) (255.0 * ColorXyz.gamma(-0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s));
+				double linR = Math.max(0.0, Math.min(1.0, +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s));
+				double linG = Math.max(0.0, Math.min(1.0, -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s));
+				double linB = Math.max(0.0, Math.min(1.0, -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s));
+
+				R.data[indexRgb] = (float) (255.0 * ColorXyz.gamma(linR));
+				G.data[indexRgb] = (float) (255.0 * ColorXyz.gamma(linG));
+				B.data[indexRgb] = (float) (255.0 * ColorXyz.gamma(linB));
 			}
 		});
 
