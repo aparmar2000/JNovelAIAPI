@@ -18,6 +18,7 @@ import com.google.common.primitives.Ints;
 import boofcv.abst.distort.FDistort;
 import boofcv.alg.filter.convolve.GConvolveImageOps;
 import boofcv.alg.interpolate.InterpolationType;
+import boofcv.alg.misc.GPixelMath;
 import boofcv.alg.misc.PixelMath;
 import boofcv.core.image.ConvertImage;
 import boofcv.io.image.ConvertBufferedImage;
@@ -48,7 +49,7 @@ public class PixelSnapImageFilter implements IImageFilter {
 	
 	protected static final float BASELINE_SUB_SCALAR = 0.7f;
 	
-	protected static final float DEFAULT_MIN_STRIDE_FACTOR = 0.65f;
+	protected static final float DEFAULT_MIN_STRIDE_FACTOR = 0.7f;
 	protected static final float DEFAULT_MAX_STRIDE_FACTOR = 1.45f;
 	protected static final float DEFAULT_PENALTY_FACTOR = 1.5f;
 	
@@ -131,6 +132,7 @@ public class PixelSnapImageFilter implements IImageFilter {
 		} else {
 			GConvolveImageOps.vertical(kernel, in, convolved, BorderType.EXTENDED);
 		}
+		GPixelMath.abs(convolved, convolved);
 		GrayF32 convolvedAvg = ConvertImage.average(convolved, null);
 		
 		GrayF32 gradientStrip;
@@ -204,16 +206,30 @@ public class PixelSnapImageFilter implements IImageFilter {
             }
         }
 
-        // -- Sub-pixel parabolic refinement around the peak:
+        // -- Prefer fundamental sub-harmonic peak when a harmonic multiple (e.g. 2x lag) is slightly higher
+        for (int div = bestLag / minStride; div >= 2; div--) {
+            int subLag = Math.round((float) bestLag / div);
+            if (subLag >= minStride && subLag < searchEnd - 1
+                    && corr[subLag] > corr[subLag - 1] && corr[subLag] >= corr[subLag + 1]
+                    && corr[subLag] >= maxVal * 0.8f) {
+                bestLag = subLag;
+                maxVal = corr[subLag];
+                break;
+            }
+        }
+
+        // -- Sub-pixel parabolic refinement around a concave-down local peak:
         // vertex offset = (y0 - y2) / (2 * (2*y1 - y0 - y2))
         if (bestLag > 0 && bestLag < n - 1) {
             float y0 = corr[bestLag - 1];
             float y1 = corr[bestLag];
             float y2 = corr[bestLag + 1];
 
-            float denom = 2.0f * (2.0f * y1 - y0 - y2);
-            if (Math.abs(denom) > 1e-6f) {
-                return bestLag + (y0 - y2) / denom;
+            if (y1 >= y0 && y1 >= y2) {
+                float denom = 2.0f * (2.0f * y1 - y0 - y2);
+                if (denom > 1e-6f) {
+                    return bestLag + (y0 - y2) / denom;
+                }
             }
         }
 
@@ -257,15 +273,15 @@ public class PixelSnapImageFilter implements IImageFilter {
 	}
 	
 	protected static int[] solveGridCuts(GrayF32 profileStrip, float strideEst) {
-		return solveGridCuts(profileStrip, strideEst, 0.65f, 1.45f, 1.5f);
+		return solveGridCuts(profileStrip, strideEst, DEFAULT_MIN_STRIDE_FACTOR, DEFAULT_MAX_STRIDE_FACTOR, DEFAULT_PENALTY_FACTOR);
 	}
 	protected static int[] solveGridCuts(GrayF32 profileStrip, float strideEst, float minStrideFactor, float maxStrideFactor, float penaltyFac) {
 		int n = profileStrip.width;
 		
 		GrayF32 pNorm = profileStrip.createSameShape();
 		PixelMath.divide(profileStrip, (float) (Quantiles.percentiles().index(95).compute(Floats.asList(profileStrip.data)) + 1e-6), pNorm);
-		int minStep = Math.max(2, (int)(strideEst * minStrideFactor));
-		int maxStep = (int) Math.ceil(strideEst * maxStrideFactor);
+		int minStep = Math.max(2, (int) Math.ceil(strideEst * minStrideFactor));
+		int maxStep = Math.max(minStep, (int) (strideEst * maxStrideFactor));
 		double penaltyWeight = penaltyFac / Math.pow(strideEst, 2);
 		
 		float[] scores = new float[n];
@@ -283,7 +299,7 @@ public class PixelSnapImageFilter implements IImageFilter {
 			
 			double bestScore = Double.NEGATIVE_INFINITY;
 			int bestScoreIdx = -1;
-			for (int s=stepRangeMin; s<stepRangeMax; s++) {
+			for (int s=stepRangeMin; s<=stepRangeMax; s++) {
 				int stepOffs = i - s;
 				double score = scores[s] - penaltyWeight * Math.pow((stepOffs - strideEst), 2);
 				
@@ -298,7 +314,7 @@ public class PixelSnapImageFilter implements IImageFilter {
 		}
 		
 		// Backtrack to rebuild optimal sequence
-		int backtrackIdx = IntStream.range(n - minStep, n)
+		int backtrackIdx = IntStream.range(Math.max(0, n - maxStep), n)
 				.reduce((a,b)->scores[a] > scores[b] ? a : b)
 				.orElse(n - 1);
 		List<Integer> cuts = new ArrayList<>();
@@ -312,7 +328,7 @@ public class PixelSnapImageFilter implements IImageFilter {
 		if (cuts.get(0) > strideEst * minStrideFactor) {
 			cuts.add(0, 0);
 		}
-		if ((n - 1) - cuts.get(cuts.size()-1) > strideEst * minStrideFactor) {
+		if (n - cuts.get(cuts.size()-1) > strideEst * minStrideFactor) {
 			cuts.add(n);
 		} else {
 			cuts.set(cuts.size()-1, n);

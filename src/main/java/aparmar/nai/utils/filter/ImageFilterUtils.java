@@ -52,7 +52,7 @@ public class ImageFilterUtils {
 			
 			int yRawStart = verticalCuts[row];
 			int yRawEnd = verticalCuts[row+1];
-			int yMargin = (int) ((yRawEnd - yRawStart) * marginRatio);
+			int yMargin = Math.round((yRawEnd - yRawStart) * marginRatio);
 			
 			float yWidthAfterMargin = (yRawEnd - yRawStart - 2 * yMargin);
 			int yAdjStart = yWidthAfterMargin >= 1 ? yRawStart + yMargin : yRawStart;
@@ -61,7 +61,7 @@ public class ImageFilterUtils {
 			for (int col = 0; col < width; col++, outIndex++) {
 				int xRawStart = horizontalCuts[col];
 				int xRawEnd = horizontalCuts[col+1];
-				int xMargin = (int) ((xRawEnd - xRawStart) * marginRatio);
+				int xMargin = Math.round((xRawEnd - xRawStart) * marginRatio);
 				
 				float xWidthAfterMargin = (xRawEnd - xRawStart - 2 * xMargin);
 				int xAdjStart = xWidthAfterMargin >= 1 ? xRawStart + xMargin : xRawStart;
@@ -74,7 +74,7 @@ public class ImageFilterUtils {
 		return out;
 	}
 
-	public static final float DEFAULT_ALPHA_CLIP_THRESHOLD = 0.00001f;
+	public static final float DEFAULT_ALPHA_CLIP_THRESHOLD = 0.005f;
 	/**
 	 * Color space conversion from sRGB to OkLab
 	 */
@@ -87,18 +87,17 @@ public class ImageFilterUtils {
 	 */
 	public static Planar<GrayF32> rgbToOklab(Planar<GrayF32> rgb, float alphaClipThreshold) {
 		boolean hasAlpha = rgb.getNumBands() == 4;
-		int bandOffset = hasAlpha ? 1 : 0;
 		Planar<GrayF32> okLab = rgb.createSameShape();
 
-		GrayF32 srcAlpha = hasAlpha ? rgb.getBand(0) : null;
-		GrayF32 R = rgb.getBand(0 + bandOffset);
-		GrayF32 G = rgb.getBand(1 + bandOffset);
-		GrayF32 B = rgb.getBand(2 + bandOffset);
+		GrayF32 R = rgb.getBand(0);
+		GrayF32 G = rgb.getBand(1);
+		GrayF32 B = rgb.getBand(2);
+		GrayF32 srcAlpha = hasAlpha ? rgb.getBand(3) : null;
 
-		GrayF32 alpha = hasAlpha ? okLab.getBand(0) : null;
-		GrayF32 L = okLab.getBand(0 + bandOffset);
-		GrayF32 a = okLab.getBand(1 + bandOffset);
-		GrayF32 b = okLab.getBand(2 + bandOffset);
+		GrayF32 L = okLab.getBand(0);
+		GrayF32 a = okLab.getBand(1);
+		GrayF32 b = okLab.getBand(2);
+		GrayF32 alpha = hasAlpha ? okLab.getBand(3) : null;
 
 		BoofConcurrency.loopFor(0, rgb.height, row -> {
 			int indexRgb = R.startIndex + row * R.stride;
@@ -141,18 +140,17 @@ public class ImageFilterUtils {
 	 */
 	public static Planar<GrayF32> oklabtoRgb(Planar<GrayF32> okLab) {
 		boolean hasAlpha = okLab.getNumBands() == 4;
-		int bandOffset = hasAlpha ? 1 : 0;
 		Planar<GrayF32> rgb = okLab.createSameShape();
 
-		GrayF32 srcAlpha = hasAlpha ? okLab.getBand(0) : null;
-		GrayF32 L = okLab.getBand(0 + bandOffset);
-		GrayF32 a = okLab.getBand(1 + bandOffset);
-		GrayF32 b = okLab.getBand(2 + bandOffset);
+		GrayF32 L = okLab.getBand(0);
+		GrayF32 a = okLab.getBand(1);
+		GrayF32 b = okLab.getBand(2);
+		GrayF32 srcAlpha = hasAlpha ? okLab.getBand(3) : null;
 
-		GrayF32 alpha = hasAlpha ? rgb.getBand(0) : null;
-		GrayF32 R = rgb.getBand(0 + bandOffset);
-		GrayF32 G = rgb.getBand(1 + bandOffset);
-		GrayF32 B = rgb.getBand(2 + bandOffset);
+		GrayF32 R = rgb.getBand(0);
+		GrayF32 G = rgb.getBand(1);
+		GrayF32 B = rgb.getBand(2);
+		GrayF32 alpha = hasAlpha ? rgb.getBand(3) : null;
 
 		BoofConcurrency.loopFor(0, okLab.height, row -> {
 			int indexOkLab = L.startIndex + row * L.stride;
@@ -172,7 +170,7 @@ public class ImageFilterUtils {
 				double s = s_ * s_ * s_;
 
 				if (hasAlpha) {
-					alpha.data[indexOkLab] = srcAlpha.data[indexRgb] * 255f;
+					alpha.data[indexRgb] = srcAlpha.data[indexOkLab] * 255f;
 				}
 				R.data[indexRgb] = (float) (255.0 * ColorXyz.gamma(+4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s));
 				G.data[indexRgb] = (float) (255.0 * ColorXyz.gamma(-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s));
