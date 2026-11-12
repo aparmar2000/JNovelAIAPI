@@ -23,10 +23,15 @@ class UnitTestPixelSnapImageFilter {
 		
 		ImageIO.write(result, "png", new File(TestConstants.TEST_IMAGE_FOLDER+"out_"+filename));
 
-		PalettizeImageFilter imageFilter2 = SpatialMergePalettizeImageFilter.builder()
-				.build();
-		BufferedImage result2 = imageFilter2.applyBuffered(result);
 		
-		ImageIO.write(result2, "png", new File(TestConstants.TEST_IMAGE_FOLDER+"out_quant_"+filename));
+		PalettizeImageFilter imageFilterQuant = KMeansPalettizeImageFilter.builder()
+				.build();
+		BufferedImage resultQuant = imageFilterQuant.applyBuffered(result);
+		ImageIO.write(resultQuant, "png", new File(TestConstants.TEST_IMAGE_FOLDER+"out_quant_kmeans_"+filename));
+		
+		imageFilterQuant = SpatialMergePalettizeImageFilter.builder()
+				.build();
+		resultQuant = imageFilterQuant.applyBuffered(result);
+		ImageIO.write(resultQuant, "png", new File(TestConstants.TEST_IMAGE_FOLDER+"out_quant_smerge_"+filename));
 	}
 }
