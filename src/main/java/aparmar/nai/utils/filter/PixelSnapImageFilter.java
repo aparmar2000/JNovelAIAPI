@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import org.jetbrains.annotations.NotNull;
@@ -78,12 +79,30 @@ public class PixelSnapImageFilter implements IImageFilter {
 		}
 	}
 	
+	@RequiredArgsConstructor
+	@Getter(value = AccessLevel.PROTECTED)
+	@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+	public static enum DownsamplerMode implements Function<Planar<GrayF32>, IFixedSizeDownsampler> {
+		CHANNEL_MEDIAN(oklab -> new ChannelMedianFixedDownsampler()),
+		MEDIOID_DUAL(oklab -> new DualImageFixedDownsampler.MedoidDualRgbLabDownsampler(oklab));
+		
+		Function<Planar<GrayF32>, IFixedSizeDownsampler> downsamplerFactory;
+
+		@Override
+		public IFixedSizeDownsampler apply(Planar<GrayF32> t) {
+			return downsamplerFactory.apply(t);
+		}
+	}
+	
 	@NotNull
 	@Builder.Default
 	private EdgeKernel edgeKernel = EdgeKernel.MEDIUM;
 	@NotNull
 	@Builder.Default
 	private PixelRatioEstimationMode pixelRatioEstimationMode = PixelRatioEstimationMode.AUTOCORRELATION;
+	@NotNull
+	@Builder.Default
+	private DownsamplerMode downsamplerMode = DownsamplerMode.CHANNEL_MEDIAN;
 	@Builder.Default
 	private boolean performRefinement = true;
 
@@ -121,7 +140,7 @@ public class PixelSnapImageFilter implements IImageFilter {
 		System.out.println(verticalStrideEst);
 		System.out.println(horizontalCuts.length + "; " + Arrays.toString(horizontalCuts));
 		System.out.println(verticalCuts.length + "; " + Arrays.toString(verticalCuts));
-		Planar<GrayF32> downsampledRgb = downsampleByCuts(rgb, horizontalCuts, verticalCuts, new ChannelMedianFixedDownsampler());
+		Planar<GrayF32> downsampledRgb = downsampleByCuts(rgb, horizontalCuts, verticalCuts, downsamplerMode.apply(oklab));
 		
 		return ConvertBufferedImage.convertTo_F32(downsampledRgb, null, true);
 	}
