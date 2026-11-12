@@ -15,9 +15,7 @@ import com.google.common.math.Quantiles;
 import com.google.common.primitives.Floats;
 import com.google.common.primitives.Ints;
 
-import boofcv.abst.distort.FDistort;
 import boofcv.alg.filter.convolve.GConvolveImageOps;
-import boofcv.alg.interpolate.InterpolationType;
 import boofcv.alg.misc.GPixelMath;
 import boofcv.alg.misc.PixelMath;
 import boofcv.core.image.ConvertImage;
@@ -25,9 +23,7 @@ import boofcv.io.image.ConvertBufferedImage;
 import boofcv.struct.border.BorderType;
 import boofcv.struct.convolve.Kernel1D_F32;
 import boofcv.struct.image.GrayF32;
-import boofcv.struct.image.ImageType;
 import boofcv.struct.image.Planar;
-import georegression.struct.affine.Affine2D_F64;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -104,25 +100,93 @@ public class PixelSnapImageFilter implements IImageFilter {
 		int[] horizontalCuts = solveGridCuts(horizontalStrip, horizontalStrideEst);
 		int[] verticalCuts = solveGridCuts(verticalStrip, verticalStrideEst);
 		
+		if (performRefinement && (horizontalStrideEst > 2.2f || verticalStrideEst > 2.2f)) {
+			float finerHStride = Math.max(2.0f, horizontalStrideEst / 2.0f);
+			float finerVStride = Math.max(2.0f, verticalStrideEst / 2.0f);
+			int[] finerHCuts = solveGridCuts(horizontalStrip, finerHStride);
+			int[] finerVCuts = solveGridCuts(verticalStrip, finerVStride);
+
+			double baseVar = computeMeanCellVariance(oklab, horizontalCuts, verticalCuts);
+			double finerVar = computeMeanCellVariance(oklab, finerHCuts, finerVCuts);
+			if (baseVar > 1e-4 && finerVar < baseVar * 0.75) {
+				horizontalStrideEst = finerHStride;
+				verticalStrideEst = finerVStride;
+				horizontalCuts = finerHCuts;
+				verticalCuts = finerVCuts;
+			}
+		}
+		
 		System.out.println("---");
 		System.out.println(horizontalStrideEst);
 		System.out.println(verticalStrideEst);
 		System.out.println(horizontalCuts.length + "; " + Arrays.toString(horizontalCuts));
 		System.out.println(verticalCuts.length + "; " + Arrays.toString(verticalCuts));
-		Planar<GrayF32> downsampledRgb = downsampleByCuts(rgb, horizontalCuts, verticalCuts, new DualImageFixedDownsampler.MedoidDualRgbLabDownsampler(oklab));
-		
-		Affine2D_F64 transformation = new Affine2D_F64(1, 0, 0, 1, 0.5, 0.5);
-		
-		Planar<GrayF32> rgbOut = downsampledRgb.createSameShape();
-		FDistort distorter = new FDistort(ImageType.SB_F32);
-		distorter.input(downsampledRgb);
-		distorter.output(rgbOut);
-		distorter.interp(InterpolationType.BILINEAR);
-		distorter.affine(transformation.invert(null));
-		distorter.borderExt();
-		distorter.apply();
+		Planar<GrayF32> downsampledRgb = downsampleByCuts(rgb, horizontalCuts, verticalCuts, new ChannelMedianFixedDownsampler());
 		
 		return ConvertBufferedImage.convertTo_F32(downsampledRgb, null, true);
+	}
+	
+	protected static double computeMeanCellVariance(Planar<GrayF32> oklab, int[] horizontalCuts, int[] verticalCuts) {
+		GrayF32 L = oklab.getBand(0);
+		GrayF32 a = oklab.getBand(1);
+		GrayF32 b = oklab.getBand(2);
+		GrayF32 alpha = oklab.getNumBands() == 4 ? oklab.getBand(3) : null;
+		double totalVar = 0.0;
+		int cellCount = 0;
+
+		for (int r = 0; r < verticalCuts.length - 1; r++) {
+			int y0 = verticalCuts[r];
+			int y1 = verticalCuts[r + 1];
+			for (int c = 0; c < horizontalCuts.length - 1; c++) {
+				int x0 = horizontalCuts[c];
+				int x1 = horizontalCuts[c + 1];
+				int n = (x1 - x0) * (y1 - y0);
+				if (n <= 1) {
+					continue;
+				}
+
+				double mL = 0, ma = 0, mb = 0, mAlpha = 0;
+				int opaqueCount = 0;
+				for (int y = y0; y < y1; y++) {
+					int idx = L.startIndex + y * L.stride + x0;
+					for (int x = x0; x < x1; x++, idx++) {
+						mL += L.data[idx];
+						ma += a.data[idx];
+						mb += b.data[idx];
+						if (alpha != null) {
+							mAlpha += alpha.data[idx];
+							if (alpha.data[idx] > 0.05f) {
+								opaqueCount++;
+							}
+						} else {
+							opaqueCount++;
+						}
+					}
+				}
+				if (opaqueCount == 0) {
+					continue;
+				}
+				mL /= n;
+				ma /= n;
+				mb /= n;
+				mAlpha /= n;
+
+				double var = 0.0;
+				for (int y = y0; y < y1; y++) {
+					int idx = L.startIndex + y * L.stride + x0;
+					for (int x = x0; x < x1; x++, idx++) {
+						double dL = L.data[idx] - mL;
+						double da = a.data[idx] - ma;
+						double db = b.data[idx] - mb;
+						double dAlpha = alpha != null ? alpha.data[idx] - mAlpha : 0.0;
+						var += dL * dL + da * da + db * db + dAlpha * dAlpha;
+					}
+				}
+				totalVar += var / n;
+				cellCount++;
+			}
+		}
+		return cellCount > 0 ? totalVar / cellCount : 0.0;
 	}
 	
 	protected static GrayF32 convolve1D(Planar<GrayF32> in, Kernel1D_F32 kernel, boolean horizontal, float baselineSubScalar) {
