@@ -20,4 +20,15 @@ public interface IImageFilter {
 	public default IImageFilter andThen(IImageFilter next) {
 		return new SequentialImageFilter(this, next);
 	}
+	
+	public static IImageFilter noOp() {
+		return new NoOpImageFilter();
+	}
+	public static class NoOpImageFilter implements IImageFilter {
+		@Override
+		public Planar<GrayF32> applyPlanar(Planar<GrayF32> rgbaIn) {
+			return rgbaIn;
+		}
+		
+	}
 }
