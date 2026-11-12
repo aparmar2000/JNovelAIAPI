@@ -49,7 +49,7 @@ import static aparmar.nai.utils.filter.ImageFilterUtils.srgbToLinearRgb;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class SpatialColorQuantizePalettizeImageFilter extends PalettizeImageFilter {
+public class SpatialColorQuantizePalettizeImageFilter extends PalettizeImageFilter implements IColorCountPalettizeImageFilter {
 	@Builder.Default
 	protected int colorCount = 8;
 	@Builder.Default

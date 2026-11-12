@@ -35,11 +35,65 @@ import static aparmar.nai.utils.filter.ImageFilterUtils.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class SpatialMergePalettizeImageFilter extends PalettizeImageFilter {
+public class SpatialMergePalettizeImageFilter extends PalettizeImageFilter
+		implements IColorCountPalettizeImageFilter, ISimilarityThresholdPalettizeImageFilter {
+	public static final float DEFAULT_SIMILARITY_THRESHOLD = 0.01f;
+
 	@Builder.Default
 	protected float intraClusterMergeThreshold = 0.005f;
-	@Builder.Default
-	protected BiPredicate<Integer, Float> mergeStoppingPredicate = similarityThresholdPredicate(0.01f);
+	protected BiPredicate<Integer, Float> mergeStoppingPredicate;
+	protected Integer targetColorCount;
+	protected Float targetSimilarityThreshold;
+
+	@Override
+	public int getColorCount() {
+		if (targetColorCount == null) {
+			throw new IllegalStateException("Filter is not configured with a target color count");
+		}
+		return targetColorCount;
+	}
+
+	@Override
+	public void setColorCount(int colorCount) {
+		this.targetColorCount = colorCount;
+		this.targetSimilarityThreshold = null;
+		this.mergeStoppingPredicate = colorCountPredicate(colorCount);
+	}
+
+	@Override
+	public float getSimilarityThreshold() {
+		if (targetSimilarityThreshold != null) {
+			return targetSimilarityThreshold;
+		}
+		if (mergeStoppingPredicate == null && targetColorCount == null) {
+			return DEFAULT_SIMILARITY_THRESHOLD;
+		}
+		throw new IllegalStateException("Filter is not configured with a target similarity threshold");
+	}
+
+	@Override
+	public void setSimilarityThreshold(float similarityThreshold) {
+		this.targetSimilarityThreshold = similarityThreshold;
+		this.targetColorCount = null;
+		this.mergeStoppingPredicate = similarityThresholdPredicate(similarityThreshold);
+	}
+
+	public void setMergeStoppingPredicate(BiPredicate<Integer, Float> mergeStoppingPredicate) {
+		this.mergeStoppingPredicate = mergeStoppingPredicate;
+		this.targetColorCount = null;
+		this.targetSimilarityThreshold = null;
+	}
+
+	protected BiPredicate<Integer, Float> getEffectiveStoppingPredicate() {
+		if (mergeStoppingPredicate != null) {
+			return mergeStoppingPredicate;
+		}
+		if (targetColorCount != null) {
+			return colorCountPredicate(targetColorCount);
+		}
+		float threshold = targetSimilarityThreshold != null ? targetSimilarityThreshold : DEFAULT_SIMILARITY_THRESHOLD;
+		return similarityThresholdPredicate(threshold);
+	}
 	
 	public static BiPredicate<Integer, Float> similarityThresholdPredicate(float similarityLimit) {
 		return (count, similarity) -> similarity < similarityLimit;
@@ -53,7 +107,7 @@ public class SpatialMergePalettizeImageFilter extends PalettizeImageFilter {
 
 	@Override
 	protected Planar<GrayF32> applyPalettization(Planar<GrayF32> colorPlanar) {
-		return palettizeSpatialMerge(colorPlanar, intraClusterMergeThreshold, mergeStoppingPredicate);
+		return palettizeSpatialMerge(colorPlanar, intraClusterMergeThreshold, getEffectiveStoppingPredicate());
 	}
 
 	@Data
