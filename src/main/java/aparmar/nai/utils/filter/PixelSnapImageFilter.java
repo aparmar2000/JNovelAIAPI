@@ -15,7 +15,6 @@ import aparmar.nai.utils.filter.PixelGridAlignSnapImageFilter.PeakStatistic;
 import aparmar.nai.utils.filter.PixelGridAlignSnapImageFilter.StrideEstimator;
 import boofcv.abst.distort.FDistort;
 import boofcv.alg.interpolate.InterpolationType;
-import boofcv.factory.interpolate.FactoryInterpolation;
 import boofcv.struct.convolve.Kernel1D_F32;
 import boofcv.struct.image.GrayF32;
 import boofcv.struct.image.ImageType;
@@ -32,6 +31,10 @@ import lombok.Value;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
 
+/**
+ * An {@link IImageFilter} that replicates the functionality of the NovelAI web UI 'pixel snap' feature, with more configurability than the original.</br>
+ * If you want as close to NovelAI behavior as possible, use {@link PixelSnapImageFilter#naiLike() naiLike()}
+ */
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -143,10 +146,15 @@ public class PixelSnapImageFilter implements IImageFilter {
 	private PalettizeMode palettizeMode = PalettizeMode.SPATIAL_MERGE;
 	@Builder.Default
 	private PalettizeTarget palettizeTarget = PalettizeTarget.auto();
+	@Builder.Default
+	private boolean useOklabColorSpaceQuantization = true;
 	
 	@Builder.Default
 	private boolean autoUpscale = false;
 	
+	/**
+	 * Generates a builder auto-populated with values that closely replicate the NovelAI web tool.
+	 */
 	public static PixelSnapImageFilter.PixelSnapImageFilterBuilder naiLike() {
 		return PixelSnapImageFilter.builder()
 				.edgeKernel(EdgeKernel.MEDIUM)
@@ -155,6 +163,7 @@ public class PixelSnapImageFilter implements IImageFilter {
 				.performRefinement(true)
 				.palettizeMode(PalettizeMode.K_MEANS)
 				.palettizeTarget(PalettizeTarget.auto())
+				.useOklabColorSpaceQuantization(true)
 				.autoUpscale(false);
 	}
 
@@ -176,6 +185,7 @@ public class PixelSnapImageFilter implements IImageFilter {
 		
 		// -- Color Quantization
 		IImageFilter palettizeFilter = palettizeMode.get();
+		((IPalettizeImageFilter) palettizeFilter).setUseOklabColorSpace(useOklabColorSpaceQuantization);
 		if (palettizeTarget instanceof PalettizeTarget.NonePalettization) {
 			palettizeFilter = IImageFilter.noOp();
 		} else if (palettizeTarget instanceof PalettizeTarget.AutoPalettization) {

@@ -30,6 +30,9 @@ import lombok.NoArgsConstructor;
 
 import static aparmar.nai.utils.filter.ImageFilterUtils.*;
 
+/**
+ * An {@link IImageFilter} that takes a generated 'pixel art' input and attempts to extract and normalize the 'pixels'
+ */
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
