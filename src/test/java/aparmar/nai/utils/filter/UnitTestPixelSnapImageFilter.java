@@ -33,5 +33,10 @@ class UnitTestPixelSnapImageFilter {
 				.build();
 		resultQuant = imageFilterQuant.applyBuffered(result);
 		ImageIO.write(resultQuant, "png", new File(TestConstants.TEST_IMAGE_FOLDER+"out_quant_smerge_"+filename));
+		
+		imageFilterQuant = SpatialColorQuantizePalettizeImageFilter.builder()
+				.build();
+		resultQuant = imageFilterQuant.applyBuffered(result);
+		ImageIO.write(resultQuant, "png", new File(TestConstants.TEST_IMAGE_FOLDER+"out_quant_squant_"+filename));
 	}
 }

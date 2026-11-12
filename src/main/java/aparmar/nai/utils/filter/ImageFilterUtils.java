@@ -1,5 +1,7 @@
 package aparmar.nai.utils.filter;
 
+import org.jetbrains.annotations.Nullable;
+
 import boofcv.alg.color.ColorXyz;
 import boofcv.concurrency.BoofConcurrency;
 import boofcv.struct.convolve.Kernel1D_F32;
@@ -75,43 +77,151 @@ public class ImageFilterUtils {
 	}
 
 	public static final float DEFAULT_ALPHA_CLIP_THRESHOLD = 0.005f;
+
 	/**
-	 * Color space conversion from sRGB to OkLab
+	 * Color space conversion from sRGB ([0, 255]) to linear sRGB ([0, 1]).
 	 */
-	public static Planar<GrayF32> rgbToOklab(Planar<GrayF32> rgb) {
-		return rgbToOklab(rgb, DEFAULT_ALPHA_CLIP_THRESHOLD);
+	public static Planar<GrayF32> srgbToLinearRgb(Planar<GrayF32> srgb, @Nullable Planar<GrayF32> out) {
+		return srgbToLinearRgb(srgb, out, DEFAULT_ALPHA_CLIP_THRESHOLD);
 	}
 
 	/**
-	 * Color space conversion from sRGB to OkLab
+	 * Color space conversion from sRGB ([0, 255]) to linear sRGB ([0, 1]).
+	 * Supports in-place conversion when {@code out == srgb}.
 	 */
-	public static Planar<GrayF32> rgbToOklab(Planar<GrayF32> rgb, float alphaClipThreshold) {
+	public static Planar<GrayF32> srgbToLinearRgb(Planar<GrayF32> srgb, @Nullable Planar<GrayF32> out, float alphaClipThreshold) {
+		boolean hasAlpha = srgb.getNumBands() == 4;
+		if (out == null) {
+			out = srgb.createSameShape();
+		} else if (out != srgb) {
+			out.reshape(srgb.width, srgb.height, srgb.getNumBands());
+		}
+
+		GrayF32 R = srgb.getBand(0);
+		GrayF32 G = srgb.getBand(1);
+		GrayF32 B = srgb.getBand(2);
+		GrayF32 srcAlpha = hasAlpha ? srgb.getBand(3) : null;
+
+		GrayF32 linR = out.getBand(0);
+		GrayF32 linG = out.getBand(1);
+		GrayF32 linB = out.getBand(2);
+		GrayF32 outAlpha = hasAlpha ? out.getBand(3) : null;
+
+		BoofConcurrency.loopFor(0, srgb.height, row -> {
+			int indexSrgb = R.startIndex + row * R.stride;
+			int indexOut = linR.startIndex + row * linR.stride;
+
+			for (int col = 0; col < srgb.width; col++, indexSrgb++, indexOut++) {
+				float r1 = (float) ColorXyz.invGamma(R.data[indexSrgb] / 255f);
+				float g1 = (float) ColorXyz.invGamma(G.data[indexSrgb] / 255f);
+				float b1 = (float) ColorXyz.invGamma(B.data[indexSrgb] / 255f);
+
+				if (hasAlpha) {
+					float a = srcAlpha.data[indexSrgb] / 255f;
+					outAlpha.data[indexOut] = a;
+					if (a < alphaClipThreshold) {
+						r1 = 0;
+						g1 = 0;
+						b1 = 0;
+					}
+				}
+
+				linR.data[indexOut] = r1;
+				linG.data[indexOut] = g1;
+				linB.data[indexOut] = b1;
+			}
+		});
+
+		return out;
+	}
+
+	/**
+	 * Color space conversion from linear sRGB ([0, 1]) to sRGB ([0, 255]).
+	 * Supports in-place conversion when {@code out == linearRgb}.
+	 */
+	public static Planar<GrayF32> linearRgbToSrgb(Planar<GrayF32> linearRgb, @Nullable Planar<GrayF32> out) {
+		boolean hasAlpha = linearRgb.getNumBands() == 4;
+		if (out == null) {
+			out = linearRgb.createSameShape();
+		} else if (out != linearRgb) {
+			out.reshape(linearRgb.width, linearRgb.height, linearRgb.getNumBands());
+		}
+
+		GrayF32 linR = linearRgb.getBand(0);
+		GrayF32 linG = linearRgb.getBand(1);
+		GrayF32 linB = linearRgb.getBand(2);
+		GrayF32 srcAlpha = hasAlpha ? linearRgb.getBand(3) : null;
+
+		GrayF32 R = out.getBand(0);
+		GrayF32 G = out.getBand(1);
+		GrayF32 B = out.getBand(2);
+		GrayF32 outAlpha = hasAlpha ? out.getBand(3) : null;
+
+		BoofConcurrency.loopFor(0, linearRgb.height, row -> {
+			int indexLin = linR.startIndex + row * linR.stride;
+			int indexOut = R.startIndex + row * R.stride;
+
+			for (int col = 0; col < linearRgb.width; col++, indexLin++, indexOut++) {
+				float r1 = Math.max(0f, Math.min(1f, linR.data[indexLin]));
+				float g1 = Math.max(0f, Math.min(1f, linG.data[indexLin]));
+				float b1 = Math.max(0f, Math.min(1f, linB.data[indexLin]));
+
+				if (hasAlpha) {
+					outAlpha.data[indexOut] = srcAlpha.data[indexLin] * 255f;
+				}
+				R.data[indexOut] = (float) (255.0 * ColorXyz.gamma(r1));
+				G.data[indexOut] = (float) (255.0 * ColorXyz.gamma(g1));
+				B.data[indexOut] = (float) (255.0 * ColorXyz.gamma(b1));
+			}
+		});
+
+		return out;
+	}
+
+	/**
+	 * Color space conversion from sRGB to OkLab.
+	 * Supports in-place conversion when {@code out == rgb}.
+	 */
+	public static Planar<GrayF32> rgbToOklab(Planar<GrayF32> rgb, @Nullable Planar<GrayF32> out) {
+		return rgbToOklab(rgb, out, DEFAULT_ALPHA_CLIP_THRESHOLD);
+	}
+
+	/**
+	 * Color space conversion from sRGB to OkLab.
+	 * Supports in-place conversion when {@code out == rgb}.
+	 */
+	public static Planar<GrayF32> rgbToOklab(Planar<GrayF32> rgb, @Nullable Planar<GrayF32> out, float alphaClipThreshold) {
 		boolean hasAlpha = rgb.getNumBands() == 4;
-		Planar<GrayF32> okLab = rgb.createSameShape();
+		if (out == null) {
+			out = rgb.createSameShape();
+		} else if (out != rgb) {
+			out.reshape(rgb.width, rgb.height, rgb.getNumBands());
+		}
 
 		GrayF32 R = rgb.getBand(0);
 		GrayF32 G = rgb.getBand(1);
 		GrayF32 B = rgb.getBand(2);
 		GrayF32 srcAlpha = hasAlpha ? rgb.getBand(3) : null;
 
-		GrayF32 L = okLab.getBand(0);
-		GrayF32 a = okLab.getBand(1);
-		GrayF32 b = okLab.getBand(2);
-		GrayF32 alpha = hasAlpha ? okLab.getBand(3) : null;
+		GrayF32 L = out.getBand(0);
+		GrayF32 a = out.getBand(1);
+		GrayF32 b = out.getBand(2);
+		GrayF32 alpha = hasAlpha ? out.getBand(3) : null;
 
 		BoofConcurrency.loopFor(0, rgb.height, row -> {
 			int indexRgb = R.startIndex + row * R.stride;
 			int indexOkLab = L.startIndex + row * L.stride;
 
-			for (int col = 0; col < okLab.width; col++, indexOkLab++, indexRgb++) {				
+			for (int col = 0; col < rgb.width; col++, indexOkLab++, indexRgb++) {
 				float R1 = (float) ColorXyz.invGamma(R.data[indexRgb] / 255f);
 				float G1 = (float) ColorXyz.invGamma(G.data[indexRgb] / 255f);
 				float B1 = (float) ColorXyz.invGamma(B.data[indexRgb] / 255f);
 				
 				if (hasAlpha) {
-					alpha.data[indexOkLab] = srcAlpha.data[indexRgb] / 255f;
+					float alphaVal = srcAlpha.data[indexRgb] / 255f;
+					alpha.data[indexOkLab] = alphaVal;
 					
-					if (alpha.data[indexOkLab] < alphaClipThreshold) {
+					if (alphaVal < alphaClipThreshold) {
 						R1 = 0;
 						G1 = 0;
 						B1 = 0;
@@ -132,25 +242,30 @@ public class ImageFilterUtils {
 			}
 		});
 
-		return okLab;
+		return out;
 	}
 
 	/**
-	 * Color space conversion from OkLab to sRGB
+	 * Color space conversion from OkLab to sRGB.
+	 * Supports in-place conversion when {@code out == okLab}.
 	 */
-	public static Planar<GrayF32> oklabtoRgb(Planar<GrayF32> okLab) {
+	public static Planar<GrayF32> oklabtoRgb(Planar<GrayF32> okLab, @Nullable Planar<GrayF32> out) {
 		boolean hasAlpha = okLab.getNumBands() == 4;
-		Planar<GrayF32> rgb = okLab.createSameShape();
+		if (out == null) {
+			out = okLab.createSameShape();
+		} else if (out != okLab) {
+			out.reshape(okLab.width, okLab.height, okLab.getNumBands());
+		}
 
 		GrayF32 L = okLab.getBand(0);
 		GrayF32 a = okLab.getBand(1);
 		GrayF32 b = okLab.getBand(2);
 		GrayF32 srcAlpha = hasAlpha ? okLab.getBand(3) : null;
 
-		GrayF32 R = rgb.getBand(0);
-		GrayF32 G = rgb.getBand(1);
-		GrayF32 B = rgb.getBand(2);
-		GrayF32 alpha = hasAlpha ? rgb.getBand(3) : null;
+		GrayF32 R = out.getBand(0);
+		GrayF32 G = out.getBand(1);
+		GrayF32 B = out.getBand(2);
+		GrayF32 alpha = hasAlpha ? out.getBand(3) : null;
 
 		BoofConcurrency.loopFor(0, okLab.height, row -> {
 			int indexOkLab = L.startIndex + row * L.stride;
@@ -178,6 +293,6 @@ public class ImageFilterUtils {
 			}
 		});
 
-		return rgb;
+		return out;
 	}
 }
