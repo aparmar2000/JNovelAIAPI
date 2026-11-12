@@ -149,10 +149,16 @@
 			<artifactId>tokenizers</artifactId>
 			<version>0.34.0</version>
 		</dependency>
+
 		<dependency>
 			<groupId>org.boofcv</groupId>
 			<artifactId>boofcv-core</artifactId>
 			<version>1.6.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-math3</artifactId>
+			<version>3.6.1</version>
 		</dependency>
 	</dependencies>
 </project>
