@@ -22,5 +22,11 @@ class UnitTestPixelSnapImageFilter {
 		BufferedImage result = imageFilter.applyBuffered(baseImage);
 		
 		ImageIO.write(result, "png", new File(TestConstants.TEST_IMAGE_FOLDER+"out_"+filename));
+
+		PalettizeImageFilter imageFilter2 = SpatialMergePalettizeImageFilter.builder()
+				.build();
+		BufferedImage result2 = imageFilter2.applyBuffered(result);
+		
+		ImageIO.write(result2, "png", new File(TestConstants.TEST_IMAGE_FOLDER+"out_quant_"+filename));
 	}
 }
