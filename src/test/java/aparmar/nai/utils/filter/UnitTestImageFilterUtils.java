@@ -3,11 +3,13 @@ package aparmar.nai.utils.filter;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import boofcv.struct.image.GrayF32;
 import boofcv.struct.image.Planar;
 
+@Tag("imageFilter")
 class UnitTestImageFilterUtils {
 
 	@Test

@@ -10,6 +10,7 @@ import java.util.Set;
 
 import javax.imageio.ImageIO;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -18,6 +19,8 @@ import aparmar.nai.utils.InternalResourceLoader;
 import boofcv.struct.image.GrayF32;
 import boofcv.struct.image.Planar;
 
+@Tag("slow")
+@Tag("imageFilter")
 abstract class AbstractUnitTestPalettizeImageFilter<T extends PalettizeImageFilter> {
 
 	protected abstract T createFilter(boolean useOklab);

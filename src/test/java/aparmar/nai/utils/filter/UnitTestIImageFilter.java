@@ -20,6 +20,7 @@ import javax.imageio.stream.MemoryCacheImageOutputStream;
 
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.NodeList;
 
@@ -27,6 +28,7 @@ import aparmar.nai.data.response.ImageSetWrapper;
 import aparmar.nai.utils.ZipArchiveWrapper;
 import boofcv.struct.image.GrayF32;
 
+@Tag("imageFilter")
 class UnitTestIImageFilter {
 
 	@Test

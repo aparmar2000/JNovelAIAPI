@@ -10,10 +10,12 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.Set;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import aparmar.nai.utils.filter.SpatialMergePalettizeImageFilter.ColorCluster;
 
+@Tag("imageFilter")
 class UnitTestSpatialMergePalettizeImageFilter extends AbstractUnitTestPalettizeImageFilter<SpatialMergePalettizeImageFilter> {
 
 	@Override

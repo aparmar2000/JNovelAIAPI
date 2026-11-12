@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.math3.exception.NumberIsTooSmallException;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -18,6 +19,7 @@ import aparmar.nai.utils.filter.PalettizeImageFilter.ColorPoint;
 import boofcv.struct.image.GrayF32;
 import boofcv.struct.image.Planar;
 
+@Tag("imageFilter")
 class UnitTestKMeansPalettizeImageFilter extends AbstractUnitTestPalettizeImageFilter<KMeansPalettizeImageFilter> {
 
 	@Override
