@@ -26,6 +26,26 @@ class UnitTestSpatialMergePalettizeImageFilter extends AbstractUnitTestPalettize
 	}
 
 	@Test
+	void testBothTargetInterfacesAssignabilityAndSwitching() {
+		SpatialMergePalettizeImageFilter concrete = SpatialMergePalettizeImageFilter.builder().build();
+
+		ISimilarityThresholdPalettizeImageFilter simFilter = concrete;
+		assertEquals(SpatialMergePalettizeImageFilter.DEFAULT_SIMILARITY_THRESHOLD, simFilter.getSimilarityThreshold(), 1e-6f);
+		simFilter.setSimilarityThreshold(0.05f);
+		assertEquals(0.05f, simFilter.getSimilarityThreshold(), 1e-6f);
+		assertThrows(IllegalStateException.class, concrete::getColorCount);
+
+		IColorCountPalettizeImageFilter countFilter = concrete;
+		countFilter.setColorCount(5);
+		assertEquals(5, countFilter.getColorCount());
+		assertThrows(IllegalStateException.class, concrete::getSimilarityThreshold);
+
+		concrete.setMergeStoppingPredicate((c, d) -> c <= 2);
+		assertThrows(IllegalStateException.class, concrete::getColorCount);
+		assertThrows(IllegalStateException.class, concrete::getSimilarityThreshold);
+	}
+
+	@Test
 	void testNonAdjacentSimilarClustersAreMerged() {
 		// Left and right regions are similar grays separated by a bright blue barrier
 		BufferedImage img = new BufferedImage(12, 4, BufferedImage.TYPE_INT_RGB);

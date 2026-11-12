@@ -17,7 +17,7 @@ import static aparmar.nai.utils.filter.ImageFilterUtils.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public abstract class PalettizeImageFilter implements IImageFilter {
+public abstract class PalettizeImageFilter implements IPalettizeImageFilter {
 	@Builder.Default
 	protected boolean useOklabColorSpace = true;
 

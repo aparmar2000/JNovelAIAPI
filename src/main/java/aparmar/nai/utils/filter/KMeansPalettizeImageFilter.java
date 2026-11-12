@@ -26,7 +26,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class KMeansPalettizeImageFilter extends PalettizeImageFilter {
+public class KMeansPalettizeImageFilter extends PalettizeImageFilter implements IColorCountPalettizeImageFilter {
 	@Builder.Default
 	protected int colorCount = 8;
 	@Builder.Default

@@ -43,6 +43,17 @@ class UnitTestSpatialColorQuantizePalettizeImageFilter
 	}
 
 	@Test
+	void testColorCountInterfaceAssignability() {
+		IColorCountPalettizeImageFilter filter = createFilter(true);
+		assertEquals(8, filter.getColorCount());
+		filter.setColorCount(4);
+		assertEquals(4, filter.getColorCount());
+
+		BufferedImage result = filter.applyBuffered(createGradientImage(16, 16));
+		assertTrue(collectDistinctRgb(result).size() <= 4);
+	}
+
+	@Test
 	void testSingleBlurSigmaProducesValidPalette() {
 		BufferedImage img = new BufferedImage(16, 16, BufferedImage.TYPE_INT_RGB);
 		for (int y = 0; y < 16; y++) {

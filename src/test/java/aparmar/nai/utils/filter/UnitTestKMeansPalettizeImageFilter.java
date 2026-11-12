@@ -119,6 +119,17 @@ class UnitTestKMeansPalettizeImageFilter extends AbstractUnitTestPalettizeImageF
 	}
 
 	@Test
+	void testColorCountInterfaceAssignability() {
+		IColorCountPalettizeImageFilter filter = createFilter(true);
+		assertEquals(8, filter.getColorCount());
+		filter.setColorCount(4);
+		assertEquals(4, filter.getColorCount());
+
+		BufferedImage result = filter.applyBuffered(createGradientImage(16, 16));
+		assertTrue(collectDistinctRgb(result).size() <= 4);
+	}
+
+	@Test
 	void testTooFewPixelsForColorCountThrows() {
 		BufferedImage smallImg = new BufferedImage(2, 2, BufferedImage.TYPE_INT_RGB);
 
