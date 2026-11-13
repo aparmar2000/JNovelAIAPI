@@ -55,9 +55,21 @@ public class PixelSnapImageFilter implements IImageFilter {
 	@Getter(value = AccessLevel.PROTECTED)
 	@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 	public static enum PixelRatioEstimationMode implements StrideEstimator {
+		/**
+		 * Estimates pixel size via autocorrelation.
+		 */
 		AUTOCORRELATION(s -> PixelGridAlignSnapImageFilter.estimateStrideAutocorrelation(s, 3, 32)),
+		/**
+		 * Estimates pixel size via median of distances between detected pixel borders.
+		 */
 		PEAK_MEDIAN(s -> PixelGridAlignSnapImageFilter.estimateStrideLocalMaxima(s, PeakStatistic.MEDIAN)),
+		/**
+		 * Estimates pixel size via mode of distances between detected pixel borders.
+		 */
 		PEAK_MODE(s -> PixelGridAlignSnapImageFilter.estimateStrideLocalMaxima(s, PeakStatistic.MODE)),
+		/**
+		 * Estimates pixel size via mean of distances between detected pixel borders.
+		 */
 		PEAK_MEAN(s -> PixelGridAlignSnapImageFilter.estimateStrideLocalMaxima(s, PeakStatistic.MEAN));
 		
 		StrideEstimator strideEstimator;
@@ -72,7 +84,13 @@ public class PixelSnapImageFilter implements IImageFilter {
 	@Getter(value = AccessLevel.PROTECTED)
 	@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 	public static enum DownsamplerMode implements DownsamplerFactory {
+		/**
+		 * Downsamples detected pixel via channel-wise median.
+		 */
 		CHANNEL_MEDIAN(oklab -> new ChannelMedianFixedDownsampler()),
+		/**
+		 * Downsamples detected pixel via oklab-space mediod pixel selection
+		 */
 		MEDIOID_DUAL(oklab -> new DualImageFixedDownsampler.MedoidDualRgbLabDownsampler(oklab));
 		
 		Function<Planar<GrayF32>, IFixedSizeDownsampler> downsamplerFactory;
@@ -87,8 +105,18 @@ public class PixelSnapImageFilter implements IImageFilter {
 	@Getter(value = AccessLevel.PROTECTED)
 	@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 	public static enum PalettizeMode implements Supplier<IPalettizeImageFilter> {
+		/**
+		 * Reduces the image colors via K-Means++
+		 */
 		K_MEANS(KMeansPalettizeImageFilter::new),
+		/**
+		 * Reduces the image colors via iterative merging of non-adjacent color clusters
+		 */
 		SPATIAL_MERGE(SpatialMergePalettizeImageFilter::new),
+		/**
+		 * Reduces the image colors via Spatial Color Quantization</br>
+		 * Based on the technique described in <i>"On Spatial Quantization of Color Images"</i> by Jan Puzicha, Markus Held, Jens Ketterer, Joachim M. Buhmann, and Dieter Fellner
+		 */
 		SPATIAL_QUANTIZE(SpatialColorQuantizePalettizeImageFilter::new);
 		
 		Supplier<IPalettizeImageFilter> palettizerFactory;
