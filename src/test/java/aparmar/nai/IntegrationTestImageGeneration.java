@@ -455,4 +455,57 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 		});
 	}
 
+	@EnabledIfEnvironmentVariable(named = "allowNonFreeTests", matches = "True")
+	@ParameterizedTest
+	@MethodSource("aparmar.nai.ImageGenTestHelpers#getTransparentModels")
+	void testTransparentImageGeneration(ImageGenModel imageGenModel) throws AssertionError, Exception {
+		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
+			ImageGenerationRequestBuilder testGenerationRequestBuilder = ImageGenerationRequest.builder()
+					.input("portrait of a woman")
+					.model(imageGenModel)
+					.modeTag(ModeTag.ANIME)
+					.extraParameter(ImageTransparentParameters.builder()
+							.transparentBackground(true)
+							.straightAlpha(true)
+							.build());
+			ImageParameters.ImageParametersBuilder<?, ?> testGenerationParametersBuilder;
+			if (imageGenModel.isInpaintingModel()) {
+				BufferedImage baseImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.jpg"));
+				BufferedImage maskImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_mask.png"));
+				
+				testGenerationRequestBuilder = testGenerationRequestBuilder.action(ImageGenAction.INFILL);
+				testGenerationParametersBuilder = ImageInpaintParameters.builder()
+						.image(new Base64Image(baseImage, 512, 512, false))
+						.mask(new Base64Image(maskImage, 512, 512, true));
+			} else {
+				testGenerationRequestBuilder = testGenerationRequestBuilder.action(ImageGenAction.GENERATE);
+				testGenerationParametersBuilder = ImageParameters.builder();
+			}
+			testGenerationRequestBuilder = testGenerationRequestBuilder.parameters(
+					testGenerationParametersBuilder
+						.seed(1)
+						.width(512)
+						.height(512)
+						.steps(23)
+						.scale(5)
+						.sampler(ImageParameters.ImageGenSampler.K_EULER_ANCESTRAL)
+						.ucPreset(1)
+						.undesiredContent(ImageGenerationRequest.V5_CURATED_LIGHT_UC)
+						.qualityToggle(true)
+						.build());
+			ImageGenerationRequest testGenerationRequest = testGenerationRequestBuilder.build();
+			ImageSetWrapper result = apiInstance.generateImage(testGenerationRequest);
+			
+			assertNotNull(result);
+			assertEquals(1, result.getImageCount());
+			IIOImage resultImage = result.getImage(0);
+			assertNotNull(resultImage);
+			assertEquals(512, resultImage.getRenderedImage().getHeight());
+			assertEquals(512, resultImage.getRenderedImage().getWidth());
+
+			if (!"True".equals(System.getenv("saveTestImages"))) { return; }
+			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+imageGenModel+"_transparent_test.png"));
+		});
+	}
+
 }

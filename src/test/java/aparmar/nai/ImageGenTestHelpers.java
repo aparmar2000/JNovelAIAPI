@@ -7,6 +7,7 @@ import aparmar.nai.data.request.imagen.DirectorReferenceParameters;
 import aparmar.nai.data.request.imagen.Image2ImageParameters;
 import aparmar.nai.data.request.imagen.ImageControlNetParameters;
 import aparmar.nai.data.request.imagen.ImageGenModel;
+import aparmar.nai.data.request.imagen.ImageTransparentParameters;
 import aparmar.nai.data.request.imagen.ImageVibeTransferParameters;
 import aparmar.nai.data.request.imagen.V4ImageVibeTransferParameters;
 import aparmar.nai.data.request.imagen.V4MultiCharacterParameters;
@@ -50,6 +51,9 @@ public class ImageGenTestHelpers {
 	}
 	static Stream<ImageGenModel> getDirectorReferenceModels() {
 		return getNonDeprecatedModels().filter(m->m.doesModelSupportExtraParameterType(DirectorReferenceParameters.class));
+	}
+	static Stream<ImageGenModel> getTransparentModels() {
+		return getNonDeprecatedModels().filter(m->m.doesModelSupportExtraParameterType(ImageTransparentParameters.class));
 	}
 	
 	static Stream<ImageGenModel> getNonImg2ImgModels() {
