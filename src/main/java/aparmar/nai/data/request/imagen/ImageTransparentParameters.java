@@ -13,6 +13,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+/**
+ * In order to actually generate transparent images, `transparent_background` or a similar element must be added to the prompt.`
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

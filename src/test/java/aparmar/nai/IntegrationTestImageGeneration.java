@@ -1,7 +1,9 @@
 package aparmar.nai;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -461,7 +463,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 	void testTransparentImageGeneration(ImageGenModel imageGenModel) throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
 			ImageGenerationRequestBuilder testGenerationRequestBuilder = ImageGenerationRequest.builder()
-					.input("portrait of a woman")
+					.input("portrait of a woman, transparent background")
 					.model(imageGenModel)
 					.modeTag(ModeTag.ANIME)
 					.extraParameter(ImageTransparentParameters.builder()
@@ -502,6 +504,20 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 			assertNotNull(resultImage);
 			assertEquals(512, resultImage.getRenderedImage().getHeight());
 			assertEquals(512, resultImage.getRenderedImage().getWidth());
+
+			BufferedImage bufferedImage = assertInstanceOf(BufferedImage.class, resultImage.getRenderedImage());
+			assertTrue(bufferedImage.getColorModel().hasAlpha(), "Generated image should have an alpha channel");
+			boolean hasTransparentPixel = false;
+			for (int y = 0; y < bufferedImage.getHeight() && !hasTransparentPixel; y++) {
+				for (int x = 0; x < bufferedImage.getWidth(); x++) {
+					int alpha = (bufferedImage.getRGB(x, y) >>> 24) & 0xFF;
+					if (alpha < 20) {
+						hasTransparentPixel = true;
+						break;
+					}
+				}
+			}
+			assertTrue(hasTransparentPixel, "Generated image should contain at least one transparent pixel");
 
 			if (!"True".equals(System.getenv("saveTestImages"))) { return; }
 			result.writeImageToFile(0, new File(TestConstants.TEST_IMAGE_FOLDER+imageGenModel+"_transparent_test.png"));
