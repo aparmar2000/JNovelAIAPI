@@ -76,6 +76,8 @@ public enum ImageGenModel {
 	V5_CURATED(new QualityTagsPreset[]{QualityTagsPreset.V5_STANDARD, QualityTagsPreset.V5_LIGHT}, false, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, ImageTransparentParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY), ImageGenModel.estimaterAnlasCostSDXL(1.5), ImageGenModel::adaptForV4),
 	@SerializedName("nai-diffusion-5-full")
 	V5_FULL(new QualityTagsPreset[]{QualityTagsPreset.V5_STANDARD, QualityTagsPreset.V5_LIGHT}, false, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, ImageTransparentParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY, ModeTag.BACKGROUNDS), ImageGenModel.estimaterAnlasCostSDXL(1.5), ImageGenModel::adaptForV4),
+	@SerializedName("nai-diffusion-5-full-medium")
+	V5_FULL_MEDIUM_EFFORT(new QualityTagsPreset[]{QualityTagsPreset.V5_STANDARD, QualityTagsPreset.V5_LIGHT}, false, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, ImageTransparentParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY, ModeTag.BACKGROUNDS), ImageGenModel.estimaterAnlasCostSDXL(1.5), ImageGenModel::adaptForV4),
 
 	/**
 	 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
@@ -114,7 +116,9 @@ public enum ImageGenModel {
 	@SerializedName("nai-diffusion-4-5-full-inpainting")
 	V4_5_FULL_INPAINT(new QualityTagsPreset[]{QualityTagsPreset.V4_5_FULL}, true, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, DirectorReferenceParameters.class), EnumSet.of(VibeEncodingType.V4_5_FULL), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY), ImageGenModel.estimaterAnlasCostSDXL(), ImageGenModel::adaptForV4),
 	@SerializedName("nai-diffusion-5-full-inpainting")
-	V5_FULL_INPAINT(new QualityTagsPreset[]{QualityTagsPreset.V5_STANDARD, QualityTagsPreset.V5_LIGHT}, true, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, ImageTransparentParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY, ModeTag.BACKGROUNDS), ImageGenModel.estimaterAnlasCostSDXL(1.5), ImageGenModel::adaptForV4);
+	V5_FULL_INPAINT(new QualityTagsPreset[]{QualityTagsPreset.V5_STANDARD, QualityTagsPreset.V5_LIGHT}, true, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, ImageTransparentParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY, ModeTag.BACKGROUNDS), ImageGenModel.estimaterAnlasCostSDXL(1.5), ImageGenModel::adaptForV4),
+	@SerializedName("nai-diffusion-5-full-medium-inpainting")
+	V5_FULL_INPAINT_MEDIUM_EFFORT(new QualityTagsPreset[]{QualityTagsPreset.V5_STANDARD, QualityTagsPreset.V5_LIGHT}, true, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, ImageTransparentParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY, ModeTag.BACKGROUNDS), ImageGenModel.estimaterAnlasCostSDXL(1.5), ImageGenModel::adaptForV4);
 	
 	private final QualityTagsPreset[] qualityTagsPresets;
 	private final boolean inpaintingModel;
