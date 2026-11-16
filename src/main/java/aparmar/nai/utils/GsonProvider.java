@@ -9,6 +9,7 @@ import aparmar.nai.data.request.ImageUpscaleRequest;
 import aparmar.nai.data.request.ImageUpscaleRequest.UpscaleFactor;
 import aparmar.nai.data.request.imagen.DirectorReferenceParameters;
 import aparmar.nai.data.request.imagen.ImageGenerationRequest;
+import aparmar.nai.data.request.imagen.ImageTransparentParameters;
 import aparmar.nai.data.request.imagen.ImageUpscaleEnhanceRequest;
 import aparmar.nai.data.request.imagen.ImageVibeTransferParameters;
 import aparmar.nai.data.request.imagen.MultiCharacterParameters.CharacterPrompt;
@@ -37,6 +38,7 @@ public class GsonProvider {
 		gsonBuilder.registerTypeAdapter(CharacterPrompt.class, new CharacterPrompt());
 		gsonBuilder.registerTypeAdapter(V4MultiCharacterParameters.class, new V4MultiCharacterParameters());
 		gsonBuilder.registerTypeAdapter(DirectorReferenceParameters.class, new DirectorReferenceParameters());
+		gsonBuilder.registerTypeAdapter(ImageTransparentParameters.class, new ImageTransparentParameters());
 		gsonBuilder.registerTypeAdapter(SamplingStep.class, new SamplingStepDeserializer());
 		
 		return gsonBuilder.create();
