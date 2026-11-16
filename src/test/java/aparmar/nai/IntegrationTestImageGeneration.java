@@ -473,7 +473,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 			ImageParameters.ImageParametersBuilder<?, ?> testGenerationParametersBuilder;
 			if (imageGenModel.isInpaintingModel()) {
 				BufferedImage baseImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_base_image.jpg"));
-				BufferedImage maskImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_mask.png"));
+				BufferedImage maskImage = ImageIO.read(InternalResourceLoader.getInternalResourceAsStream("sample_mask_2.png"));
 				
 				testGenerationRequestBuilder = testGenerationRequestBuilder.action(ImageGenAction.INFILL);
 				testGenerationParametersBuilder = ImageInpaintParameters.builder()
@@ -511,7 +511,7 @@ class IntegrationTestImageGeneration extends AbstractFeatureIntegrationTest {
 			for (int y = 0; y < bufferedImage.getHeight() && !hasTransparentPixel; y++) {
 				for (int x = 0; x < bufferedImage.getWidth(); x++) {
 					int alpha = (bufferedImage.getRGB(x, y) >>> 24) & 0xFF;
-					if (alpha < 20) {
+					if (alpha < 127) {
 						hasTransparentPixel = true;
 						break;
 					}
