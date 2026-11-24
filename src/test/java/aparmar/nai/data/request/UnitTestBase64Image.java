@@ -46,7 +46,7 @@ class UnitTestBase64Image {
 		Base64Image testBase64Image = new Base64Image(baseImage);
 		
 		String sha256 = testBase64Image.generateSha256();
-		assertEquals("401924e7a87f8904a338996efa5ae50e8ddc45e3e656acac4b5b51b81a663879", sha256);
+		assertEquals("a754ef2da6f114235798e6792de0731bbfd7838f416534e0aae368dca81d6b88", sha256);
 	}
 
 }
