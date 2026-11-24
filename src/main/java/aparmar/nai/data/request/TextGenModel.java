@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.annotations.SerializedName;
 
 import aparmar.nai.data.request.textgen.TextGenPrefix;
+import aparmar.nai.utils.AutoTestExclude;
 import aparmar.nai.utils.HardDeprecated;
 import aparmar.nai.utils.HelperConstants;
 import aparmar.nai.utils.tokenization.Tokenizers;
@@ -13,12 +14,16 @@ import lombok.Getter;
 
 @Getter
 public enum TextGenModel {
+	@AutoTestExclude
 	@SerializedName("blue")
 	BLUE,
+	@AutoTestExclude
 	@SerializedName("red")
 	RED,
+	@AutoTestExclude
 	@SerializedName("green")
 	GREEN,
+	@AutoTestExclude
 	@SerializedName("purple")
 	PURPLE,
 	

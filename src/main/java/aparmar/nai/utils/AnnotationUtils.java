@@ -53,6 +53,21 @@ public class AnnotationUtils {
 	}
 
 	/**
+	 * Checks if an <code>Enum</code> value is excluded from automatic usage in tests
+	 * @see AutoTestExclude &#64;AutoTestExclude
+	 */
+	public static boolean isEnumValueExcludedFromTests(Enum<?> value) {
+		if (value==null) return false;
+		try {
+			val enumValueField = value.getClass().getField(value.name());
+			if (enumValueField.isAnnotationPresent(AutoTestExclude.class)) { return true; }
+		} catch (NoSuchFieldException | SecurityException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	/**
 	 * Takes a generic <code>value</code> and a <code>Function</code> that provides the <code>DeprecationLevel</code> for that <code>value</code>.</br>
 	 * <ul>
 	 * <li>If the value is deprecated normally, a <code>WARN</code>-level message will be logged to the provided logger.</li>
