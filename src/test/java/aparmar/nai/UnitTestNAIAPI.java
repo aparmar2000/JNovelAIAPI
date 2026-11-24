@@ -299,7 +299,7 @@ class UnitTestNAIAPI {
 		VoiceGenerationRequest testGenerationRequest = 
 				VoiceGenerationRequest.presetV2VoiceRequest("test", PresetV2Voice.AINI);
 		AudioWrapper actualAudioResponse = apiInstance.generateVoice(testGenerationRequest);
-		verify(mockHttpClient).newCall(argThat(requestQueryMatcher("ai/generate-voice", GENERAL_API_ROOT, testGenerationRequest)));
+		verify(mockHttpClient).newCall(argThat(requestQueryMatcher("ai/generate-voice", TEXT_API_ROOT, testGenerationRequest)));
 		assertArrayEquals(expectedBytes, actualAudioResponse.getBytes());
 	}
 
@@ -346,7 +346,7 @@ class UnitTestNAIAPI {
 		
 		TextGenerationResponse actualResponse = apiInstance.generateText(testTextRequest);
 		testTextRequest.getParameters().setGetHiddenStates(false);
-		verify(mockHttpClient).newCall(argThat(requestPayloadMatcher("ai/generate", GENERAL_API_ROOT, testTextRequest, TextGenerationRequest.class)));
+		verify(mockHttpClient).newCall(argThat(requestPayloadMatcher("ai/generate", TEXT_API_ROOT, testTextRequest, TextGenerationRequest.class)));
 		assertEquals(mockResponse, actualResponse);
 	}
 
