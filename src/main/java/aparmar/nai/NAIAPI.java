@@ -125,7 +125,7 @@ public class NAIAPI {
 	// --- GET Endpoints
 	
 	public AudioWrapper generateVoice(VoiceGenerationRequest requestInfo) throws IOException {
-		return fetchFromNovelAI("ai/generate-voice", GENERAL_API_ROOT, requestInfo, AudioWrapper.class,
+		return fetchFromNovelAI("ai/generate-voice", TEXT_API_ROOT, requestInfo, AudioWrapper.class,
 				body->new AudioWrapper(body.bytes(), requestInfo.getVersion().getReturnAudioFormat()));
 	}
 
@@ -280,7 +280,7 @@ public class NAIAPI {
 		payload = payload.toBuilder().build();
 		payload.getParameters().setGetHiddenStates(true);
 		
-		String resultBody = postToNovelAI("ai/generate", GENERAL_API_ROOT, payload, null, String.class, t -> {
+		String resultBody = postToNovelAI("ai/generate", TEXT_API_ROOT, payload, null, String.class, t -> {
 			try { return t.string(); } catch (IOException e) { return e.getLocalizedMessage(); }
 		});
 		

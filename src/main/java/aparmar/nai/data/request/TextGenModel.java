@@ -46,7 +46,7 @@ public enum TextGenModel {
 	@SerializedName("sigurd-2.9b-v1")
 	SIGURD_OLD,
 	@SerializedName("6B-v4")
-	SIGURD(true, true, HelperConstants.GENERAL_API_ROOT, false, new PresetModulePrefixes[]
+	SIGURD(true, true, HelperConstants.TEXT_API_ROOT, false, new PresetModulePrefixes[]
 			{PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.PROSE_AUGMENTER,
 			PresetModulePrefixes.CROSSGENRE,
@@ -121,7 +121,7 @@ public enum TextGenModel {
 			PresetModulePrefixes.INSPIRATION_THRONEWARS,
 			PresetModulePrefixes.INSPIRATION_WITCH_AT_LEVEL_CAP}),
 	@SerializedName("euterpe-v2")
-	EUTERPE(true, true, HelperConstants.GENERAL_API_ROOT, false, new PresetModulePrefixes[]
+	EUTERPE(true, true, HelperConstants.TEXT_API_ROOT, false, new PresetModulePrefixes[]
 			{PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.PROSE_AUGMENTER,
 			PresetModulePrefixes.CROSSGENRE,
@@ -198,7 +198,7 @@ public enum TextGenModel {
 	@Deprecated
 	@HardDeprecated
 	@SerializedName("krake-v2")
-	KRAKE(false, true, HelperConstants.GENERAL_API_ROOT, false, new TextGenPrefix[] {TextGenPrefix.KRAKE_DEFAULT}, new PresetModulePrefixes[]{ 
+	KRAKE(false, true, HelperConstants.TEXT_API_ROOT, false, new TextGenPrefix[] {TextGenPrefix.KRAKE_DEFAULT}, new PresetModulePrefixes[]{ 
 			PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.CROSSGENRE,
 			
@@ -271,7 +271,7 @@ public enum TextGenModel {
 			PresetModulePrefixes.INSPIRATION_THRONEWARS,
 			PresetModulePrefixes.INSPIRATION_WITCH_AT_LEVEL_CAP}),
 	@SerializedName("clio-v1")
-	CLIO(false, false, HelperConstants.GENERAL_API_ROOT, false, new PresetModulePrefixes[]
+	CLIO(false, false, HelperConstants.TEXT_API_ROOT, false, new PresetModulePrefixes[]
 			{PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.INSTRUCT,
 			PresetModulePrefixes.PROSE_AUGMENTER,
