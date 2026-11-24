@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.annotations.SerializedName;
 
@@ -75,9 +76,9 @@ public enum ImageGenModel {
 	@SerializedName("nai-diffusion-5-curated")
 	V5_CURATED(new QualityTagsPreset[]{QualityTagsPreset.V5_STANDARD, QualityTagsPreset.V5_LIGHT}, false, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, ImageTransparentParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY), ImageGenModel.estimaterAnlasCostSDXL(1.5), ImageGenModel::adaptForV4),
 	@SerializedName("nai-diffusion-5-full")
-	V5_FULL(new QualityTagsPreset[]{QualityTagsPreset.V5_STANDARD, QualityTagsPreset.V5_LIGHT}, false, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, ImageTransparentParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY, ModeTag.BACKGROUNDS), ImageGenModel.estimaterAnlasCostSDXL(1.5), ImageGenModel::adaptForV4),
+	V5_FULL(new QualityTagsPreset[]{QualityTagsPreset.V5_STANDARD, QualityTagsPreset.V5_LIGHT}, false, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, ImageTransparentParameters.class, DirectorReferenceParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY, ModeTag.BACKGROUNDS), ImageGenModel.estimaterAnlasCostSDXL(1.5), ImageGenModel::adaptForV5),
 	@SerializedName("nai-diffusion-5-full-medium")
-	V5_FULL_MEDIUM_EFFORT(new QualityTagsPreset[]{QualityTagsPreset.V5_STANDARD, QualityTagsPreset.V5_LIGHT}, false, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, ImageTransparentParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY, ModeTag.BACKGROUNDS), ImageGenModel.estimaterAnlasCostSDXL(1.5), ImageGenModel::adaptForV4),
+	V5_FULL_MEDIUM_EFFORT(new QualityTagsPreset[]{QualityTagsPreset.V5_STANDARD, QualityTagsPreset.V5_LIGHT}, false, true, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, ImageTransparentParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY, ModeTag.BACKGROUNDS), ImageGenModel.estimaterAnlasCostSDXL(1.5), ImageGenModel::adaptForV5),
 
 	/**
 	 * @deprecated This model doesn't exist in the NovelAI API anymore. Use a newer model.</br>
@@ -116,9 +117,9 @@ public enum ImageGenModel {
 	@SerializedName("nai-diffusion-4-5-full-inpainting")
 	V4_5_FULL_INPAINT(new QualityTagsPreset[]{QualityTagsPreset.V4_5_FULL}, true, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, DirectorReferenceParameters.class), EnumSet.of(VibeEncodingType.V4_5_FULL), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY), ImageGenModel.estimaterAnlasCostSDXL(), ImageGenModel::adaptForV4),
 	@SerializedName("nai-diffusion-5-full-inpainting")
-	V5_FULL_INPAINT(new QualityTagsPreset[]{QualityTagsPreset.V5_STANDARD, QualityTagsPreset.V5_LIGHT}, true, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, ImageTransparentParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY, ModeTag.BACKGROUNDS), ImageGenModel.estimaterAnlasCostSDXL(1.5), ImageGenModel::adaptForV4),
+	V5_FULL_INPAINT(new QualityTagsPreset[]{QualityTagsPreset.V5_STANDARD, QualityTagsPreset.V5_LIGHT}, true, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, ImageTransparentParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY, ModeTag.BACKGROUNDS), ImageGenModel.estimaterAnlasCostSDXL(1.5), ImageGenModel::adaptForV5),
 	@SerializedName("nai-diffusion-5-full-medium-inpainting")
-	V5_FULL_INPAINT_MEDIUM_EFFORT(new QualityTagsPreset[]{QualityTagsPreset.V5_STANDARD, QualityTagsPreset.V5_LIGHT}, true, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, ImageTransparentParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY, ModeTag.BACKGROUNDS), ImageGenModel.estimaterAnlasCostSDXL(1.5), ImageGenModel::adaptForV4);
+	V5_FULL_INPAINT_MEDIUM_EFFORT(new QualityTagsPreset[]{QualityTagsPreset.V5_STANDARD, QualityTagsPreset.V5_LIGHT}, true, false, ImmutableSet.of(Image2ImageParameters.class, V4MultiCharacterParameters.class, ImageTransparentParameters.class), EnumSet.noneOf(VibeEncodingType.class), EnumSet.of(ModeTag.ANIME, ModeTag.FURRY, ModeTag.BACKGROUNDS), ImageGenModel.estimaterAnlasCostSDXL(1.5), ImageGenModel::adaptForV5);
 	
 	private final QualityTagsPreset[] qualityTagsPresets;
 	private final boolean inpaintingModel;
@@ -291,6 +292,24 @@ public enum ImageGenModel {
 		}
 		JsonObject v4NegPromptObj = parametersObj.getAsJsonObject("v4_negative_prompt").getAsJsonObject("caption");
 		v4NegPromptObj.addProperty("base_caption", request.getParameters().getUndesiredContent());
+		
+		return curJsonObj;
+	}
+	private static JsonElement adaptForV5(ImageGenerationRequest request, JsonElement currentJson, JsonSerializationContext context) {
+		JsonObject curJsonObj = adaptForV4(request, currentJson, context).getAsJsonObject();
+		JsonObject parametersObj = curJsonObj.getAsJsonObject("parameters");
+		
+		if (parametersObj.has("director_reference_secondary_strength_values")) {
+			JsonArray secondaryStrengths = parametersObj.getAsJsonArray("director_reference_secondary_strength_values");
+			boolean invalidSecondaryStrength = false;
+			for (int i=0; i<secondaryStrengths.size(); i++) {
+				if (secondaryStrengths.get(i).getAsFloat() != 0) {
+					secondaryStrengths.set(i, new JsonPrimitive(0));
+					invalidSecondaryStrength = true;
+				}
+			}
+			// Perhaps warn if invalid secondary strength?
+		}
 		
 		return curJsonObj;
 	}
