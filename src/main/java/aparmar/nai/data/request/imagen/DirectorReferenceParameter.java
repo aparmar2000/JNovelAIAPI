@@ -30,7 +30,13 @@ public class DirectorReferenceParameter {
 		@SerializedName("character&style")
 		CHARACTER_AND_STYLE(aspectMatchingScalingPreprocessor(Base64Image.ScalingMode.PAD_BLACK, new int[] {1024, 1536}, new int[] {1536, 1024}, new int[] {1472, 1472} )),
 		@SerializedName("style")
-		STYLE_NOT_CHARACTER(aspectMatchingScalingPreprocessor(Base64Image.ScalingMode.PAD_BLACK, new int[] {1024, 1536}, new int[] {1536, 1024}, new int[] {1472, 1472} ));
+		STYLE_NOT_CHARACTER(aspectMatchingScalingPreprocessor(Base64Image.ScalingMode.PAD_BLACK, new int[] {1024, 1536}, new int[] {1536, 1024}, new int[] {1472, 1472} )),
+		@SerializedName("costume")
+		COSTUME(aspectMatchingScalingPreprocessor(Base64Image.ScalingMode.PAD_BLACK, new int[] {1024, 1536}, new int[] {1536, 1024}, new int[] {1472, 1472} )),
+		@SerializedName("character_mainoutfit")
+		CHARACTER_AND_OUTFIT(aspectMatchingScalingPreprocessor(Base64Image.ScalingMode.PAD_BLACK, new int[] {1024, 1536}, new int[] {1536, 1024}, new int[] {1472, 1472} )),
+		@SerializedName("character&style_anyoutfit")
+		CHARACTER_AND_STYLE_NOT_OUTFIT(aspectMatchingScalingPreprocessor(Base64Image.ScalingMode.PAD_BLACK, new int[] {1024, 1536}, new int[] {1536, 1024}, new int[] {1472, 1472} ));
 		
 		private final Function<BufferedImage, Base64Image> imagePreprocessor;
 		
@@ -84,6 +90,9 @@ public class DirectorReferenceParameter {
 		case CHARACTER_AND_STYLE:
 		case CHARACTER_NOT_STYLE:
 		case STYLE_NOT_CHARACTER:
+		case COSTUME:
+		case CHARACTER_AND_OUTFIT:
+		case CHARACTER_AND_STYLE_NOT_OUTFIT:
 			return 5;
 		default:
 			return 0;
