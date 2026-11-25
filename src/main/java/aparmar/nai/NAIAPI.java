@@ -123,13 +123,13 @@ public class NAIAPI {
 	// === Generation Endpoints ===
 	
 	// --- GET Endpoints
-	
-	public AudioWrapper generateVoice(VoiceGenerationRequest requestInfo) throws IOException {
-		return fetchFromNovelAI("ai/generate-voice", TEXT_API_ROOT, requestInfo, AudioWrapper.class,
-				body->new AudioWrapper(body.bytes(), requestInfo.getVersion().getReturnAudioFormat()));
-	}
 
 	// --- POST Endpoints
+	
+	public AudioWrapper generateVoice(VoiceGenerationRequest requestInfo) throws IOException {
+		return postToNovelAI("ai/generate-voice", TEXT_API_ROOT, requestInfo, MEDIA_TYPE_AUDIO, AudioWrapper.class,
+				body->new AudioWrapper(body.bytes(), requestInfo.getVersion().getReturnAudioFormat()));
+	}
 	
 	public ImageSetWrapper generateImage(ImageGenerationRequest payload) throws IOException {
 		ZipArchiveWrapper resultBody = postToNovelAI("ai/generate-image", IMAGE_API_ROOT, payload, MEDIA_TYPE_ZIP, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
