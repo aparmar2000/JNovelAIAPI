@@ -77,6 +77,7 @@ public class TextGenerationParameters { // TODO: Add more validation
 	private boolean earlyStopping; // TODO: What is this?
 	@SerializedName("next_word")
 	private boolean nextWord; // TODO: What is this?
+	@Deprecated
 	@SerializedName("get_hidden_states")
 	private boolean getHiddenStates = false;
 	@SerializedName("output_nonzero_probs")

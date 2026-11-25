@@ -1,7 +1,6 @@
 package aparmar.nai.data.request;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.google.gson.annotations.SerializedName;
 
 import aparmar.nai.data.response.AudioWrapper.AudioWrapperFormat;
 import lombok.Builder;
@@ -12,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @EqualsAndHashCode
-public class VoiceGenerationRequest implements IQueryStringPayload {
+public class VoiceGenerationRequest {
 	private final String text;
 	private final int voice;
 	private final String seed;
@@ -38,7 +37,9 @@ public class VoiceGenerationRequest implements IQueryStringPayload {
 	@RequiredArgsConstructor
 	@Getter
 	public enum VoiceVersion {
+		@SerializedName("v1")
 		VERSION_1("v1", AudioWrapperFormat.MP3),
+		@SerializedName("v2")
 		VERSION_2("v2", AudioWrapperFormat.WEBA);
 		
 		private final String value;
@@ -93,18 +94,5 @@ public class VoiceGenerationRequest implements IQueryStringPayload {
 	}
 	public static VoiceGenerationRequest seededVoiceRequest(String text, String voiceSeed, @NonNull VoiceVersion version) {
 		return new VoiceGenerationRequest(text, -1, voiceSeed, false, version);
-	}
-	
-	@Override
-	public Map<String, ? extends Object> getParameterValues() {
-		Map<String, String> valueMap = new HashMap<>();
-		
-		valueMap.put("text", text);
-		valueMap.put("voice", Integer.toString(voice));
-		if (voice==-1) { valueMap.put("seed", seed); }
-		valueMap.put("opus", opus?"true":"false");
-		valueMap.put("version", version.getValue());
-		
-		return valueMap;
 	}
 }

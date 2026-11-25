@@ -3,6 +3,7 @@ package aparmar.nai;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import aparmar.nai.data.request.TextGenModel;
@@ -13,6 +14,7 @@ import aparmar.nai.utils.TextParameterPresets;
 class IntegrationTestFetchHiddenState extends AbstractFeatureIntegrationTest {
 
 	@Test
+	@Disabled
 	void testMinimalFetchHiddenState() throws AssertionError, Exception {
 		TestHelpers.runTestToleratingTimeouts(3, 1000, ()->{
 			String testPresetName = TextParameterPresets.getAssociatedPresetExtendedNames(TextGenModel.EUTERPE)[0];

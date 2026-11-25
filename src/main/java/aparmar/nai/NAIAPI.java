@@ -123,13 +123,13 @@ public class NAIAPI {
 	// === Generation Endpoints ===
 	
 	// --- GET Endpoints
-	
-	public AudioWrapper generateVoice(VoiceGenerationRequest requestInfo) throws IOException {
-		return fetchFromNovelAI("ai/generate-voice", GENERAL_API_ROOT, requestInfo, AudioWrapper.class,
-				body->new AudioWrapper(body.bytes(), requestInfo.getVersion().getReturnAudioFormat()));
-	}
 
 	// --- POST Endpoints
+	
+	public AudioWrapper generateVoice(VoiceGenerationRequest requestInfo) throws IOException {
+		return postToNovelAI("ai/generate-voice", TEXT_API_ROOT, requestInfo, MEDIA_TYPE_AUDIO, AudioWrapper.class,
+				body->new AudioWrapper(body.bytes(), requestInfo.getVersion().getReturnAudioFormat()));
+	}
 	
 	public ImageSetWrapper generateImage(ImageGenerationRequest payload) throws IOException {
 		ZipArchiveWrapper resultBody = postToNovelAI("ai/generate-image", IMAGE_API_ROOT, payload, MEDIA_TYPE_ZIP, ZipArchiveWrapper.class, new ZipParseFunction()::apply);
@@ -273,6 +273,11 @@ public class NAIAPI {
 		return response;
 	}
 	
+	/**
+	 * No longer supported by the API
+	 */
+	@Deprecated
+	@HardDeprecated
 	public double[] fetchHiddenStates(TextGenerationRequest payload) throws IOException {
 		if (!payload.getModel().isSupportsHiddenStates()) {
 			throw new IllegalArgumentException("Model '"+payload.getModel()+"' does not support fetching hidden states!");
@@ -280,7 +285,7 @@ public class NAIAPI {
 		payload = payload.toBuilder().build();
 		payload.getParameters().setGetHiddenStates(true);
 		
-		String resultBody = postToNovelAI("ai/generate", GENERAL_API_ROOT, payload, null, String.class, t -> {
+		String resultBody = postToNovelAI("ai/generate", TEXT_API_ROOT, payload, null, String.class, t -> {
 			try { return t.string(); } catch (IOException e) { return e.getLocalizedMessage(); }
 		});
 		
