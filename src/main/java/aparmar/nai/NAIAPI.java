@@ -273,6 +273,11 @@ public class NAIAPI {
 		return response;
 	}
 	
+	/**
+	 * No longer supported by the API
+	 */
+	@Deprecated
+	@HardDeprecated
 	public double[] fetchHiddenStates(TextGenerationRequest payload) throws IOException {
 		if (!payload.getModel().isSupportsHiddenStates()) {
 			throw new IllegalArgumentException("Model '"+payload.getModel()+"' does not support fetching hidden states!");
