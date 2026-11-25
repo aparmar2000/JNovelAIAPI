@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.annotations.SerializedName;
 
 import aparmar.nai.data.request.textgen.TextGenPrefix;
+import aparmar.nai.utils.AutoTestExclude;
 import aparmar.nai.utils.HardDeprecated;
 import aparmar.nai.utils.HelperConstants;
 import aparmar.nai.utils.tokenization.Tokenizers;
@@ -13,22 +14,31 @@ import lombok.Getter;
 
 @Getter
 public enum TextGenModel {
+	@AutoTestExclude
 	@SerializedName("blue")
 	BLUE,
+	@AutoTestExclude
 	@SerializedName("red")
 	RED,
+	@AutoTestExclude
 	@SerializedName("green")
 	GREEN,
+	@AutoTestExclude
 	@SerializedName("purple")
 	PURPLE,
 	
 	@SerializedName("hypebot")
-	HYPEBOT,
+	HYPEBOT(HelperConstants.TEXT_API_ROOT),
+	@AutoTestExclude
 	@SerializedName("infillmodel")
 	INFILL,
+	@Deprecated
+	@HardDeprecated
 	@SerializedName("cassandra")
 	CASSANDRA,
 
+	@Deprecated
+	@HardDeprecated
 	@SerializedName("2.7B")
 	CALLIOPE,
 	@Deprecated
@@ -43,10 +53,12 @@ public enum TextGenModel {
 	@HardDeprecated
 	@SerializedName("genji-jp-6b-v2")
 	GENJI,
+	@Deprecated
+	@HardDeprecated
 	@SerializedName("sigurd-2.9b-v1")
 	SIGURD_OLD,
 	@SerializedName("6B-v4")
-	SIGURD(true, true, HelperConstants.GENERAL_API_ROOT, false, new PresetModulePrefixes[]
+	SIGURD(true, true, HelperConstants.TEXT_API_ROOT, false, new PresetModulePrefixes[]
 			{PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.PROSE_AUGMENTER,
 			PresetModulePrefixes.CROSSGENRE,
@@ -121,7 +133,7 @@ public enum TextGenModel {
 			PresetModulePrefixes.INSPIRATION_THRONEWARS,
 			PresetModulePrefixes.INSPIRATION_WITCH_AT_LEVEL_CAP}),
 	@SerializedName("euterpe-v2")
-	EUTERPE(true, true, HelperConstants.GENERAL_API_ROOT, false, new PresetModulePrefixes[]
+	EUTERPE(true, true, HelperConstants.TEXT_API_ROOT, false, new PresetModulePrefixes[]
 			{PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.PROSE_AUGMENTER,
 			PresetModulePrefixes.CROSSGENRE,
@@ -198,7 +210,7 @@ public enum TextGenModel {
 	@Deprecated
 	@HardDeprecated
 	@SerializedName("krake-v2")
-	KRAKE(false, true, HelperConstants.GENERAL_API_ROOT, false, new TextGenPrefix[] {TextGenPrefix.KRAKE_DEFAULT}, new PresetModulePrefixes[]{ 
+	KRAKE(false, true, HelperConstants.TEXT_API_ROOT, false, new TextGenPrefix[] {TextGenPrefix.KRAKE_DEFAULT}, new PresetModulePrefixes[]{ 
 			PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.CROSSGENRE,
 			
@@ -271,7 +283,7 @@ public enum TextGenModel {
 			PresetModulePrefixes.INSPIRATION_THRONEWARS,
 			PresetModulePrefixes.INSPIRATION_WITCH_AT_LEVEL_CAP}),
 	@SerializedName("clio-v1")
-	CLIO(false, false, HelperConstants.GENERAL_API_ROOT, false, new PresetModulePrefixes[]
+	CLIO(false, false, HelperConstants.TEXT_API_ROOT, false, new PresetModulePrefixes[]
 			{PresetModulePrefixes.TEXT_ADVENTURE,
 			PresetModulePrefixes.INSTRUCT,
 			PresetModulePrefixes.PROSE_AUGMENTER,
@@ -305,9 +317,12 @@ public enum TextGenModel {
 	private final PresetModulePrefixes[] compatiblePresetModules;
 	
 	private TextGenModel() {
+		this(HelperConstants.GENERAL_API_ROOT);
+	}
+	private TextGenModel(String apiRoot) {
 		supportsCustomModules = false;
 		supportsHiddenStates = true;
-		endpoint = HelperConstants.GENERAL_API_ROOT;
+		endpoint = apiRoot;
 		openAiEndpointOnly = false;
 		compatibleTextPrefixes = new TextGenPrefix[] {TextGenPrefix.NONE};
 		compatiblePresetModules = new PresetModulePrefixes[] {PresetModulePrefixes.NO_MODULE};

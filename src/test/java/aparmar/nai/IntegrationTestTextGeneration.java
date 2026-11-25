@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import aparmar.nai.data.request.TextGenModel;
 import aparmar.nai.data.request.textgen.TextGenerationParameters;
@@ -16,7 +16,7 @@ import aparmar.nai.utils.tokenization.TokenizedChunk;
 class IntegrationTestTextGeneration extends AbstractFeatureIntegrationTest {
 
 	@ParameterizedTest
-	@EnumSource(value = TextGenModel.class, names = {"SIGURD","EUTERPE","KRAKE","CLIO","KAYRA","ERATO","GLM_4_6","XIALONG"})
+	@MethodSource("aparmar.nai.TextGenTestHelpers#getNonDeprecatedModels")
 	void testMinimalTextGeneration(TextGenModel textGenModel) throws AssertionError, Exception {
 		String[] associatedPresets = TextParameterPresets.getAssociatedPresetExtendedNames(textGenModel);
 		TextGenerationParameters testPreset = associatedPresets.length>0 ? 
