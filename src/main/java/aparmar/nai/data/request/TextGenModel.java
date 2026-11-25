@@ -28,12 +28,17 @@ public enum TextGenModel {
 	PURPLE,
 	
 	@SerializedName("hypebot")
-	HYPEBOT,
+	HYPEBOT(HelperConstants.TEXT_API_ROOT),
+	@AutoTestExclude
 	@SerializedName("infillmodel")
 	INFILL,
+	@Deprecated
+	@HardDeprecated
 	@SerializedName("cassandra")
 	CASSANDRA,
 
+	@Deprecated
+	@HardDeprecated
 	@SerializedName("2.7B")
 	CALLIOPE,
 	@Deprecated
@@ -48,6 +53,8 @@ public enum TextGenModel {
 	@HardDeprecated
 	@SerializedName("genji-jp-6b-v2")
 	GENJI,
+	@Deprecated
+	@HardDeprecated
 	@SerializedName("sigurd-2.9b-v1")
 	SIGURD_OLD,
 	@SerializedName("6B-v4")
@@ -310,9 +317,12 @@ public enum TextGenModel {
 	private final PresetModulePrefixes[] compatiblePresetModules;
 	
 	private TextGenModel() {
+		this(HelperConstants.GENERAL_API_ROOT);
+	}
+	private TextGenModel(String apiRoot) {
 		supportsCustomModules = false;
 		supportsHiddenStates = true;
-		endpoint = HelperConstants.GENERAL_API_ROOT;
+		endpoint = apiRoot;
 		openAiEndpointOnly = false;
 		compatibleTextPrefixes = new TextGenPrefix[] {TextGenPrefix.NONE};
 		compatiblePresetModules = new PresetModulePrefixes[] {PresetModulePrefixes.NO_MODULE};
